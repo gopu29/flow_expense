@@ -353,10 +353,10 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                           children: [
                             Padding(
                               padding: const EdgeInsets.only(
-                                top: 12,
-                                bottom: 6,
-                                left: 2,
-                                right: 2,
+                                top: 14,
+                                bottom: 8,
+                                left: 4,
+                                right: 4,
                               ),
                               child: Row(
                                 mainAxisAlignment:
@@ -382,8 +382,36 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                                 ],
                               ),
                             ),
-                            ...items.map(
-                              (tx) => TransactionTile(transaction: tx),
+
+                            // Single Unified Card Container for all items of this day!
+                            Container(
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF131A22),
+                                borderRadius: BorderRadius.circular(18),
+                                border: Border.all(
+                                  color: const Color(0xFF1C2733),
+                                  width: 1,
+                                ),
+                              ),
+                              clipBehavior: Clip.antiAlias,
+                              child: Column(
+                                children: [
+                                  for (int i = 0; i < items.length; i++) ...[
+                                    TransactionTile(
+                                      transaction: items[i],
+                                      isFirst: i == 0,
+                                      isLast: i == items.length - 1,
+                                    ),
+                                    if (i < items.length - 1)
+                                      const Divider(
+                                        height: 1,
+                                        thickness: 1,
+                                        color: Color(0xFF1A242F),
+                                        indent: 66,
+                                      ),
+                                  ],
+                                ],
+                              ),
                             ),
                           ],
                         );

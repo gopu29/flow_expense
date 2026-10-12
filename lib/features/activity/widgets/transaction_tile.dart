@@ -9,17 +9,21 @@ import '../../../models/transaction.dart';
 import '../../../models/category.dart';
 import '../../../models/account.dart';
 
-/// Minimalist, ultra-clean transaction row matching Quanto (IMG_6026.PNG).
-/// Supports two-tier swipe interaction:
-/// 1. Swipe left to reveal red delete action button (stays open on release).
-/// 2. Over-drag further to directly trigger delete action.
-/// Uses unified rounded clipping to eliminate border-radius mismatch.
+/// Compact, ultra-clean transaction row matching Quanto (IMG_6026.PNG).
+/// Sits inside the unified day-group card with:
+/// - Zero red border bleed when idle.
+/// - Swipe left to reveal red delete button (stays open on release).
+/// - Over-drag further to directly trigger delete action.
 class TransactionTile extends ConsumerStatefulWidget {
   final Transaction transaction;
+  final bool isFirst;
+  final bool isLast;
 
   const TransactionTile({
     super.key,
     required this.transaction,
+    this.isFirst = false,
+    this.isLast = false,
   });
 
   @override
@@ -172,38 +176,32 @@ class _TransactionTileState extends ConsumerState<TransactionTile>
 
     final amountPrefix = isIncome ? '+' : '';
 
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 3.5),
-      // Outer container clips both foreground and background with unified border radius
-      decoration: BoxDecoration(
-        color: const Color(0xFFE11D48), // Rose/crimson delete red
-        borderRadius: BorderRadius.circular(16),
-      ),
-      clipBehavior: Clip.antiAlias,
+    return ClipRect(
       child: Stack(
         children: [
-          // 1. Revealed Red Delete Button (Anchored to right)
-          Positioned.fill(
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: GestureDetector(
-                onTap: () => _confirmAndDelete(category),
-                child: Container(
-                  width: _actionWidth + 24,
-                  alignment: Alignment.centerRight,
-                  padding: const EdgeInsets.only(right: 22),
-                  color: Colors.transparent,
-                  child: const Icon(
-                    Icons.delete_outline_rounded,
-                    color: Colors.white,
-                    size: 24,
+          // 1. Revealed Red Delete Action (ONLY rendered when swiped to avoid red border bleed)
+          if (_dragOffset < 0 || _isOpen)
+            Positioned.fill(
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: GestureDetector(
+                  onTap: () => _confirmAndDelete(category),
+                  child: Container(
+                    width: _actionWidth + 30,
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.only(right: 22),
+                    color: const Color(0xFFE11D48),
+                    child: const Icon(
+                      Icons.delete_outline_rounded,
+                      color: Colors.white,
+                      size: 22,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
 
-          // 2. Main Foreground Tile (Slides to reveal delete button)
+          // 2. Sliding Foreground Content
           Transform.translate(
             offset: Offset(_dragOffset, 0),
             child: GestureDetector(
@@ -220,53 +218,43 @@ class _TransactionTileState extends ConsumerState<TransactionTile>
               },
               onHorizontalDragEnd: (details) {
                 final velocity = details.primaryVelocity ?? 0.0;
-                // Over-drag or fast flick past threshold -> trigger direct delete!
                 if (_dragOffset < -_fullSwipeThreshold || velocity < -700) {
                   _confirmAndDelete(category);
                 } else if (_dragOffset < -(_actionWidth / 2)) {
-                  // Swiped enough to reveal -> snap to open and stay there!
                   HapticFeedback.lightImpact();
                   _animateTo(-_actionWidth);
                 } else {
-                  // Not enough -> snap closed
                   _close();
                 }
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF121921),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: const Color(0xFF1B2530),
-                    width: 1,
-                  ),
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                color: const Color(0xFF131A22), // seamless with day group card
                 child: Row(
                   children: [
-                    // Squircle icon matching Quanto
+                    // Squircle icon matching Quanto (40x40 compact)
                     Container(
-                      width: 44,
-                      height: 44,
+                      width: 40,
+                      height: 40,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(13),
+                        borderRadius: BorderRadius.circular(12),
                         color: Color(category?.color ?? 0xFF6366F1)
                             .withValues(alpha: 0.16),
                         border: Border.all(
                           color: Color(category?.color ?? 0xFF6366F1)
-                              .withValues(alpha: 0.3),
+                              .withValues(alpha: 0.28),
                           width: 1,
                         ),
                       ),
                       alignment: Alignment.center,
                       child: Text(
                         category?.iconOrEmoji ?? '📁',
-                        style: const TextStyle(fontSize: 22),
+                        style: const TextStyle(fontSize: 20),
                       ),
                     ),
-                    const SizedBox(width: 14),
+                    const SizedBox(width: 12),
 
-                    // Title & optional note
+                    // Title & optional note / account
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -276,19 +264,19 @@ class _TransactionTileState extends ConsumerState<TransactionTile>
                             style: AppTypography.bodyLarge.copyWith(
                               fontWeight: FontWeight.w600,
                               color: AppColors.textPrimary,
-                              fontSize: 15,
+                              fontSize: 14.5,
                             ),
                           ),
                           if (widget.transaction.note?.isNotEmpty == true ||
                               account != null) ...[
-                            const SizedBox(height: 2),
+                            const SizedBox(height: 1),
                             Text(
                               widget.transaction.note?.isNotEmpty == true
                                   ? widget.transaction.note!
                                   : account!.name,
                               style: AppTypography.caption.copyWith(
                                 color: AppColors.textTertiary,
-                                fontSize: 12,
+                                fontSize: 11.5,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -304,7 +292,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile>
                       style: AppTypography.bodyLarge.copyWith(
                         fontWeight: FontWeight.w600,
                         color: amountColor,
-                        fontSize: 15,
+                        fontSize: 14.5,
                       ),
                     ),
                   ],
