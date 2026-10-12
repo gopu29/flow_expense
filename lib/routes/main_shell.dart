@@ -12,7 +12,7 @@ import '../features/analytics/screens/analytics_screen.dart';
 import '../features/accounts/screens/accounts_screen.dart';
 import '../features/quick_input/screens/quick_input_modal.dart';
 
-/// Main scaffold container hosting the 5 core tabs, shortcuts, and floating bottom dock.
+/// Main scaffold container hosting the 5 core tabs with smooth page transitions.
 class MainShell extends ConsumerWidget {
   const MainShell({super.key});
 
@@ -46,10 +46,27 @@ class MainShell extends ConsumerWidget {
           backgroundColor: AppColors.background,
           body: Stack(
             children: [
-              // Screen contents
-              IndexedStack(
-                index: currentIndex,
-                children: screens,
+              // Smooth animated screen transitions
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 280),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeInCubic,
+                transitionBuilder: (child, animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0.0, 0.015),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
+                    ),
+                  );
+                },
+                child: KeyedSubtree(
+                  key: ValueKey<int>(currentIndex),
+                  child: screens[currentIndex],
+                ),
               ),
 
               // Floating Navigation Dock

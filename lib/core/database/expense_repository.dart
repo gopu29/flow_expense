@@ -1,12 +1,16 @@
+import 'package:flutter/foundation.dart' hide Category;
 import '../../models/account.dart';
 import '../../models/category.dart';
 import '../../models/transaction.dart';
 import '../../models/budget.dart';
 import 'database_helper.dart';
+import 'web_database_store.dart';
 
-/// Repository managing high-level CRUD and domain logic across SQLite tables.
+/// Repository managing high-level CRUD and domain logic across SQLite tables
+/// with seamless pure-Dart Web persistence on browsers.
 class ExpenseRepository {
   final DatabaseHelper _dbHelper;
+  final WebDatabaseStore _webStore = WebDatabaseStore();
 
   ExpenseRepository({DatabaseHelper? dbHelper})
       : _dbHelper = dbHelper ?? DatabaseHelper();
@@ -16,6 +20,9 @@ class ExpenseRepository {
   // ---------------------------------------------------------------------------
 
   Future<List<Account>> getAccounts() async {
+    if (kIsWeb) {
+      return _webStore.getAccounts();
+    }
     final rows = await _dbHelper.query(
       'accounts',
       orderBy: 'orderIndex ASC, name ASC',
@@ -24,14 +31,26 @@ class ExpenseRepository {
   }
 
   Future<void> saveAccount(Account account) async {
+    if (kIsWeb) {
+      _webStore.saveAccount(account);
+      return;
+    }
     await _dbHelper.insert('accounts', account.toMap());
   }
 
   Future<void> updateAccount(Account account) async {
+    if (kIsWeb) {
+      _webStore.updateAccount(account);
+      return;
+    }
     await _dbHelper.update('accounts', account.toMap(), account.id);
   }
 
   Future<void> deleteAccount(String id) async {
+    if (kIsWeb) {
+      _webStore.deleteAccount(id);
+      return;
+    }
     await _dbHelper.delete('accounts', id);
   }
 
@@ -40,6 +59,9 @@ class ExpenseRepository {
   // ---------------------------------------------------------------------------
 
   Future<List<Category>> getCategories({CategoryType? type}) async {
+    if (kIsWeb) {
+      return _webStore.getCategories(type: type);
+    }
     final rows = await _dbHelper.query(
       'categories',
       where: type != null ? 'type = ?' : null,
@@ -50,6 +72,10 @@ class ExpenseRepository {
   }
 
   Future<void> saveCategory(Category category) async {
+    if (kIsWeb) {
+      _webStore.saveCategory(category);
+      return;
+    }
     await _dbHelper.insert('categories', category.toMap());
   }
 
@@ -63,6 +89,15 @@ class ExpenseRepository {
     String? accountId,
     String? categoryId,
   }) async {
+    if (kIsWeb) {
+      return _webStore.getTransactions(
+        startDate: startDate,
+        endDate: endDate,
+        accountId: accountId,
+        categoryId: categoryId,
+      );
+    }
+
     final conditions = <String>[];
     final args = <Object?>[];
 
@@ -97,11 +132,15 @@ class ExpenseRepository {
 
   /// Adds a transaction and updates the corresponding account balances.
   Future<void> addTransaction(Transaction tx) async {
+    if (kIsWeb) {
+      _webStore.addTransaction(tx);
+      return;
+    }
+
     final db = await _dbHelper.database;
     await db.transaction((txn) async {
       await txn.insert('transactions', tx.toMap());
 
-      // Update account balance
       if (tx.type == TransactionType.expense) {
         await txn.rawUpdate(
           'UPDATE accounts SET balance = balance - ? WHERE id = ?',
@@ -127,11 +166,15 @@ class ExpenseRepository {
 
   /// Deletes a transaction and restores account balances.
   Future<void> deleteTransaction(Transaction tx) async {
+    if (kIsWeb) {
+      _webStore.deleteTransaction(tx);
+      return;
+    }
+
     final db = await _dbHelper.database;
     await db.transaction((txn) async {
       await txn.delete('transactions', where: 'id = ?', whereArgs: [tx.id]);
 
-      // Revert account balance
       if (tx.type == TransactionType.expense) {
         await txn.rawUpdate(
           'UPDATE accounts SET balance = balance + ? WHERE id = ?',
@@ -160,6 +203,9 @@ class ExpenseRepository {
   // ---------------------------------------------------------------------------
 
   Future<Budget?> getBudgetForMonth(String monthYear) async {
+    if (kIsWeb) {
+      return _webStore.getBudgetForMonth(monthYear);
+    }
     final rows = await _dbHelper.query(
       'budgets',
       where: 'monthYear = ?',
@@ -171,6 +217,10 @@ class ExpenseRepository {
   }
 
   Future<void> saveBudget(Budget budget) async {
+    if (kIsWeb) {
+      _webStore.saveBudget(budget);
+      return;
+    }
     await _dbHelper.insert('budgets', budget.toMap());
   }
 
@@ -186,6 +236,16 @@ class ExpenseRepository {
 
   /// Calculates total expense spend for a given month.
   Future<double> getMonthlyExpenseTotal(int year, int month) async {
+    if (kIsWeb) {
+      final txs = await getTransactions();
+      return txs
+          .where((t) =>
+              t.type == TransactionType.expense &&
+              t.date.year == year &&
+              t.date.month == month)
+          .fold<double>(0.0, (sum, t) => sum + t.amount);
+    }
+
     final start = DateTime(year, month, 1);
     final end = DateTime(year, month + 1, 0, 23, 59, 59);
 
@@ -203,6 +263,16 @@ class ExpenseRepository {
 
   /// Calculates total income for a given month.
   Future<double> getMonthlyIncomeTotal(int year, int month) async {
+    if (kIsWeb) {
+      final txs = await getTransactions();
+      return txs
+          .where((t) =>
+              t.type == TransactionType.income &&
+              t.date.year == year &&
+              t.date.month == month)
+          .fold<double>(0.0, (sum, t) => sum + t.amount);
+    }
+
     final start = DateTime(year, month, 1);
     final end = DateTime(year, month + 1, 0, 23, 59, 59);
 
