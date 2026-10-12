@@ -21,8 +21,24 @@ class CategoryManagementScreen extends ConsumerStatefulWidget {
 class _CategoryManagementScreenState
     extends ConsumerState<CategoryManagementScreen> {
   CategoryType _activeTab = CategoryType.expense;
+  final Set<String> _expandedCategoryIds = {};
+
+  void _toggleExpandCategory(String categoryId) {
+    setState(() {
+      if (_expandedCategoryIds.contains(categoryId)) {
+        _expandedCategoryIds.remove(categoryId);
+      } else {
+        _expandedCategoryIds.add(categoryId);
+      }
+    });
+  }
 
   void _openAddCategory({String? parentId}) {
+    if (parentId != null) {
+      setState(() {
+        _expandedCategoryIds.add(parentId);
+      });
+    }
     CategoryFormDialog.show(
       context,
       initialParentId: parentId,
@@ -112,13 +128,6 @@ class _CategoryManagementScreenState
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add_circle_outline_rounded, color: AppColors.accent),
-            tooltip: 'Add Category',
-            onPressed: () => _openAddCategory(),
-          ),
-        ],
       ),
       body: SafeArea(
         child: Column(
@@ -205,147 +214,187 @@ class _CategoryManagementScreenState
                       final subcategories = currentTabCategories
                           .where((c) => c.parentId == parent.id)
                           .toList();
+                      final hasSubcategories = subcategories.isNotEmpty;
+                      final isExpanded = _expandedCategoryIds.contains(parent.id);
 
                       return GlassCard(
                         padding: const EdgeInsets.all(14),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Parent Category Row
-                            Row(
-                              children: [
-                                CategoryIconBadge(
-                                  iconOrEmoji: parent.iconOrEmoji,
-                                  colorValue: parent.color,
-                                  size: 42,
-                                  fontSize: 20,
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        parent.name,
-                                        style: AppTypography.bodyLarge.copyWith(
-                                          fontWeight: FontWeight.bold,
+                            // Parent Category Row - Tap to expand/collapse if has subcategories
+                            InkWell(
+                              onTap: hasSubcategories
+                                  ? () => _toggleExpandCategory(parent.id)
+                                  : null,
+                              borderRadius: BorderRadius.circular(12),
+                              child: Row(
+                                children: [
+                                  CategoryIconBadge(
+                                    iconOrEmoji: parent.iconOrEmoji,
+                                    colorValue: parent.color,
+                                    size: 42,
+                                    fontSize: 20,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          parent.name,
+                                          style: AppTypography.bodyLarge.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                      ),
-                                      Text(
-                                        subcategories.isEmpty
-                                            ? 'Main category'
-                                            : '${subcategories.length} subcategor${subcategories.length == 1 ? 'y' : 'ies'}',
-                                        style: AppTypography.caption.copyWith(
-                                          color: AppColors.textTertiary,
+                                        const SizedBox(height: 2),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              subcategories.isEmpty
+                                                  ? 'Main category'
+                                                  : '${subcategories.length} subcategor${subcategories.length == 1 ? 'y' : 'ies'}',
+                                              style: AppTypography.caption.copyWith(
+                                                color: AppColors.textTertiary,
+                                              ),
+                                            ),
+                                            if (hasSubcategories) ...[
+                                              const SizedBox(width: 4),
+                                              AnimatedRotation(
+                                                turns: isExpanded ? 0.5 : 0.0,
+                                                duration: const Duration(milliseconds: 200),
+                                                curve: Curves.easeOutCubic,
+                                                child: const Icon(
+                                                  Icons.keyboard_arrow_down_rounded,
+                                                  size: 16,
+                                                  color: AppColors.textTertiary,
+                                                ),
+                                              ),
+                                            ],
+                                          ],
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(
-                                    Icons.add_circle_outline_rounded,
-                                    size: 19,
-                                    color: AppColors.accent,
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.add_circle_outline_rounded,
+                                      size: 19,
+                                      color: AppColors.accent,
+                                    ),
+                                    tooltip: 'Add Subcategory',
+                                    onPressed: () =>
+                                        _openAddCategory(parentId: parent.id),
                                   ),
-                                  tooltip: 'Add Subcategory',
-                                  onPressed: () =>
-                                      _openAddCategory(parentId: parent.id),
-                                ),
-                                IconButton(
-                                  icon: const Icon(
-                                    Icons.edit_outlined,
-                                    size: 18,
-                                    color: AppColors.textSecondary,
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.edit_outlined,
+                                      size: 18,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                    tooltip: 'Edit',
+                                    onPressed: () => _openEditCategory(parent),
                                   ),
-                                  tooltip: 'Edit',
-                                  onPressed: () => _openEditCategory(parent),
-                                ),
-                                IconButton(
-                                  icon: const Icon(
-                                    Icons.delete_outline_rounded,
-                                    size: 18,
-                                    color: AppColors.expense,
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.delete_outline_rounded,
+                                      size: 18,
+                                      color: AppColors.expense,
+                                    ),
+                                    tooltip: 'Delete',
+                                    onPressed: () =>
+                                        _confirmDeleteCategory(parent),
                                   ),
-                                  tooltip: 'Delete',
-                                  onPressed: () =>
-                                      _confirmDeleteCategory(parent),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
 
-                            // Subcategories list
-                            if (subcategories.isNotEmpty) ...[
-                              const SizedBox(height: 10),
-                              const Divider(
-                                height: 1,
-                                color: AppColors.surfaceBorder,
+                            // Expandable subcategories list
+                            ClipRect(
+                              child: AnimatedSize(
+                                duration: const Duration(milliseconds: 250),
+                                curve: Curves.easeInOutCubic,
+                                alignment: Alignment.topCenter,
+                                child: isExpanded && hasSubcategories
+                                    ? Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          const SizedBox(height: 10),
+                                          const Divider(
+                                            height: 1,
+                                            color: AppColors.surfaceBorder,
+                                          ),
+                                          const SizedBox(height: 8),
+                                          ...subcategories.map((sub) {
+                                            return Padding(
+                                              padding: const EdgeInsets.only(
+                                                left: 14,
+                                                top: 6,
+                                                bottom: 6,
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  const Text(
+                                                    '↳',
+                                                    style: TextStyle(
+                                                      color: AppColors.textTertiary,
+                                                      fontSize: 16,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  Container(
+                                                    width: 28,
+                                                    height: 28,
+                                                    decoration: BoxDecoration(
+                                                      color: Color(sub.color).withValues(alpha: 0.15),
+                                                      shape: BoxShape.circle,
+                                                    ),
+                                                    alignment: Alignment.center,
+                                                    child: Text(
+                                                      sub.iconOrEmoji,
+                                                      style: const TextStyle(fontSize: 14),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  Expanded(
+                                                    child: Text(
+                                                      sub.name,
+                                                      style: AppTypography.bodyMedium,
+                                                    ),
+                                                  ),
+                                                  IconButton(
+                                                    icon: const Icon(
+                                                      Icons.edit_outlined,
+                                                      size: 16,
+                                                      color: AppColors.textTertiary,
+                                                    ),
+                                                    padding: EdgeInsets.zero,
+                                                    constraints: const BoxConstraints(),
+                                                    tooltip: 'Edit Subcategory',
+                                                    onPressed: () => _openEditCategory(sub),
+                                                  ),
+                                                  const SizedBox(width: 12),
+                                                  IconButton(
+                                                    icon: const Icon(
+                                                      Icons.delete_outline_rounded,
+                                                      size: 16,
+                                                      color: AppColors.expense,
+                                                    ),
+                                                    padding: EdgeInsets.zero,
+                                                    constraints: const BoxConstraints(),
+                                                    tooltip: 'Delete Subcategory',
+                                                    onPressed: () =>
+                                                        _confirmDeleteCategory(sub),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          }),
+                                        ],
+                                      )
+                                    : const SizedBox.shrink(),
                               ),
-                              const SizedBox(height: 8),
-                              ...subcategories.map((sub) {
-                                return Padding(
-                                  padding: const EdgeInsets.only(
-                                    left: 20,
-                                    top: 4,
-                                    bottom: 4,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        '↳',
-                                        style: TextStyle(
-                                          color: AppColors.textTertiary,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Container(
-                                        width: 28,
-                                        height: 28,
-                                        decoration: BoxDecoration(
-                                          color: Color(sub.color).withValues(alpha: 0.15),
-                                          shape: BoxShape.circle,
-                                        ),
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          sub.iconOrEmoji,
-                                          style: const TextStyle(fontSize: 14),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          sub.name,
-                                          style: AppTypography.bodyMedium,
-                                        ),
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(
-                                          Icons.edit_outlined,
-                                          size: 16,
-                                          color: AppColors.textTertiary,
-                                        ),
-                                        padding: EdgeInsets.zero,
-                                        constraints: const BoxConstraints(),
-                                        onPressed: () => _openEditCategory(sub),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      IconButton(
-                                        icon: const Icon(
-                                          Icons.delete_outline_rounded,
-                                          size: 16,
-                                          color: AppColors.expense,
-                                        ),
-                                        padding: EdgeInsets.zero,
-                                        constraints: const BoxConstraints(),
-                                        onPressed: () =>
-                                            _confirmDeleteCategory(sub),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }),
-                            ],
+                            ),
                           ],
                         ),
                       );

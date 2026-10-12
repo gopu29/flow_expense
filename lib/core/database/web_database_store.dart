@@ -64,6 +64,9 @@ class WebDatabaseStore {
 
     // Categories
     final catFood = Category(id: 'cat_food', name: 'Food', iconOrEmoji: '🍔', color: 0xFFF59E0B);
+    final subFoodGroceries = Category(id: 'cat_food_groceries', parentId: 'cat_food', name: 'Groceries', iconOrEmoji: '🛒', color: 0xFF10B981);
+    final subFoodDining = Category(id: 'cat_food_dining', parentId: 'cat_food', name: 'Dining Out', iconOrEmoji: '🍕', color: 0xFFF97316);
+    final subFoodCoffee = Category(id: 'cat_food_coffee', parentId: 'cat_food', name: 'Coffee & Snacks', iconOrEmoji: '☕', color: 0xFFD97706);
     final catTransport = Category(id: 'cat_transport', name: 'Transport', iconOrEmoji: '🚗', color: 0xFF38BDF8);
     final catShopping = Category(id: 'cat_shopping', name: 'Shopping', iconOrEmoji: '🛒', color: 0xFFA855F7);
     final catSub = Category(id: 'cat_sub', name: 'Subscriptions', iconOrEmoji: '📱', color: 0xFF6366F1);
@@ -77,6 +80,9 @@ class WebDatabaseStore {
 
     _categories.addAll([
       catFood,
+      subFoodGroceries,
+      subFoodDining,
+      subFoodCoffee,
       catTransport,
       catShopping,
       catSub,
