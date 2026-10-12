@@ -52,6 +52,12 @@ class AppTheme {
         bodyMedium: AppTypography.bodyMedium,
         labelSmall: AppTypography.caption,
       ),
+      scrollbarTheme: const ScrollbarThemeData(
+        thumbVisibility: WidgetStatePropertyAll(false),
+        trackVisibility: WidgetStatePropertyAll(false),
+        thickness: WidgetStatePropertyAll(0.0),
+        radius: Radius.zero,
+      ),
     );
   }
 }
