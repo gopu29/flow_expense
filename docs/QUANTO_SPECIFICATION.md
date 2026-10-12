@@ -205,7 +205,7 @@ lib/
 
 ## 5. Implementation Roadmap & Phases
 
-- [ ] **Phase 1: Project Setup & Design System**
+- [x] **Phase 1: Project Setup & Design System**
   - Initialize Flutter project with clean dark theme palette, custom fonts, glassmorphism cards, and icons.
 - [ ] **Phase 2: Database & Core Models**
   - Implement SQLite/Isar local database with repository pattern for Accounts, Categories, and Transactions.
