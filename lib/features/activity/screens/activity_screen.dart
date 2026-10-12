@@ -10,6 +10,8 @@ import '../../../core/providers/expense_providers.dart';
 import '../../../models/transaction.dart';
 import '../widgets/daily_spend_bar_chart.dart';
 import '../widgets/transaction_tile.dart';
+import '../../voice_logging/screens/voice_logger_sheet.dart';
+import '../../receipt_scanner/screens/receipt_scanner_sheet.dart';
 
 /// Main Activity Screen showcasing the daily spend bar chart, stats, and timeline.
 class ActivityScreen extends ConsumerWidget {
@@ -92,32 +94,72 @@ class ActivityScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: AppColors.surfaceBorder),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.tune,
-                          size: 14,
-                          color: AppColors.textSecondary,
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          'Filters',
-                          style: AppTypography.caption.copyWith(
-                            color: AppColors.textSecondary,
+                  Row(
+                    children: [
+                      // Voice AI Logger button
+                      GestureDetector(
+                        onTap: () => VoiceLoggerSheet.show(context),
+                        child: Container(
+                          padding: const EdgeInsets.all(7),
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: AppColors.surfaceBorder),
+                          ),
+                          child: const Icon(
+                            Icons.mic_none_rounded,
+                            size: 16,
+                            color: AppColors.accent,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(width: 8),
+                      // AI Receipt Scanner button
+                      GestureDetector(
+                        onTap: () => ReceiptScannerSheet.show(context),
+                        child: Container(
+                          padding: const EdgeInsets.all(7),
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: AppColors.surfaceBorder),
+                          ),
+                          child: const Icon(
+                            Icons.document_scanner_outlined,
+                            size: 16,
+                            color: AppColors.accentCyan,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: AppColors.surfaceBorder),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.tune,
+                              size: 14,
+                              color: AppColors.textSecondary,
+                            ),
+                            const SizedBox(width: 5),
+                            Text(
+                              'Filters',
+                              style: AppTypography.caption.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
