@@ -154,7 +154,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
               Material(
                 color: AppColors.surface,
-                borderRadius: BorderRadius.circular(16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                   side: const BorderSide(color: AppColors.surfaceBorder),
@@ -205,7 +204,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
               Material(
                 color: AppColors.surface,
-                borderRadius: BorderRadius.circular(16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                   side: const BorderSide(color: AppColors.surfaceBorder),
@@ -237,7 +235,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
               Material(
                 color: AppColors.surface,
-                borderRadius: BorderRadius.circular(16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                   side: const BorderSide(color: AppColors.surfaceBorder),
