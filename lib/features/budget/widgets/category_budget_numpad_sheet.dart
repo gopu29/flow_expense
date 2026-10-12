@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../../core/utils/formatters.dart';
 
 /// Flagship category budget keypad modal sheet matching Quanto reference mockup.
+/// Dynamically updates the "budget left" in the header in real-time as the user types.
 class CategoryBudgetNumpadSheet extends StatefulWidget {
   final String title;
-  final String subtitle;
+  final double availableBudget;
   final double initialAmount;
   final ValueChanged<double> onConfirmed;
 
   const CategoryBudgetNumpadSheet({
     super.key,
     required this.title,
-    required this.subtitle,
+    required this.availableBudget,
     required this.initialAmount,
     required this.onConfirmed,
   });
@@ -19,7 +21,7 @@ class CategoryBudgetNumpadSheet extends StatefulWidget {
   static Future<double?> show(
     BuildContext context, {
     required String title,
-    required String subtitle,
+    required double availableBudget,
     required double initialAmount,
   }) {
     return showModalBottomSheet<double>(
@@ -31,7 +33,7 @@ class CategoryBudgetNumpadSheet extends StatefulWidget {
       ),
       builder: (ctx) => CategoryBudgetNumpadSheet(
         title: title,
-        subtitle: subtitle,
+        availableBudget: availableBudget,
         initialAmount: initialAmount,
         onConfirmed: (val) => Navigator.pop(ctx, val),
       ),
@@ -103,6 +105,15 @@ class _CategoryBudgetNumpadSheetState extends State<CategoryBudgetNumpadSheet> {
 
   @override
   Widget build(BuildContext context) {
+    // Dynamically calculate budget left as the user types
+    final currentAmount = double.tryParse(_amountString) ?? 0.0;
+    final dynamicBudgetLeft = widget.availableBudget - currentAmount;
+    final isOverBudget = dynamicBudgetLeft < 0;
+
+    final subtitleText = isOverBudget
+        ? '-${AppFormatters.currency(dynamicBudgetLeft.abs())} budget left'
+        : '${AppFormatters.currency(dynamicBudgetLeft)} budget left';
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -120,7 +131,7 @@ class _CategoryBudgetNumpadSheetState extends State<CategoryBudgetNumpadSheet> {
               ),
             ),
 
-            // 2. Header Bar: Left circular back button + Centered Title & Subtitle
+            // 2. Header Bar: Left circular back button + Centered Title & Dynamic Subtitle
             Row(
               children: [
                 GestureDetector(
@@ -158,13 +169,19 @@ class _CategoryBudgetNumpadSheetState extends State<CategoryBudgetNumpadSheet> {
                         ),
                       ),
                       const SizedBox(height: 2),
-                      Text(
-                        widget.subtitle,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Color(0xFF7E91A4),
+                      AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 180),
+                        style: TextStyle(
+                          color: isOverBudget
+                              ? const Color(0xFFF43F5E)
+                              : const Color(0xFF7E91A4),
                           fontSize: 13,
-                          fontWeight: FontWeight.w500,
+                          fontWeight:
+                              isOverBudget ? FontWeight.w600 : FontWeight.w500,
+                        ),
+                        child: Text(
+                          subtitleText,
+                          textAlign: TextAlign.center,
                         ),
                       ),
                     ],

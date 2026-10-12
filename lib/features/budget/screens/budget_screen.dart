@@ -646,14 +646,15 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
 
                           return InkWell(
                             onTap: () async {
+                              final availableForCat =
+                                  leftToAllocate + currentCatLimit;
+
                               final newLimit =
                                   await CategoryBudgetNumpadSheet.show(
                                 context,
                                 title:
                                     '${cat.iconOrEmoji} ${cat.name} monthly budget',
-                                subtitle: leftToAllocate >= 0
-                                    ? '${AppFormatters.currency(leftToAllocate)} budget left'
-                                    : '₹0 budget left',
+                                availableBudget: availableForCat,
                                 initialAmount: currentCatLimit,
                               );
                               if (newLimit != null) {
