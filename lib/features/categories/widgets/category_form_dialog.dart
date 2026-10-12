@@ -76,7 +76,25 @@ class _CategoryFormDialogState extends ConsumerState<CategoryFormDialog> {
     _selectedParentId =
         widget.initialCategory?.parentId ?? widget.initialParentId;
     _selectedEmoji = widget.initialCategory?.iconOrEmoji ?? '🍔';
-    _selectedColor = widget.initialCategory?.color ?? _paletteColors.first;
+
+    // If adding a subcategory, inherit parent color & type
+    final allCats = ref.read(categoriesProvider).value ?? [];
+    Category? parent;
+    if (_selectedParentId != null) {
+      for (final c in allCats) {
+        if (c.id == _selectedParentId) {
+          parent = c;
+          break;
+        }
+      }
+    }
+
+    if (parent != null) {
+      _selectedType = parent.type;
+      _selectedColor = widget.initialCategory?.color ?? parent.color;
+    } else {
+      _selectedColor = widget.initialCategory?.color ?? _paletteColors.first;
+    }
   }
 
   @override
@@ -90,7 +108,7 @@ class _CategoryFormDialogState extends ConsumerState<CategoryFormDialog> {
     if (name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please enter a category name'),
+          content: Text('Please enter a name'),
           backgroundColor: AppColors.expense,
         ),
       );
@@ -120,17 +138,25 @@ class _CategoryFormDialogState extends ConsumerState<CategoryFormDialog> {
   @override
   Widget build(BuildContext context) {
     final allCategories = ref.watch(categoriesProvider).value ?? [];
-    // Only top level categories of same type can be parents (avoid self-parenting)
-    final eligibleParents = allCategories.where((c) {
-      if (c.parentId != null) return false; // only top level can be parent
-      if (c.type != _selectedType) return false;
-      if (widget.initialCategory != null && c.id == widget.initialCategory!.id) {
-        return false;
+    Category? parentCategory;
+    if (_selectedParentId != null) {
+      for (final c in allCategories) {
+        if (c.id == _selectedParentId) {
+          parentCategory = c;
+          break;
+        }
       }
-      return true;
-    }).toList();
+    }
 
+    final isSubcategory = _selectedParentId != null;
     final isEditing = widget.initialCategory != null;
+
+    final String dialogTitle;
+    if (isEditing) {
+      dialogTitle = isSubcategory ? 'Edit Subcategory' : 'Edit Category';
+    } else {
+      dialogTitle = isSubcategory ? 'New Subcategory' : 'New Category';
+    }
 
     return Dialog(
       backgroundColor: AppColors.surface,
@@ -149,7 +175,7 @@ class _CategoryFormDialogState extends ConsumerState<CategoryFormDialog> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    isEditing ? 'Edit Category' : 'New Category',
+                    dialogTitle,
                     style: AppTypography.titleMedium,
                   ),
                   IconButton(
@@ -159,7 +185,49 @@ class _CategoryFormDialogState extends ConsumerState<CategoryFormDialog> {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
+
+              // If adding a subcategory: Show clear parent category badge
+              if (isSubcategory && parentCategory != null) ...[
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Color(parentCategory.color).withValues(alpha: 0.14),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Color(parentCategory.color).withValues(alpha: 0.35),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: Color(parentCategory.color).withValues(alpha: 0.25),
+                          shape: BoxShape.circle,
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          parentCategory.iconOrEmoji,
+                          style: const TextStyle(fontSize: 13),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Subcategory of ${parentCategory.name}',
+                        style: TextStyle(
+                          color: Color(parentCategory.color),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+              ],
 
               // Preview Icon Badge & Name Input
               Row(
@@ -188,7 +256,9 @@ class _CategoryFormDialogState extends ConsumerState<CategoryFormDialog> {
                       style: AppTypography.bodyLarge,
                       autofocus: !isEditing,
                       decoration: InputDecoration(
-                        hintText: 'Category Name (e.g. Groceries)',
+                        hintText: isSubcategory
+                            ? 'Subcategory Name (e.g. Groceries)'
+                            : 'Category Name (e.g. Shopping)',
                         hintStyle: AppTypography.bodyMedium.copyWith(
                           color: AppColors.textTertiary,
                         ),
@@ -209,72 +279,26 @@ class _CategoryFormDialogState extends ConsumerState<CategoryFormDialog> {
               ),
               const SizedBox(height: 18),
 
-              // Category Type Selector
-              Text('Type', style: AppTypography.caption),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceHover,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Row(
-                  children: [
-                    _buildTypeOption('Expense', CategoryType.expense),
-                    _buildTypeOption('Income', CategoryType.income),
-                    _buildTypeOption('Transfer', CategoryType.transfer),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 18),
-
-              // Parent Category / Subcategory Selector
-              Text('Classification', style: AppTypography.caption),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceHover,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String?>(
-                    isExpanded: true,
-                    dropdownColor: AppColors.surface,
-                    value: _selectedParentId,
-                    hint: Text(
-                      'Main Category (Top Level)',
-                      style: AppTypography.bodyMedium.copyWith(
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    items: [
-                      DropdownMenuItem<String?>(
-                        value: null,
-                        child: Text(
-                          '📁 Main Category (Top Level)',
-                          style: AppTypography.bodyMedium,
-                        ),
-                      ),
-                      ...eligibleParents.map(
-                        (p) => DropdownMenuItem<String?>(
-                          value: p.id,
-                          child: Text(
-                            '↳ Subcategory of ${p.iconOrEmoji} ${p.name}',
-                            style: AppTypography.bodyMedium.copyWith(
-                              color: AppColors.accent,
-                            ),
-                          ),
-                        ),
-                      ),
+              // Category Type Selector (only shown for Main Categories)
+              if (!isSubcategory) ...[
+                Text('Type', style: AppTypography.caption),
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceHover,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Row(
+                    children: [
+                      _buildTypeOption('Expense', CategoryType.expense),
+                      _buildTypeOption('Income', CategoryType.income),
+                      _buildTypeOption('Transfer', CategoryType.transfer),
                     ],
-                    onChanged: (val) {
-                      setState(() => _selectedParentId = val);
-                    },
                   ),
                 ),
-              ),
-              const SizedBox(height: 18),
+                const SizedBox(height: 18),
+              ],
 
               // Emoji Selection
               Text('Icon / Emoji', style: AppTypography.caption),
@@ -378,7 +402,9 @@ class _CategoryFormDialogState extends ConsumerState<CategoryFormDialog> {
                     elevation: 0,
                   ),
                   child: Text(
-                    isEditing ? 'Save Changes' : 'Create Category',
+                    isEditing
+                        ? 'Save Changes'
+                        : (isSubcategory ? 'Create Subcategory' : 'Create Category'),
                     style: AppTypography.bodyLarge.copyWith(
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
