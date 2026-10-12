@@ -12,6 +12,7 @@ import '../widgets/daily_spend_bar_chart.dart';
 import '../widgets/transaction_tile.dart';
 import '../../voice_logging/screens/voice_logger_sheet.dart';
 import '../../receipt_scanner/screens/receipt_scanner_sheet.dart';
+import '../../settings/screens/settings_screen.dart';
 
 /// Main Activity Screen showcasing the daily spend bar chart, stats, and timeline.
 class ActivityScreen extends ConsumerWidget {
@@ -153,10 +154,35 @@ class ActivityScreen extends ConsumerWidget {
                             Text(
                               'Filters',
                               style: AppTypography.caption.copyWith(
-                                color: AppColors.textSecondary,
+                                 color: AppColors.textSecondary,
                               ),
                             ),
                           ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      // Settings button
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const SettingsScreen(),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(7),
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: AppColors.surfaceBorder),
+                          ),
+                          child: const Icon(
+                            Icons.settings_outlined,
+                            size: 16,
+                            color: AppColors.textSecondary,
+                          ),
                         ),
                       ),
                     ],
