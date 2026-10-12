@@ -152,12 +152,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               Text('Preferences', style: AppTypography.titleMedium),
               const SizedBox(height: 10),
 
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
+              Material(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(16),
+                shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.surfaceBorder),
+                  side: const BorderSide(color: AppColors.surfaceBorder),
                 ),
+                clipBehavior: Clip.antiAlias,
                 child: Column(
                   children: [
                     ListTile(
@@ -201,12 +203,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               Text('Organization', style: AppTypography.titleMedium),
               const SizedBox(height: 10),
 
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
+              Material(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(16),
+                shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.surfaceBorder),
+                  side: const BorderSide(color: AppColors.surfaceBorder),
                 ),
+                clipBehavior: Clip.antiAlias,
                 child: ListTile(
                   leading: const Icon(Icons.category_rounded, color: AppColors.accent),
                   title: Text('Categories & Subcategories', style: AppTypography.bodyLarge),
@@ -231,25 +235,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               Text('Data & Backups', style: AppTypography.titleMedium),
               const SizedBox(height: 10),
 
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
+              Material(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(16),
+                shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.surfaceBorder),
+                  side: const BorderSide(color: AppColors.surfaceBorder),
                 ),
-                child: Column(
-                  children: [
-                    ListTile(
-                      onTap: _exportTransactionsCsv,
-                      leading: const Icon(Icons.file_download_outlined, color: AppColors.income),
-                      title: Text('Export to CSV', style: AppTypography.bodyLarge),
-                      subtitle: Text(
-                        'Download all transactions in standard CSV table',
-                        style: AppTypography.caption.copyWith(color: AppColors.textTertiary),
-                      ),
-                      trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.textTertiary),
-                    ),
-                  ],
+                clipBehavior: Clip.antiAlias,
+                child: ListTile(
+                  onTap: _exportTransactionsCsv,
+                  leading: const Icon(Icons.file_download_outlined, color: AppColors.income),
+                  title: Text('Export to CSV', style: AppTypography.bodyLarge),
+                  subtitle: Text(
+                    'Download all transactions in standard CSV table',
+                    style: AppTypography.caption.copyWith(color: AppColors.textTertiary),
+                  ),
+                  trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.textTertiary),
                 ),
               ),
               const SizedBox(height: 20),
