@@ -209,7 +209,7 @@ lib/
   - Initialize Flutter project with clean dark theme palette, custom fonts, glassmorphism cards, and icons.
 - [x] **Phase 2: Database & Core Models**
   - Implement SQLite/Isar local database with repository pattern for Accounts, Categories, and Transactions.
-- [ ] **Phase 3: iOS Back-Tap Overlay & App Intents**
+- [x] **Phase 3: iOS Back-Tap Overlay & App Intents**
   - Configure native Swift AppIntent for quick expense addition.
   - Configure App Group shared container for offline sync.
 - [x] **Phase 4: Bottom Navigation & 5 Core Screens**
