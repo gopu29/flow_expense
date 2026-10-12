@@ -21,7 +21,7 @@ class WebDatabaseStore {
   final List<Account> _accounts = [];
   final List<Category> _categories = [];
   final List<Transaction> _transactions = [];
-  final Map<String, Budget> _budgets = {};
+  final List<Budget> _budgets = [];
 
   void _initSeedData() {
     if (_accounts.isNotEmpty) return;
@@ -163,17 +163,19 @@ class WebDatabaseStore {
 
     // Default Budget for this month
     final monthKey = '${now.year}-${now.month.toString().padLeft(2, '0')}';
-    _budgets[monthKey] = Budget(
-      id: 'budget_default',
-      profileName: 'Personal',
-      monthlyLimit: 25000.0,
-      categoryLimits: {
-        catFood.id: 8000.0,
-        catTransport.id: 5000.0,
-        catShopping.id: 6000.0,
-        catSub.id: 2000.0,
-      },
-      monthYear: monthKey,
+    _budgets.add(
+      Budget(
+        id: 'budget_default',
+        profileName: 'Personal',
+        monthlyLimit: 10000.0,
+        categoryLimits: {
+          catFood.id: 3000.0,
+          catTransport.id: 2000.0,
+          catShopping.id: 3000.0,
+          catSub.id: 1000.0,
+        },
+        monthYear: monthKey,
+      ),
     );
   }
 
@@ -312,11 +314,40 @@ class WebDatabaseStore {
   // Budgets
   // ---------------------------------------------------------------------------
 
+  List<Budget> getBudgetsForMonth(String monthYear) {
+    var list = _budgets.where((b) => b.monthYear == monthYear).toList();
+    if (list.isEmpty) {
+      final defaultBudget = Budget(
+        id: 'budget_personal_$monthYear',
+        profileName: 'Personal',
+        monthlyLimit: 10000.0,
+        categoryLimits: {},
+        monthYear: monthYear,
+      );
+      _budgets.add(defaultBudget);
+      list = [defaultBudget];
+    }
+    return List.unmodifiable(list);
+  }
+
   Budget? getBudgetForMonth(String monthYear) {
-    return _budgets[monthYear];
+    final list = getBudgetsForMonth(monthYear);
+    return list.isNotEmpty ? list.first : null;
   }
 
   void saveBudget(Budget budget) {
-    _budgets[budget.monthYear] = budget;
+    final idx = _budgets.indexWhere((b) =>
+        b.id == budget.id ||
+        (b.monthYear == budget.monthYear &&
+            b.profileName.toLowerCase() == budget.profileName.toLowerCase()));
+    if (idx >= 0) {
+      _budgets[idx] = budget;
+    } else {
+      _budgets.add(budget);
+    }
+  }
+
+  void deleteBudget(String id) {
+    _budgets.removeWhere((b) => b.id == id);
   }
 }

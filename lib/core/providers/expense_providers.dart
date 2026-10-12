@@ -120,13 +120,37 @@ final transactionsProvider =
     AsyncNotifierProvider<TransactionsNotifier, List<Transaction>>(
         TransactionsNotifier.new);
 
-/// Budget provider for the currently selected month
-final budgetProvider = FutureProvider<Budget?>((ref) async {
+/// Active Budget Profile Name (e.g. 'Personal', 'Business')
+class ActiveBudgetProfileNotifier extends Notifier<String> {
+  @override
+  String build() => 'Personal';
+
+  void setProfile(String name) => state = name;
+}
+
+final activeBudgetProfileProvider =
+    NotifierProvider<ActiveBudgetProfileNotifier, String>(
+        ActiveBudgetProfileNotifier.new);
+
+/// All budgets for the currently selected month
+final monthlyBudgetsProvider = FutureProvider<List<Budget>>((ref) async {
   final repo = ref.watch(repositoryProvider);
   final selectedDate = ref.watch(selectedDateProvider);
   final monthKey =
       '${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}';
-  return repo.getBudgetForMonth(monthKey);
+  return repo.getBudgetsForMonth(monthKey);
+});
+
+/// Active budget provider for the currently selected month and profile
+final budgetProvider = FutureProvider<Budget?>((ref) async {
+  final budgets = await ref.watch(monthlyBudgetsProvider.future);
+  final activeProfile = ref.watch(activeBudgetProfileProvider);
+
+  if (budgets.isEmpty) return null;
+  return budgets.firstWhere(
+    (b) => b.profileName.toLowerCase() == activeProfile.toLowerCase(),
+    orElse: () => budgets.first,
+  );
 });
 
 /// Total Expense for the selected month

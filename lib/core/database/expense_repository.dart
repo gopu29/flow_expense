@@ -220,9 +220,9 @@ class ExpenseRepository {
   // Budgets
   // ---------------------------------------------------------------------------
 
-  Future<Budget?> getBudgetForMonth(String monthYear) async {
+  Future<List<Budget>> getBudgetsForMonth(String monthYear) async {
     if (kIsWeb) {
-      return _webStore.getBudgetForMonth(monthYear);
+      return _webStore.getBudgetsForMonth(monthYear);
     }
     final rows = await _dbHelper.query(
       'budgets',
@@ -230,8 +230,24 @@ class ExpenseRepository {
       whereArgs: [monthYear],
       orderBy: 'profileName ASC',
     );
-    if (rows.isEmpty) return null;
-    return Budget.fromMap(rows.first);
+    if (rows.isEmpty) {
+      // Seed default Personal budget
+      final defaultBudget = Budget(
+        id: 'budget_personal_$monthYear',
+        profileName: 'Personal',
+        monthlyLimit: 10000.0,
+        categoryLimits: const {},
+        monthYear: monthYear,
+      );
+      await saveBudget(defaultBudget);
+      return [defaultBudget];
+    }
+    return rows.map((r) => Budget.fromMap(r)).toList();
+  }
+
+  Future<Budget?> getBudgetForMonth(String monthYear) async {
+    final list = await getBudgetsForMonth(monthYear);
+    return list.isNotEmpty ? list.first : null;
   }
 
   Future<void> saveBudget(Budget budget) async {
@@ -240,6 +256,14 @@ class ExpenseRepository {
       return;
     }
     await _dbHelper.insert('budgets', budget.toMap());
+  }
+
+  Future<void> deleteBudget(String id) async {
+    if (kIsWeb) {
+      _webStore.deleteBudget(id);
+      return;
+    }
+    await _dbHelper.delete('budgets', id);
   }
 
   // ---------------------------------------------------------------------------

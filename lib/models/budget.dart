@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 /// A monthly spending budget with optional per-category limits.
 class Budget {
   final String id;
@@ -15,12 +17,29 @@ class Budget {
   });
 
   factory Budget.fromMap(Map<String, dynamic> map) {
-    // categoryLimits will be deserialized by the database helper
+    Map<String, double> limits = {};
+    if (map['categoryLimits'] != null) {
+      if (map['categoryLimits'] is Map) {
+        (map['categoryLimits'] as Map).forEach((k, v) {
+          limits[k.toString()] = (v as num).toDouble();
+        });
+      } else if (map['categoryLimits'] is String) {
+        try {
+          final decoded = jsonDecode(map['categoryLimits'] as String);
+          if (decoded is Map) {
+            decoded.forEach((k, v) {
+              limits[k.toString()] = (v as num).toDouble();
+            });
+          }
+        } catch (_) {}
+      }
+    }
+
     return Budget(
       id: map['id'] as String,
       profileName: map['profileName'] as String? ?? 'Personal',
       monthlyLimit: (map['monthlyLimit'] as num).toDouble(),
-      categoryLimits: const {},
+      categoryLimits: limits,
       monthYear: map['monthYear'] as String,
     );
   }
@@ -30,7 +49,7 @@ class Budget {
       'id': id,
       'profileName': profileName,
       'monthlyLimit': monthlyLimit,
-      'categoryLimits': '{}', // Serialized by database helper
+      'categoryLimits': jsonEncode(categoryLimits),
       'monthYear': monthYear,
     };
   }

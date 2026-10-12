@@ -115,9 +115,22 @@ lib/
   - **Click-to-View Transactions Sheet**: Clicking on any subcategory, clicking the "View all [Category] transactions" action, or clicking a main category without subcategories opens a bottom sheet showing the complete list of added transactions with dates, accounts, notes, prices, and swipe-to-delete.
 
 ### 3.4. Budget Screen (Screenshot `IMG_6028.PNG`)
-- Top switcher: `Personal` vs other budget profiles + edit budget button.
-- Circular progress ring displaying remaining budget or overspend (e.g., `-₹14,893.32 of ₹10,000` in soft neon red/coral).
-- `+ Add category` budget limits.
+- **Atmospheric Gradient Background**: Transparent scaffold exposing midnight cyan/slate background.
+- **Top Bar**: Left hexagonal nut/settings button, centered active budget profile pill (`Personal`, etc.), right edit button.
+- **Hero 360-Degree Circular Progress Ring**:
+  - Full circular ring gauge with glowing coral/crimson when overspent, and neon mint/emerald when within budget.
+  - Centered tappable timeframe dropdown (`Left this month ⌵` with `MonthSelectorSheet`).
+  - Prominent bold remaining balance (e.g. `-₹16,656.59` or `₹5,400.00`) and total limit subtext (`of ₹10,000`).
+- **Multiple Budget Profile Manager ("Budgets" Modal Sheet)**:
+  - Opened via profile pill or edit icon.
+  - Profile switcher with `+` button to create new budgets (e.g., Personal, Business, Vacation, Household).
+  - Each profile card shows remaining balance, horizontal progress bar, percentage remaining, and total monthly cap, plus `...` menu to edit name/limit or delete.
+- **Category Allocation Manager ("Allocate your budget" Modal Sheet)**:
+  - Opened via dashed `+ Add category` button.
+  - Overview card showing `% set`, `allocated / total limit`, progress bar, and `₹ left to allocate`.
+  - Expense category list with icons, names, tappable allocated amounts, and percentage badges.
+  - Full-width `Confirm` pill button to save category limits to the active budget.
+- **Allocated Category Cards**: Displays allocated categories on the main budget screen with individual progress bars, spent vs limit, and over/under badges.
 
 ### 3.5. Analytics Screen (Screenshots `IMG_6029.PNG`, `IMG_6030.PNG`, `IMG_6031.PNG`)
 - **Income vs Expenses Comparison**: Dual gradient bar charts per month (May to Oct).

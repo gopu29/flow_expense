@@ -1,129 +1,168 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/formatters.dart';
 
-/// Circular progress gauge showing overall budget health matching Quanto.
+/// Flagship circular progress ring matching Quanto (IMG_6028.PNG).
+/// Displays a full 360-degree circular ring with centered timeframe dropdown,
+/// large bold remaining balance, and total budget limit.
 class BudgetGauge extends StatelessWidget {
   final double spent;
   final double limit;
+  final String timeframeLabel;
+  final VoidCallback onTimeframeTap;
 
   const BudgetGauge({
     super.key,
     required this.spent,
     required this.limit,
+    required this.timeframeLabel,
+    required this.onTimeframeTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final percentage = limit > 0 ? (spent / limit).clamp(0.0, 1.5) : 0.0;
-    final percentInt = (percentage * 100).toInt();
+    final remaining = limit > 0 ? limit - spent : -spent;
+    final isOverBudget = remaining < 0;
 
-    final Color gaugeColor = percentage > 1.0
-        ? AppColors.expense
-        : percentage > 0.85
-            ? AppColors.chartOrange
-            : AppColors.income;
+    // Active progress ratio (0.0 to 1.0)
+    final progress = limit > 0 ? (spent / limit).clamp(0.0, 1.0) : 0.0;
 
-    return Center(
-      child: SizedBox(
-        width: 200,
-        height: 200,
-        child: CustomPaint(
-          painter: _BudgetGaugePainter(
-            percentage: percentage.clamp(0.0, 1.0),
-            color: gaugeColor,
-          ),
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  limit > 0 ? '$percentInt%' : 'No Limit',
-                  style: AppTypography.amountDisplay.copyWith(
-                    fontSize: 34,
-                    color: gaugeColor,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '${AppFormatters.compact(spent)} / ${limit > 0 ? AppFormatters.compact(limit) : '∞'}',
-                  style: AppTypography.caption.copyWith(color: AppColors.textTertiary),
-                ),
-                const SizedBox(height: 4),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: gaugeColor.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    percentage > 1.0
-                        ? 'Over Budget'
-                        : limit > 0
-                            ? '${(100 - percentInt).clamp(0, 100)}% Left'
-                            : 'Set a limit',
-                    style: AppTypography.caption.copyWith(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: gaugeColor,
-                    ),
-                  ),
-                ),
-              ],
+    // Glowing coral crimson when over budget, vibrant emerald when safe
+    final ringColor = isOverBudget
+        ? const Color(0xFFF43F5E)
+        : const Color(0xFF10B981);
+
+    return SizedBox(
+      width: 260,
+      height: 260,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          CustomPaint(
+            size: const Size(260, 260),
+            painter: _FullCircleBudgetPainter(
+              progress: isOverBudget ? 1.0 : progress,
+              ringColor: ringColor,
+              trackColor: isOverBudget
+                  ? const Color(0xFF4C121E)
+                  : const Color(0xFF182330),
+              isOverBudget: isOverBudget,
             ),
           ),
-        ),
+
+          // Center Text: "Left this month ⌵" + "-₹16,656.59" + "of ₹10,000"
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              GestureDetector(
+                onTap: onTimeframeTap,
+                behavior: HitTestBehavior.opaque,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        timeframeLabel,
+                        style: const TextStyle(
+                          color: Color(0xFF8E9BAE),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        color: Color(0xFF8E9BAE),
+                        size: 16,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 4),
+
+              // Main Balance (e.g. -₹16,656.59 or ₹5,400.00)
+              Text(
+                remaining < 0
+                    ? '-${AppFormatters.currency(remaining.abs())}'
+                    : AppFormatters.currency(remaining),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 29,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.6,
+                ),
+              ),
+              const SizedBox(height: 4),
+
+              // Subtext: "of ₹10,000"
+              Text(
+                'of ${AppFormatters.currency(limit)}',
+                style: const TextStyle(
+                  color: Color(0xFF7E91A4),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 }
 
-class _BudgetGaugePainter extends CustomPainter {
-  final double percentage;
-  final Color color;
+class _FullCircleBudgetPainter extends CustomPainter {
+  final double progress;
+  final Color ringColor;
+  final Color trackColor;
+  final bool isOverBudget;
 
-  _BudgetGaugePainter({required this.percentage, required this.color});
+  _FullCircleBudgetPainter({
+    required this.progress,
+    required this.ringColor,
+    required this.trackColor,
+    required this.isOverBudget,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = (size.width - 24) / 2;
-    const strokeWidth = 14.0;
+    const strokeWidth = 20.0;
 
-    // Background track (240 degree arc)
+    // Background full circular track
     final bgPaint = Paint()
-      ..color = AppColors.surfaceHover
+      ..color = trackColor
       ..strokeWidth = strokeWidth
-      ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
 
-    // Progress arc
-    final progressPaint = Paint()
-      ..color = color
-      ..strokeWidth = strokeWidth
-      ..strokeCap = StrokeCap.round
-      ..style = PaintingStyle.stroke;
+    canvas.drawCircle(center, radius, bgPaint);
 
-    const startAngle = 135 * (pi / 180);
-    const sweepAngle = 270 * (pi / 180);
+    if (isOverBudget) {
+      // Full solid crimson ring matching Quanto IMG_6028.PNG
+      final overPaint = Paint()
+        ..color = ringColor
+        ..strokeWidth = strokeWidth
+        ..style = PaintingStyle.stroke;
 
-    // Draw background track
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius),
-      startAngle,
-      sweepAngle,
-      false,
-      bgPaint,
-    );
+      canvas.drawCircle(center, radius, overPaint);
+    } else if (progress > 0) {
+      // Active progress arc starting from top (-90 degrees)
+      final progressPaint = Paint()
+        ..color = ringColor
+        ..strokeWidth = strokeWidth
+        ..strokeCap = StrokeCap.round
+        ..style = PaintingStyle.stroke;
 
-    // Draw active progress
-    if (percentage > 0) {
+      const startAngle = -pi / 2;
+      final sweepAngle = 2 * pi * progress;
+
       canvas.drawArc(
         Rect.fromCircle(center: center, radius: radius),
         startAngle,
-        sweepAngle * percentage,
+        sweepAngle,
         false,
         progressPaint,
       );
@@ -131,7 +170,9 @@ class _BudgetGaugePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _BudgetGaugePainter oldDelegate) {
-    return oldDelegate.percentage != percentage || oldDelegate.color != color;
+  bool shouldRepaint(covariant _FullCircleBudgetPainter oldDelegate) {
+    return oldDelegate.progress != progress ||
+        oldDelegate.ringColor != ringColor ||
+        oldDelegate.isOverBudget != isOverBudget;
   }
 }
