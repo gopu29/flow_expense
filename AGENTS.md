@@ -98,3 +98,16 @@ lib/
 3. **Shared Components**: Only reusable components used by 2 or more features belong in `lib/core/widgets/`.
 4. **Data Models**: All entities belong in `lib/models/`.
 5. **Database Logic**: All SQLite and database queries belong in `lib/core/database/`.
+
+---
+
+## 5. Granular Git Commit & Push Protocol
+To maintain a clean repository history, ease review, and actively track progress on GitHub:
+1. **Atomic Commits Per Step**: Never bundle multiple unrelated features into one giant commit. Make focused commits after completing each discrete step (e.g., setting up design tokens, adding a database table, building a specific widget/screen).
+2. **Conventional Commit Standard**: Use clear conventional commit prefixes:
+   - `feat(<feature>)`: for new features or screens (e.g., `feat(theme): add dark mode color tokens`)
+   - `style(<feature>)`: for UI styling, fonts, and layout polishing
+   - `refactor(<scope>)`: for code reorganization and cleanups
+   - `docs(<topic>)`: for documentation and specification updates
+3. **Immediate Push**: Run `git push origin main` immediately after each commit so GitHub profile activity reflects real-time progress.
+
