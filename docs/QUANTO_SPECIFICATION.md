@@ -147,7 +147,7 @@ lib/
 - OCR engine parses receipt merchant, date, tax, and total amount.
 
 ### 3.10. Settings & Preferences (Screenshots `IMG_6037.PNG`, `IMG_6038.PNG`, `IMG_6039.PNG`, `IMG_6040.PNG`, `IMG_6041.PNG`)
-- **General**: Category Manager (tap-to-expand/collapse subcategories with animated chevrons and smooth height transition, dedicated bottom Add Category action button), Currency (INR/USD/EUR/etc.), Subscription tier.
+- **General**: Category Manager (tap-to-expand/collapse subcategories with animated chevrons and smooth height transition, dedicated bottom Add Category action button for main categories only, dedicated in-card (+) button for adding scoped subcategories with no classification dropdown), Currency (INR/USD/EUR/etc.), Subscription tier.
 - **Automations**:
   - **Back Tap Setup guide** (Direct guide to link iOS Settings -> Accessibility -> Back Tap).
   - Apple Pay / SMS automation.
