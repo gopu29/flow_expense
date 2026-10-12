@@ -221,7 +221,7 @@ lib/
 - [x] **Phase 5: Quick Input Modals & Controls**
   - In-app custom keypad input modal.
   - Category picker with subcategories and emojis.
-- [ ] **Phase 6: Advanced Smart Features**
+- [x] **Phase 6: Advanced Smart Features**
   - Voice AI transaction parsing.
   - Receipt image picker & OCR simulation/integration.
 - [ ] **Phase 7: Settings, Preferences & Security**
