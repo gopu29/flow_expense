@@ -8,6 +8,7 @@ import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/category_icon_badge.dart';
 import '../../../core/widgets/month_selector_sheet.dart';
 import '../../../core/providers/expense_providers.dart';
+import '../../../models/category.dart';
 import '../../../models/transaction.dart';
 import '../widgets/summary_donut_chart.dart';
 

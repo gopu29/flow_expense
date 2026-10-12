@@ -245,7 +245,7 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
                       itemCount: filtered.length,
-                      separatorBuilder: (_, __) => const SizedBox(width: 12),
+                      separatorBuilder: (_, _) => const SizedBox(width: 12),
                       itemBuilder: (context, index) {
                         final cat = filtered[index];
                         final isSelected = _selectedCategory?.id == cat.id;
@@ -296,7 +296,7 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
                   height: 80,
                   child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
                 ),
-                error: (_, __) => const SizedBox(height: 80),
+                error: (_, _) => const SizedBox(height: 80),
               ),
               const SizedBox(height: 12),
 
@@ -405,7 +405,7 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
                   );
                 },
                 loading: () => const SizedBox(),
-                error: (_, __) => const SizedBox(),
+                error: (_, _) => const SizedBox(),
               ),
               const SizedBox(height: 12),
 

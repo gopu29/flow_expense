@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
 import 'core/constants/app_constants.dart';
-import 'features/activity/screens/activity_screen.dart';
+import 'routes/main_shell.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const FlowExpenseApp());
+  runApp(
+    const ProviderScope(
+      child: FlowExpenseApp(),
+    ),
+  );
 }
 
 class FlowExpenseApp extends StatelessWidget {
@@ -17,7 +22,7 @@ class FlowExpenseApp extends StatelessWidget {
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
-      home: const ActivityScreen(),
+      home: const MainShell(),
     );
   }
 }

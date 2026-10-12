@@ -10,6 +10,7 @@ import '../../../core/widgets/category_icon_badge.dart';
 import '../../../core/widgets/month_selector_sheet.dart';
 import '../../../core/providers/expense_providers.dart';
 import '../../../models/budget.dart';
+import '../../../models/category.dart';
 import '../../../models/transaction.dart';
 import '../widgets/budget_gauge.dart';
 
@@ -368,11 +369,11 @@ class BudgetScreen extends ConsumerWidget {
                                 );
                               },
                               loading: () => const SizedBox(),
-                              error: (_, __) => const SizedBox(),
+                              error: (_, _) => const SizedBox(),
                             );
                           },
                           loading: () => const SizedBox(),
-                          error: (_, __) => const SizedBox(),
+                          error: (_, _) => const SizedBox(),
                         ),
                       ],
                     );

@@ -6,6 +6,7 @@ class AppColors {
 
   // Backgrounds
   static const Color background = Color(0xFF090A0E);
+  static const Color backgroundSecondary = Color(0xFF14151B);
   static const Color surface = Color(0xFF14151B);
   static const Color surfaceElevated = Color(0xFF1C1D26);
   static const Color surfaceBorder = Color(0xFF262836);
@@ -23,12 +24,18 @@ class AppColors {
   static const Color transfer = Color(0xFF6366F1); // Soft violet
   static const Color warning = Color(0xFFF59E0B);  // Amber
 
-  // Accents
+  // Accents & Brand
   static const Color primary = Color(0xFF6366F1);  // Electric Indigo
   static const Color primaryLight = Color(0xFF818CF8);
+  static const Color accent = Color(0xFF6366F1);
+  static const Color accentHover = Color(0xFF818CF8);
   static const Color accentCyan = Color(0xFF38BDF8);
   static const Color accentPurple = Color(0xFFA855F7);
   static const Color accentPink = Color(0xFFEC4899);
+
+  // Charts
+  static const Color chartBar = Color(0xFF6366F1);
+  static const Color chartOrange = Color(0xFFF59E0B);
 
   // Category Palette (for donut chart segments & category icons)
   static const List<Color> categoryPalette = [

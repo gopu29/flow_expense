@@ -67,7 +67,7 @@ class MonthSelectorSheet extends StatelessWidget {
               child: ListView.separated(
                 shrinkWrap: true,
                 itemCount: months.length,
-                separatorBuilder: (_, __) => const Divider(height: 1, color: AppColors.surfaceBorder),
+                separatorBuilder: (_, _) => const Divider(height: 1, color: AppColors.surfaceBorder),
                 itemBuilder: (context, index) {
                   final m = months[index];
                   final isSelected =

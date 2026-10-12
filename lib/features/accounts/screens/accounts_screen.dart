@@ -55,7 +55,7 @@ class AccountsScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<AccountType>(
-                  value: selectedType,
+                  initialValue: selectedType,
                   dropdownColor: AppColors.surface,
                   decoration: InputDecoration(
                     labelText: 'Type',
