@@ -106,10 +106,11 @@ lib/
   - Quick Add (+) transaction button tap opens numpad overlay.
 
 ### 3.3. Summary Screen (Screenshot `IMG_6027.PNG`)
-- Donut chart with segmented colored arcs for each category.
-- Center displays month and total spend (`₹24,893.32`).
-- Category breakdown list:
-  - Category icon, category name, count badge (e.g. `Savings (1)`, `Transfer (1)`), amount (`₹10,000`), and percentage (`40.17%`).
+- **Atmospheric Background**: Seamless transparent scaffold exposing the midnight gradient background.
+- **Top Bar**: Left hexagonal nut/settings button navigating directly to Settings.
+- **Hero Donut Chart**: Borderless segmented donut ring with subtle gaps between category arcs. Centered tappable month switcher (`This month ⌵` with `MonthSelectorSheet`) and prominent bold total spend (`₹24,893.32`).
+- **Filter Chips**: Horizontal scrolling pill bar (`Expenses`, `Monthly`, `All accounts`, `All categories`) with interactive modal sheets for quick filtering.
+- **Unified Category Breakdown Card**: Rounded container (`BorderRadius.circular(22)`) with subtle row dividers, category icon squircle with accent color outline border, title, transaction count pill badge (e.g. `1`, `3`), amount (`₹10,000`), and percentage badge (`40.17%`).
 
 ### 3.4. Budget Screen (Screenshot `IMG_6028.PNG`)
 - Top switcher: `Personal` vs other budget profiles + edit budget button.
