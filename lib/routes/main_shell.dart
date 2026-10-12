@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/theme/app_colors.dart';
 import '../core/widgets/bottom_nav_dock.dart';
+import '../core/widgets/speed_dial_fab.dart';
 import '../core/providers/expense_providers.dart';
 import '../core/services/platform_intent_service.dart';
 import '../features/activity/screens/activity_screen.dart';
@@ -11,6 +12,8 @@ import '../features/budget/screens/budget_screen.dart';
 import '../features/analytics/screens/analytics_screen.dart';
 import '../features/accounts/screens/accounts_screen.dart';
 import '../features/quick_input/screens/quick_input_modal.dart';
+import '../features/voice_logging/screens/voice_logger_sheet.dart';
+import '../features/receipt_scanner/screens/receipt_scanner_sheet.dart';
 
 /// Main scaffold container hosting the 5 core tabs with smooth page transitions.
 class MainShell extends ConsumerWidget {
@@ -79,8 +82,22 @@ class MainShell extends ConsumerWidget {
                   onTabSelected: (index) {
                     ref.read(activeNavIndexProvider.notifier).setIndex(index);
                   },
-                  onQuickAddPressed: () {
+                ),
+              ),
+
+              // Floating Action Button at bottom-right (Tap: Quick add, Hold: Voice + Scan)
+              Positioned(
+                right: 20,
+                bottom: 84,
+                child: SpeedDialFab(
+                  onQuickAdd: () {
                     QuickInputModal.show(context);
+                  },
+                  onVoiceLog: () {
+                    VoiceLoggerSheet.show(context);
+                  },
+                  onScanReceipt: () {
+                    ReceiptScannerSheet.show(context);
                   },
                 ),
               ),

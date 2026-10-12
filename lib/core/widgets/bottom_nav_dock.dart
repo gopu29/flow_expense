@@ -6,20 +6,18 @@ import '../theme/app_colors.dart';
 class BottomNavDock extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTabSelected;
-  final VoidCallback onQuickAddPressed;
 
   const BottomNavDock({
     super.key,
     required this.currentIndex,
     required this.onTabSelected,
-    required this.onQuickAddPressed,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.fromLTRB(12, 0, 12, 16),
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       decoration: BoxDecoration(
         color: AppColors.surface.withValues(alpha: 0.94),
         borderRadius: BorderRadius.circular(32),
@@ -46,37 +44,6 @@ class BottomNavDock extends StatelessWidget {
             index: 1,
             icon: Icons.pie_chart_outline_rounded,
             label: 'Summary',
-          ),
-          // Central Quick Add Button
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: GestureDetector(
-              onTap: onQuickAddPressed,
-              child: Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppColors.accent, AppColors.accentHover],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.accent.withValues(alpha: 0.45),
-                      blurRadius: 14,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.add_rounded,
-                  color: Colors.white,
-                  size: 28,
-                ),
-              ),
-            ),
           ),
           _buildNavItem(
             index: 2,

@@ -217,6 +217,17 @@ class WebDatabaseStore {
     }
   }
 
+  void updateCategory(Category category) {
+    final idx = _categories.indexWhere((c) => c.id == category.id);
+    if (idx >= 0) {
+      _categories[idx] = category;
+    }
+  }
+
+  void deleteCategory(String id) {
+    _categories.removeWhere((c) => c.id == id || c.parentId == id);
+  }
+
   // ---------------------------------------------------------------------------
   // Transactions
   // ---------------------------------------------------------------------------

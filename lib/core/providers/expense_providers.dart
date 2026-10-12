@@ -75,6 +75,18 @@ class CategoriesNotifier extends AsyncNotifier<List<Category>> {
     await repo.saveCategory(category);
     ref.invalidateSelf();
   }
+
+  Future<void> updateCategory(Category category) async {
+    final repo = ref.read(repositoryProvider);
+    await repo.updateCategory(category);
+    ref.invalidateSelf();
+  }
+
+  Future<void> deleteCategory(String id) async {
+    final repo = ref.read(repositoryProvider);
+    await repo.deleteCategory(id);
+    ref.invalidateSelf();
+  }
 }
 
 final categoriesProvider =

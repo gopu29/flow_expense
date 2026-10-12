@@ -10,6 +10,7 @@ import '../../../core/widgets/category_icon_badge.dart';
 import '../../../models/category.dart';
 import '../../../models/account.dart';
 import '../../../models/transaction.dart';
+import '../../categories/widgets/category_form_dialog.dart';
 import '../widgets/numpad.dart';
 
 /// Modal bottom sheet allowing zero-friction instant logging of transactions.
@@ -167,7 +168,7 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
                   width: 36,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.textTertiary.withOpacity(0.4),
+                    color: AppColors.textTertiary.withValues(alpha: 0.4),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -244,9 +245,59 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
                     height: 80,
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
-                      itemCount: filtered.length,
+                      itemCount: filtered.length + 1,
                       separatorBuilder: (_, _) => const SizedBox(width: 12),
                       itemBuilder: (context, index) {
+                        if (index == filtered.length) {
+                          // "+ Add" button
+                          return GestureDetector(
+                            onTap: () async {
+                              final newCat = await CategoryFormDialog.show(
+                                context,
+                                initialType: _type == TransactionType.income
+                                    ? CategoryType.income
+                                    : _type == TransactionType.transfer
+                                        ? CategoryType.transfer
+                                        : CategoryType.expense,
+                              );
+                              if (newCat != null && mounted) {
+                                setState(() => _selectedCategory = newCat);
+                              }
+                            },
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 52,
+                                  height: 52,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.surface,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: AppColors.surfaceBorder,
+                                      style: BorderStyle.solid,
+                                    ),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: const Icon(
+                                    Icons.add_rounded,
+                                    color: AppColors.accent,
+                                    size: 26,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '+ Add',
+                                  style: AppTypography.caption.copyWith(
+                                    color: AppColors.accent,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+
                         final cat = filtered[index];
                         final isSelected = _selectedCategory?.id == cat.id;
 
@@ -275,7 +326,7 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                cat.name,
+                                cat.isSubCategory ? '↳ ${cat.name}' : cat.name,
                                 style: AppTypography.caption.copyWith(
                                   color: isSelected
                                       ? AppColors.textPrimary
@@ -479,9 +530,9 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
-            color: isSelected ? activeColor.withOpacity(0.18) : Colors.transparent,
+            color: isSelected ? activeColor.withValues(alpha: 0.18) : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
-            border: isSelected ? Border.all(color: activeColor.withOpacity(0.6)) : null,
+            border: isSelected ? Border.all(color: activeColor.withValues(alpha: 0.6)) : null,
           ),
           alignment: Alignment.center,
           child: Text(

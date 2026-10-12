@@ -5,6 +5,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/providers/expense_providers.dart';
+import '../../categories/screens/category_management_screen.dart';
 import 'back_tap_guide_screen.dart';
 
 /// Settings and preferences screen matching Quanto.
@@ -192,6 +193,36 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       },
                     ),
                   ],
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Categories & Organization
+              Text('Organization', style: AppTypography.titleMedium),
+              const SizedBox(height: 10),
+
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.surfaceBorder),
+                ),
+                child: ListTile(
+                  leading: const Icon(Icons.category_rounded, color: AppColors.accent),
+                  title: Text('Categories & Subcategories', style: AppTypography.bodyLarge),
+                  subtitle: Text(
+                    'Customize spending icons, colors, and hierarchies',
+                    style: AppTypography.caption.copyWith(color: AppColors.textTertiary),
+                  ),
+                  trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppColors.textTertiary),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const CategoryManagementScreen(),
+                      ),
+                    );
+                  },
                 ),
               ),
               const SizedBox(height: 20),

@@ -79,6 +79,24 @@ class ExpenseRepository {
     await _dbHelper.insert('categories', category.toMap());
   }
 
+  Future<void> updateCategory(Category category) async {
+    if (kIsWeb) {
+      _webStore.updateCategory(category);
+      return;
+    }
+    await _dbHelper.update('categories', category.toMap(), category.id);
+  }
+
+  Future<void> deleteCategory(String id) async {
+    if (kIsWeb) {
+      _webStore.deleteCategory(id);
+      return;
+    }
+    // Delete subcategories as well
+    final db = await _dbHelper.database;
+    await db.delete('categories', where: 'id = ? OR parentId = ?', whereArgs: [id, id]);
+  }
+
   // ---------------------------------------------------------------------------
   // Transactions
   // ---------------------------------------------------------------------------

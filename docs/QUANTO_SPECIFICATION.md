@@ -227,3 +227,8 @@ lib/
 - [x] **Phase 7: Settings, Preferences & Security**
   - Back tap setup instructions page.
   - Biometric lock, currency formatting, CSV export/import, hide balances toggle.
+- [x] **Phase 8: Category Hierarchy & Floating Speed Dial**
+  - Full Category & Subcategory CRUD management screen (Expense, Income, Transfer) with custom emojis and color pickers.
+  - On-the-fly category/subcategory creation inside the Quick Input modal.
+  - Symmetrical 5-tab floating bottom navigation dock.
+  - Bottom-right floating Speed Dial FAB: tap opens quick entry numpad; hold/long-press reveals animated Voice AI Logger and Receipt Scanner buttons.
