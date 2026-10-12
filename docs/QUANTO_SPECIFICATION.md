@@ -99,12 +99,11 @@ lib/
 ### 3.2. Activity Screen (Screenshot `IMG_6026.PNG`)
 - Top total spending with month switcher dropdown (e.g. `This month ▼ ₹24,893.32`).
 - Interactive daily bar chart with baseline dashed line and daily spend bars.
-- Filter chips: `Search`, `Expenses`, `Monthly`, `All accounts`, `All categories`.
-- Grouped transaction list by date (`Yesterday`, `Today`, etc.) with category emoji/icon, title, and price.
+- Filter chips: `Search` (with smooth expandable search bar and icon morphing transition), `All transactions` (default selected), `Expenses`, `Income`, `Monthly`, `All accounts`. Smooth animated selection transitions.
+- Grouped transaction list by date (`Yesterday`, `Today`, etc.) in unified card containers with category emoji/icon, title, and price.
 - Floating Action Dock:
-  - Voice AI input button (Mic).
-  - OCR Receipt scanner button.
-  - Quick Add (+) transaction button.
+  - Long-press / swipe-to-activate gesture on `+` reveals Voice AI (Mic) and OCR Receipt scanner with haptic feedback.
+  - Quick Add (+) transaction button tap opens numpad overlay.
 
 ### 3.3. Summary Screen (Screenshot `IMG_6027.PNG`)
 - Donut chart with segmented colored arcs for each category.
