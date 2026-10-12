@@ -10,6 +10,7 @@ import '../../../models/category.dart';
 import '../../../models/transaction.dart';
 import '../../settings/screens/settings_screen.dart';
 import '../widgets/budget_gauge.dart';
+import '../widgets/category_budget_numpad_sheet.dart';
 
 /// Flagship Budget Screen matching Quanto's IMG_6028.PNG & design specification:
 /// - Atmospheric transparent background seamlessly revealing the midnight gradient
@@ -644,21 +645,26 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                               : 0.0;
 
                           return InkWell(
-                            onTap: () {
-                              _showSetCategoryLimitDialog(
+                            onTap: () async {
+                              final newLimit =
+                                  await CategoryBudgetNumpadSheet.show(
                                 context,
-                                cat,
-                                currentCatLimit,
-                                (newLimit) {
-                                  setSheetState(() {
-                                    if (newLimit <= 0) {
-                                      tempLimits.remove(cat.id);
-                                    } else {
-                                      tempLimits[cat.id] = newLimit;
-                                    }
-                                  });
-                                },
+                                title:
+                                    '${cat.iconOrEmoji} ${cat.name} monthly budget',
+                                subtitle: leftToAllocate >= 0
+                                    ? '${AppFormatters.currency(leftToAllocate)} budget left'
+                                    : '₹0 budget left',
+                                initialAmount: currentCatLimit,
                               );
+                              if (newLimit != null) {
+                                setSheetState(() {
+                                  if (newLimit <= 0) {
+                                    tempLimits.remove(cat.id);
+                                  } else {
+                                    tempLimits[cat.id] = newLimit;
+                                  }
+                                });
+                              }
                             },
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
@@ -778,68 +784,6 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
           },
         );
       },
-    );
-  }
-
-  void _showSetCategoryLimitDialog(
-    BuildContext context,
-    Category category,
-    double currentLimit,
-    ValueChanged<double> onSaved,
-  ) {
-    final controller = TextEditingController(
-      text: currentLimit > 0 ? currentLimit.toStringAsFixed(0) : '',
-    );
-
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF141F2A),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(
-          'Set ${category.name} Budget',
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        content: TextField(
-          controller: controller,
-          keyboardType: TextInputType.number,
-          autofocus: true,
-          style: const TextStyle(color: Colors.white),
-          decoration: InputDecoration(
-            prefixText: '${AppConstants.currencySymbol} ',
-            prefixStyle: const TextStyle(color: Color(0xFF38BDF8), fontSize: 16),
-            hintText: 'e.g. 3000',
-            hintStyle: const TextStyle(color: Color(0xFF6B7E93)),
-            filled: true,
-            fillColor: const Color(0xFF1B2836),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFF28394C)),
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              onSaved(0.0);
-              Navigator.pop(ctx);
-            },
-            child: const Text('Clear', style: TextStyle(color: Color(0xFFF43F5E))),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final val = double.tryParse(controller.text) ?? 0.0;
-              onSaved(val);
-              Navigator.pop(ctx);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF38BDF8),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            child: const Text('Save', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-          ),
-        ],
-      ),
     );
   }
 
