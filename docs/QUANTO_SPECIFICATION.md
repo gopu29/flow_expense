@@ -111,6 +111,8 @@ lib/
 - **Hero Donut Chart**: Borderless segmented donut ring with subtle gaps between category arcs. Centered tappable month switcher (`This month ⌵` with `MonthSelectorSheet`) and prominent bold total spend (`₹24,893.32`).
 - **Filter Chips**: Horizontal scrolling pill bar (`Expenses`, `Monthly`, `All accounts`, `All categories`) with interactive modal sheets for quick filtering.
 - **Unified Category Breakdown Card**: Rounded container (`BorderRadius.circular(22)`) with subtle row dividers, category icon squircle with accent color outline border, title, transaction count pill badge (e.g. `1`, `3`), amount (`₹10,000`), and percentage badge (`40.17%`).
+  - **Tap-to-Expand Subcategories**: When a category contains subcategories, clicking toggles a smooth animated accordion with rotating chevron to reveal nested subcategory rows with their individual amounts, percentages, and count badges.
+  - **Click-to-View Transactions Sheet**: Clicking on any subcategory, clicking the "View all [Category] transactions" action, or clicking a main category without subcategories opens a bottom sheet showing the complete list of added transactions with dates, accounts, notes, prices, and swipe-to-delete.
 
 ### 3.4. Budget Screen (Screenshot `IMG_6028.PNG`)
 - Top switcher: `Personal` vs other budget profiles + edit budget button.
