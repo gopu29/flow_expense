@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
 
-/// Floating bottom navigation dock matching Quanto's sleek aesthetic
-/// with responsive auto-scaling and zero RenderFlex overflow.
+/// Floating bottom navigation dock matching Quanto's sleek aesthetic (IMG_6026.PNG).
 class BottomNavDock extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTabSelected;
@@ -17,17 +15,17 @@ class BottomNavDock extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.surface.withValues(alpha: 0.94),
-        borderRadius: BorderRadius.circular(32),
+        color: const Color(0xFF0E1620).withValues(alpha: 0.95),
+        borderRadius: BorderRadius.circular(30),
         border: Border.all(
-          color: AppColors.surfaceBorder.withValues(alpha: 0.9),
+          color: const Color(0xFF1C2735),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.45),
+            color: Colors.black.withValues(alpha: 0.5),
             blurRadius: 24,
             offset: const Offset(0, 8),
           ),
@@ -37,27 +35,27 @@ class BottomNavDock extends StatelessWidget {
         children: [
           _buildNavItem(
             index: 0,
-            icon: Icons.list_alt_rounded,
+            icon: Icons.article_outlined,
             label: 'Activity',
           ),
           _buildNavItem(
             index: 1,
-            icon: Icons.pie_chart_outline_rounded,
+            icon: Icons.timelapse_rounded,
             label: 'Summary',
           ),
           _buildNavItem(
             index: 2,
-            icon: Icons.track_changes_rounded,
+            icon: Icons.wallet_outlined,
             label: 'Budget',
           ),
           _buildNavItem(
             index: 3,
-            icon: Icons.auto_graph_rounded,
+            icon: Icons.bar_chart_rounded,
             label: 'Analytics',
           ),
           _buildNavItem(
             index: 4,
-            icon: Icons.account_balance_wallet_outlined,
+            icon: Icons.account_balance_outlined,
             label: 'Accounts',
           ),
         ],
@@ -75,26 +73,22 @@ class BottomNavDock extends StatelessWidget {
     return Expanded(
       child: InkWell(
         onTap: () => onTabSelected(index),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeOutCubic,
           padding: const EdgeInsets.symmetric(vertical: 6),
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.surfaceHover : Colors.transparent,
-            borderRadius: BorderRadius.circular(16),
+            color: isSelected ? const Color(0xFF1E2D3B) : Colors.transparent,
+            borderRadius: BorderRadius.circular(20),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              AnimatedScale(
-                scale: isSelected ? 1.15 : 1.0,
-                duration: const Duration(milliseconds: 200),
-                child: Icon(
-                  icon,
-                  size: 20,
-                  color: isSelected ? AppColors.accent : AppColors.textTertiary,
-                ),
+              Icon(
+                icon,
+                size: 20,
+                color: isSelected ? Colors.white : const Color(0xFF6B7E8E),
               ),
               const SizedBox(height: 2),
               FittedBox(
@@ -102,9 +96,9 @@ class BottomNavDock extends StatelessWidget {
                 child: Text(
                   label,
                   style: TextStyle(
-                    fontSize: 9.5,
+                    fontSize: 10,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                    color: isSelected ? AppColors.textPrimary : AppColors.textTertiary,
+                    color: isSelected ? Colors.white : const Color(0xFF6B7E8E),
                   ),
                 ),
               ),

@@ -3,13 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/formatters.dart';
-import '../../../core/widgets/category_icon_badge.dart';
 import '../../../core/providers/expense_providers.dart';
 import '../../../models/transaction.dart';
 import '../../../models/category.dart';
 import '../../../models/account.dart';
 
-/// Interactive tile displaying a single transaction with swipe-to-delete.
+/// Minimalist, ultra-clean transaction row matching Quanto (IMG_6026.PNG).
 class TransactionTile extends ConsumerWidget {
   final Transaction transaction;
 
@@ -48,11 +47,7 @@ class TransactionTile extends ConsumerWidget {
             ? AppColors.income
             : AppColors.transfer;
 
-    final amountPrefix = isExpense
-        ? '-'
-        : isIncome
-            ? '+'
-            : '';
+    final amountPrefix = isIncome ? '+' : '';
 
     return Dismissible(
       key: Key(transaction.id),
@@ -60,8 +55,9 @@ class TransactionTile extends ConsumerWidget {
       background: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
+        margin: const EdgeInsets.symmetric(vertical: 3),
         decoration: BoxDecoration(
-          color: AppColors.expense.withOpacity(0.8),
+          color: AppColors.expense.withValues(alpha: 0.85),
           borderRadius: BorderRadius.circular(16),
         ),
         child: const Icon(Icons.delete_outline, color: Colors.white, size: 24),
@@ -71,9 +67,10 @@ class TransactionTile extends ConsumerWidget {
           context: context,
           builder: (ctx) => AlertDialog(
             backgroundColor: AppColors.surface,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             title: const Text('Delete Transaction?'),
             content: Text(
-              'Are you sure you want to delete ${AppFormatters.currency(transaction.amount)} for ${category?.name ?? 'this item'}?',
+              'Delete ${AppFormatters.currency(transaction.amount)} for ${category?.name ?? 'this item'}?',
               style: AppTypography.bodyMedium,
             ),
             actions: [
@@ -94,82 +91,77 @@ class TransactionTile extends ConsumerWidget {
         ref.read(transactionsProvider.notifier).deleteTransaction(transaction);
       },
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 4),
+        margin: const EdgeInsets.symmetric(vertical: 3),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: const Color(0xFF121921).withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.surfaceBorder.withOpacity(0.5)),
+          border: Border.all(
+            color: const Color(0xFF1B2530),
+            width: 1,
+          ),
         ),
         child: Row(
           children: [
-            CategoryIconBadge(
-              iconOrEmoji: category?.iconOrEmoji ?? '🏷️',
-              colorValue: category?.color ?? 0xFF6366F1,
-              size: 42,
-              fontSize: 20,
+            // Squircle icon matching Quanto
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(13),
+                color: Color(category?.color ?? 0xFF6366F1).withValues(alpha: 0.16),
+                border: Border.all(
+                  color: Color(category?.color ?? 0xFF6366F1).withValues(alpha: 0.3),
+                  width: 1,
+                ),
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                category?.iconOrEmoji ?? '📁',
+                style: const TextStyle(fontSize: 22),
+              ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 14),
+
+            // Title & optional note
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Text(
-                        category?.name ?? 'Transaction',
-                        style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.w600),
-                      ),
-                      if (account != null) ...[
-                        const SizedBox(width: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: AppColors.surfaceHover,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            account.name,
-                            style: AppTypography.caption.copyWith(
-                              fontSize: 10,
-                              color: AppColors.textTertiary,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 2),
                   Text(
-                    transaction.note?.isNotEmpty == true
-                        ? transaction.note!
-                        : AppFormatters.time(transaction.date),
-                    style: AppTypography.caption.copyWith(color: AppColors.textTertiary),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    category?.name ?? 'Transaction',
+                    style: AppTypography.bodyLarge.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                      fontSize: 15,
+                    ),
                   ),
+                  if (transaction.note?.isNotEmpty == true || account != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      transaction.note?.isNotEmpty == true
+                          ? transaction.note!
+                          : account!.name,
+                      style: AppTypography.caption.copyWith(
+                        color: AppColors.textTertiary,
+                        fontSize: 12,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ],
               ),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  '$amountPrefix${AppFormatters.currency(transaction.amount)}',
-                  style: AppTypography.bodyLarge.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: amountColor,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  AppFormatters.time(transaction.date),
-                  style: AppTypography.caption.copyWith(
-                    fontSize: 10,
-                    color: AppColors.textTertiary,
-                  ),
-                ),
-              ],
+
+            // Amount matching Quanto
+            Text(
+              '$amountPrefix${AppFormatters.currency(transaction.amount)}',
+              style: AppTypography.bodyLarge.copyWith(
+                fontWeight: FontWeight.w600,
+                color: amountColor,
+                fontSize: 15,
+              ),
             ),
           ],
         ),

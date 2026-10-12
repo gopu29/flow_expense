@@ -46,9 +46,13 @@ class MainShell extends ConsumerWidget {
       child: Focus(
         autofocus: true,
         child: Scaffold(
-          backgroundColor: AppColors.background,
-          body: Stack(
-            children: [
+          backgroundColor: AppColors.backgroundBottom,
+          body: DecoratedBox(
+            decoration: const BoxDecoration(
+              gradient: AppColors.appBackgroundGradient,
+            ),
+            child: Stack(
+              children: [
               // Smooth animated screen transitions
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 280),
@@ -105,6 +109,7 @@ class MainShell extends ConsumerWidget {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

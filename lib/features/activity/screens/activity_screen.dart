@@ -4,40 +4,55 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/utils/formatters.dart';
-import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/month_selector_sheet.dart';
 import '../../../core/providers/expense_providers.dart';
 import '../../../models/transaction.dart';
 import '../widgets/daily_spend_bar_chart.dart';
 import '../widgets/transaction_tile.dart';
-import '../../voice_logging/screens/voice_logger_sheet.dart';
-import '../../receipt_scanner/screens/receipt_scanner_sheet.dart';
 import '../../settings/screens/settings_screen.dart';
 
-/// Main Activity Screen showcasing the daily spend bar chart, stats, and timeline.
-class ActivityScreen extends ConsumerWidget {
+/// Flagship Activity Screen matching Quanto's exact gradient UI (IMG_6026.PNG).
+class ActivityScreen extends ConsumerStatefulWidget {
   const ActivityScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ActivityScreen> createState() => _ActivityScreenState();
+}
+
+class _ActivityScreenState extends ConsumerState<ActivityScreen> {
+  String _selectedTypeFilter = 'Expenses'; // 'All', 'Expenses', 'Income'
+  bool _showSearchBar = false;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(() {
+      setState(() {
+        _searchQuery = _searchController.text.trim().toLowerCase();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final selectedDate = ref.watch(selectedDateProvider);
     final monthlyExpense = ref.watch(monthlyExpenseTotalProvider);
     final transactionsAsync = ref.watch(transactionsProvider);
-    final budgetAsync = ref.watch(budgetProvider);
 
     final now = DateTime.now();
     final isCurrentMonth =
         selectedDate.year == now.year && selectedDate.month == now.month;
-    final daysElapsed = isCurrentMonth
-        ? now.day
-        : DateTime(selectedDate.year, selectedDate.month + 1, 0).day;
-    final dailyAverage = daysElapsed > 0 ? monthlyExpense / daysElapsed : 0.0;
-
-    final budgetLimit = budgetAsync.value?.monthlyLimit ?? 0.0;
-    final budgetLeft = budgetLimit > 0 ? (budgetLimit - monthlyExpense) : 0.0;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         bottom: false,
         child: Padding(
@@ -45,13 +60,46 @@ class ActivityScreen extends ConsumerWidget {
             horizontal: AppConstants.horizontalPadding,
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 12),
-              // Top Header Row
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              const SizedBox(height: 8),
+
+              // 1. Top Header Row: Settings nut icon on left, Centered Month Dropdown
+              Stack(
+                alignment: Alignment.center,
                 children: [
+                  // Left Settings Nut / Gear Button
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const SettingsScreen(),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF162330).withValues(alpha: 0.8),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: const Color(0xFF243545),
+                            width: 1,
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.hexagon_outlined,
+                          color: Color(0xFFB0C2D2),
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Centered "This month ⌵" chip
                   GestureDetector(
                     onTap: () {
                       MonthSelectorSheet.show(
@@ -64,271 +112,212 @@ class ActivityScreen extends ConsumerWidget {
                         },
                       );
                     },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: AppColors.surfaceBorder),
-                      ),
-                      child: Row(
-                        children: [
-                          Text(
-                            isCurrentMonth
-                                ? 'This month'
-                                : AppFormatters.monthYear(selectedDate),
-                            style: AppTypography.titleMedium.copyWith(
-                              color: AppColors.textPrimary,
-                              fontSize: 15,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          const Icon(
-                            Icons.keyboard_arrow_down,
-                            color: AppColors.textSecondary,
-                            size: 18,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      // Voice AI Logger button
-                      GestureDetector(
-                        onTap: () => VoiceLoggerSheet.show(context),
-                        child: Container(
-                          padding: const EdgeInsets.all(7),
-                          decoration: BoxDecoration(
-                            color: AppColors.surface,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: AppColors.surfaceBorder),
-                          ),
-                          child: const Icon(
-                            Icons.mic_none_rounded,
-                            size: 16,
-                            color: AppColors.accent,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      // AI Receipt Scanner button
-                      GestureDetector(
-                        onTap: () => ReceiptScannerSheet.show(context),
-                        child: Container(
-                          padding: const EdgeInsets.all(7),
-                          decoration: BoxDecoration(
-                            color: AppColors.surface,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: AppColors.surfaceBorder),
-                          ),
-                          child: const Icon(
-                            Icons.document_scanner_outlined,
-                            size: 16,
-                            color: AppColors.accentCyan,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: AppColors.surfaceBorder),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.tune,
-                              size: 14,
-                              color: AppColors.textSecondary,
-                            ),
-                            const SizedBox(width: 5),
-                            Text(
-                              'Filters',
-                              style: AppTypography.caption.copyWith(
-                                 color: AppColors.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      // Settings button
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const SettingsScreen(),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(7),
-                          decoration: BoxDecoration(
-                            color: AppColors.surface,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: AppColors.surfaceBorder),
-                          ),
-                          child: const Icon(
-                            Icons.settings_outlined,
-                            size: 16,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
-
-              // Total Spend Display
-              Text(
-                AppFormatters.currency(monthlyExpense),
-                style: AppTypography.amountDisplay.copyWith(fontSize: 36),
-              ),
-              const SizedBox(height: 14),
-
-              // Chart and Overview Card
-              transactionsAsync.when(
-                data: (txs) {
-                  return GlassCard(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        DailySpendBarChart(
-                          transactions: txs,
-                          selectedMonth: selectedDate,
+                        Text(
+                          isCurrentMonth
+                              ? 'This month'
+                              : AppFormatters.monthYear(selectedDate),
+                          style: TextStyle(
+                            color: const Color(0xFF8FA2B2),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                        const SizedBox(height: 14),
-                        const Divider(height: 1, color: AppColors.surfaceBorder),
-                        const SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Daily Average', style: AppTypography.caption),
-                                const SizedBox(height: 2),
-                                Text(
-                                  AppFormatters.currency(dailyAverage),
-                                  style: AppTypography.bodyLarge.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text('Budget Left', style: AppTypography.caption),
-                                const SizedBox(height: 2),
-                                Text(
-                                  budgetLimit > 0
-                                      ? AppFormatters.currency(budgetLeft)
-                                      : 'No Budget Set',
-                                  style: AppTypography.bodyLarge.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: budgetLimit > 0 && budgetLeft >= 0
-                                        ? AppColors.income
-                                        : AppColors.textTertiary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                        const SizedBox(width: 4),
+                        const Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          color: Color(0xFF8FA2B2),
+                          size: 18,
                         ),
                       ],
                     ),
-                  );
-                },
-                loading: () => const GlassCard(
-                  child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                ),
-                error: (e, _) => GlassCard(
-                  child: Text('Error loading transactions: $e'),
-                ),
-              ),
-              const SizedBox(height: 18),
-
-              // Transactions Timeline Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Activity Timeline', style: AppTypography.titleMedium),
-                  transactionsAsync.maybeWhen(
-                    data: (txs) {
-                      final count = txs
-                          .where((t) =>
-                              t.date.year == selectedDate.year &&
-                              t.date.month == selectedDate.month)
-                          .length;
-                      return Text(
-                        '$count transactions',
-                        style: AppTypography.caption.copyWith(
-                          color: AppColors.textTertiary,
-                        ),
-                      );
-                    },
-                    orElse: () => const SizedBox.shrink(),
                   ),
                 ],
               ),
+
               const SizedBox(height: 8),
 
-              // Transactions Timeline List
+              // 2. Huge Centered Amount Display (Matching IMG_6026.PNG)
+              Text(
+                AppFormatters.currency(monthlyExpense),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 38,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.5,
+                ),
+              ),
+
+              const SizedBox(height: 14),
+
+              // 3. Borderless Daily Spend Bar Chart (Directly on Midnight Gradient)
+              transactionsAsync.when(
+                data: (txs) => DailySpendBarChart(
+                  transactions: txs,
+                  selectedMonth: selectedDate,
+                ),
+                loading: () => const SizedBox(
+                  height: 140,
+                  child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                ),
+                error: (e, _) => SizedBox(
+                  height: 140,
+                  child: Center(child: Text('Error: $e')),
+                ),
+              ),
+
+              const SizedBox(height: 14),
+
+              // 4. Horizontal Filter Chips (Search, Expenses, Monthly, All accounts)
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    // Search toggle button
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _showSearchBar = !_showSearchBar;
+                          if (!_showSearchBar) {
+                            _searchController.clear();
+                            _searchQuery = '';
+                          }
+                        });
+                      },
+                      child: Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: _showSearchBar
+                              ? const Color(0xFF243545)
+                              : const Color(0xFF15202B),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: const Color(0xFF212E3B),
+                          ),
+                        ),
+                        child: Icon(
+                          _showSearchBar ? Icons.close : Icons.search_rounded,
+                          size: 18,
+                          color: const Color(0xFFB0C2D2),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+
+                    // Expenses filter pill
+                    _buildFilterChip('Expenses', isActive: _selectedTypeFilter == 'Expenses', onTap: () {
+                      setState(() => _selectedTypeFilter = 'Expenses');
+                    }),
+                    const SizedBox(width: 8),
+
+                    // Income filter pill
+                    _buildFilterChip('Income', isActive: _selectedTypeFilter == 'Income', onTap: () {
+                      setState(() => _selectedTypeFilter = 'Income');
+                    }),
+                    const SizedBox(width: 8),
+
+                    // All filter pill
+                    _buildFilterChip('All transactions', isActive: _selectedTypeFilter == 'All', onTap: () {
+                      setState(() => _selectedTypeFilter = 'All');
+                    }),
+                    const SizedBox(width: 8),
+
+                    // Monthly tag
+                    _buildFilterChip('Monthly', isActive: false, onTap: () {}),
+                    const SizedBox(width: 8),
+
+                    // All accounts tag
+                    _buildFilterChip('All accounts', isActive: false, onTap: () {}),
+                  ],
+                ),
+              ),
+
+              // Optional search input field
+              if (_showSearchBar) ...[
+                const SizedBox(height: 10),
+                TextField(
+                  controller: _searchController,
+                  autofocus: true,
+                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  decoration: InputDecoration(
+                    hintText: 'Search by merchant, note, or amount...',
+                    hintStyle: TextStyle(
+                      color: const Color(0xFF6B7E8E),
+                      fontSize: 13,
+                    ),
+                    filled: true,
+                    fillColor: const Color(0xFF131D26),
+                    prefixIcon: const Icon(
+                      Icons.search,
+                      color: Color(0xFF6B7E8E),
+                      size: 18,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFF22313F)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFF22313F)),
+                    ),
+                  ),
+                ),
+              ],
+
+              const SizedBox(height: 12),
+
+              // 5. Grouped Transactions Timeline (Grouped by Date matching IMG_6026.PNG)
               Expanded(
                 child: transactionsAsync.when(
                   data: (txs) {
-                    final monthTxs = txs
-                        .where((t) =>
-                            t.date.year == selectedDate.year &&
-                            t.date.month == selectedDate.month)
-                        .toList();
+                    var filtered = txs.where((t) {
+                      if (t.date.year != selectedDate.year ||
+                          t.date.month != selectedDate.month) {
+                        return false;
+                      }
+                      if (_selectedTypeFilter == 'Expenses' &&
+                          t.type != TransactionType.expense) {
+                        return false;
+                      }
+                      if (_selectedTypeFilter == 'Income' &&
+                          t.type != TransactionType.income) {
+                        return false;
+                      }
+                      if (_searchQuery.isNotEmpty) {
+                        final note = (t.note ?? '').toLowerCase();
+                        final amount = t.amount.toString();
+                        if (!note.contains(_searchQuery) &&
+                            !amount.contains(_searchQuery)) {
+                          return false;
+                        }
+                      }
+                      return true;
+                    }).toList();
 
-                    if (monthTxs.isEmpty) {
+                    if (filtered.isEmpty) {
                       return Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Container(
-                              width: 60,
-                              height: 60,
-                              decoration: BoxDecoration(
-                                color: AppColors.surface,
-                                shape: BoxShape.circle,
-                                border: Border.all(color: AppColors.surfaceBorder),
-                              ),
-                              child: const Icon(
-                                Icons.receipt_long_outlined,
-                                color: AppColors.textTertiary,
-                                size: 30,
-                              ),
+                            Icon(
+                              Icons.receipt_long_outlined,
+                              color: const Color(0xFF4A5D6E),
+                              size: 44,
                             ),
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 10),
                             Text(
-                              'No transactions yet',
-                              style: AppTypography.bodyLarge.copyWith(
-                                color: AppColors.textSecondary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Tap the + button to log your first expense',
-                              style: AppTypography.caption.copyWith(
-                                color: AppColors.textTertiary,
+                              'No transactions found',
+                              style: TextStyle(
+                                color: const Color(0xFF8FA2B2),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ],
@@ -336,9 +325,9 @@ class ActivityScreen extends ConsumerWidget {
                       );
                     }
 
-                    // Group transactions by date
+                    // Group by date header (e.g. "Today", "Yesterday", "Fri, 09 Oct")
                     final Map<String, List<Transaction>> grouped = {};
-                    for (final tx in monthTxs) {
+                    for (final tx in filtered) {
                       final header = AppFormatters.dateHeader(tx.date);
                       grouped.putIfAbsent(header, () => []).add(tx);
                     }
@@ -346,7 +335,7 @@ class ActivityScreen extends ConsumerWidget {
                     final groupHeaders = grouped.keys.toList();
 
                     return ListView.builder(
-                      padding: const EdgeInsets.only(bottom: 90),
+                      padding: const EdgeInsets.only(bottom: 96),
                       itemCount: groupHeaders.length,
                       itemBuilder: (context, index) {
                         final header = groupHeaders[index];
@@ -366,8 +355,8 @@ class ActivityScreen extends ConsumerWidget {
                               padding: const EdgeInsets.only(
                                 top: 12,
                                 bottom: 6,
-                                left: 4,
-                                right: 4,
+                                left: 2,
+                                right: 2,
                               ),
                               child: Row(
                                 mainAxisAlignment:
@@ -375,16 +364,19 @@ class ActivityScreen extends ConsumerWidget {
                                 children: [
                                   Text(
                                     header,
-                                    style: AppTypography.caption.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.textSecondary,
+                                    style: const TextStyle(
+                                      color: Color(0xFF7E91A1),
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                   if (dayTotal > 0)
                                     Text(
                                       AppFormatters.currency(dayTotal),
-                                      style: AppTypography.caption.copyWith(
-                                        color: AppColors.textTertiary,
+                                      style: const TextStyle(
+                                        color: Color(0xFF7E91A1),
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
                                 ],
@@ -401,12 +393,40 @@ class ActivityScreen extends ConsumerWidget {
                   loading: () => const Center(
                     child: CircularProgressIndicator(strokeWidth: 2),
                   ),
-                  error: (e, _) => Center(
-                    child: Text('Error: $e'),
-                  ),
+                  error: (e, _) => Center(child: Text('Error: $e')),
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilterChip(
+    String label, {
+    required bool isActive,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: isActive ? const Color(0xFF202E3B) : const Color(0xFF141F29),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isActive ? const Color(0xFF33475A) : const Color(0xFF1E2B38),
+            width: 1,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isActive ? Colors.white : const Color(0xFF8FA2B2),
+            fontSize: 13,
+            fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
           ),
         ),
       ),

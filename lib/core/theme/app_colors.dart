@@ -4,19 +4,36 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
-  // Backgrounds
-  static const Color background = Color(0xFF090A0E);
-  static const Color backgroundSecondary = Color(0xFF14151B);
-  static const Color surface = Color(0xFF14151B);
-  static const Color surfaceElevated = Color(0xFF1C1D26);
-  static const Color surfaceBorder = Color(0xFF262836);
-  static const Color surfaceHover = Color(0xFF232532);
+  // Backgrounds & Gradient (Matching Quanto IMG_6026.PNG)
+  static const Color backgroundTop = Color(0xFF182B3A);
+  static const Color backgroundMid = Color(0xFF0F1A24);
+  static const Color backgroundBottom = Color(0xFF080C10);
+  static const Color background = Color(0xFF080C10);
+  static const Color backgroundSecondary = Color(0xFF121921);
+
+  static const LinearGradient appBackgroundGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      Color(0xFF1A2D3C), // Atmospheric midnight teal-slate glow at the top
+      Color(0xFF101B25),
+      Color(0xFF0A0F15),
+      Color(0xFF070B0E),
+    ],
+    stops: [0.0, 0.25, 0.65, 1.0],
+  );
+
+  // Surfaces matching Quanto
+  static const Color surface = Color(0xFF121921);
+  static const Color surfaceElevated = Color(0xFF18222C);
+  static const Color surfaceBorder = Color(0xFF212D3A);
+  static const Color surfaceHover = Color(0xFF1B2632);
 
   // Text Hierarchy
-  static const Color textPrimary = Color(0xFFF8FAFC);
-  static const Color textSecondary = Color(0xFF94A3B8);
-  static const Color textTertiary = Color(0xFF64748B);
-  static const Color textMuted = Color(0xFF475569);
+  static const Color textPrimary = Color(0xFFFFFFFF);
+  static const Color textSecondary = Color(0xFF8EA0AE);
+  static const Color textTertiary = Color(0xFF5C6F7D);
+  static const Color textMuted = Color(0xFF43525E);
 
   // Financial Semantics
   static const Color expense = Color(0xFFF43F5E); // Soft vibrant coral red

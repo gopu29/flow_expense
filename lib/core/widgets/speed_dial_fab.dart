@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../theme/app_colors.dart';
-import '../theme/app_typography.dart';
 
-/// Floating Action Button on the bottom-right.
-/// - Regular tap: opens quick transaction numpad.
-/// - Hold / long-press: reveals Voice AI Logger and Receipt Scanner buttons
-///   with smooth spring micro-animations.
+/// Floating Action Button on the bottom-right matching Quanto (IMG_6026.PNG).
+/// - Prominent off-white '+' button with dark icon.
+/// - Floating Voice AI Logger & Receipt Scanner buttons.
+/// - Tap '+' to log instantly, hold/toggle to reveal secondary action buttons.
 class SpeedDialFab extends StatefulWidget {
   final VoidCallback onQuickAdd;
   final VoidCallback onVoiceLog;
@@ -27,29 +25,21 @@ class _SpeedDialFabState extends State<SpeedDialFab>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _expandAnimation;
-  late final Animation<double> _rotationAnimation;
-  bool _isOpen = false;
+  bool _isOpen = true; // Revealed by default matching IMG_6026.PNG!
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 280),
-      reverseDuration: const Duration(milliseconds: 220),
+      duration: const Duration(milliseconds: 260),
+      value: 1.0, // Open initially matching IMG_6026.PNG
     );
 
     _expandAnimation = CurvedAnimation(
       parent: _controller,
       curve: Curves.easeOutBack,
       reverseCurve: Curves.easeInCubic,
-    );
-
-    _rotationAnimation = Tween<double>(begin: 0.0, end: 0.125).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeOutCubic,
-      ),
     );
   }
 
@@ -71,183 +61,117 @@ class _SpeedDialFabState extends State<SpeedDialFab>
     });
   }
 
-  void _close() {
-    if (_isOpen) {
-      setState(() {
-        _isOpen = false;
-        _controller.reverse();
-      });
-    }
-  }
-
-  void _handleTap() {
-    if (_isOpen) {
-      _close();
-    } else {
-      widget.onQuickAdd();
-    }
-  }
-
-  void _handleLongPress() {
-    HapticFeedback.mediumImpact();
-    _toggle();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        // Revealing Action 1: AI Receipt Scanner
-        _buildActionItem(
-          label: 'Scan Receipt',
-          icon: Icons.document_scanner_rounded,
-          accentGradient: const [Color(0xFF10B981), Color(0xFF059669)],
-          onPressed: () {
-            _close();
-            widget.onScanReceipt();
-          },
-          delayFactor: 0.6,
-        ),
-        const SizedBox(height: 12),
-
-        // Revealing Action 2: Voice AI Logger
-        _buildActionItem(
-          label: 'Voice AI Logger',
-          icon: Icons.mic_rounded,
-          accentGradient: const [Color(0xFF8B5CF6), Color(0xFF6D28D9)],
-          onPressed: () {
-            _close();
-            widget.onVoiceLog();
-          },
-          delayFactor: 0.3,
-        ),
-        const SizedBox(height: 12),
-
-        // Primary Floating Button
-        GestureDetector(
-          onTap: _handleTap,
-          onLongPress: _handleLongPress,
-          child: AnimatedBuilder(
-            animation: _rotationAnimation,
-            builder: (context, child) {
-              return Container(
-                width: 56,
-                height: 56,
+        // Voice AI Logger Button (Dark circle matching IMG_6026.PNG)
+        ScaleTransition(
+          scale: _expandAnimation,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: GestureDetector(
+              onTap: () {
+                HapticFeedback.lightImpact();
+                widget.onVoiceLog();
+              },
+              child: Container(
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppColors.accent, AppColors.accentHover],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  color: const Color(0xFF1B2834),
                   shape: BoxShape.circle,
+                  border: Border.all(
+                    color: const Color(0xFF2B3D4E),
+                    width: 1,
+                  ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.accent.withValues(alpha: 0.5),
-                      blurRadius: 18,
-                      offset: const Offset(0, 6),
+                      color: Colors.black.withValues(alpha: 0.35),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
                     ),
                   ],
                 ),
-                child: RotationTransition(
-                  turns: _rotationAnimation,
-                  child: const Icon(
-                    Icons.add_rounded,
-                    color: Colors.white,
-                    size: 32,
-                  ),
+                child: const Icon(
+                  Icons.mic_none_rounded,
+                  color: Color(0xFFE2E8F0),
+                  size: 21,
                 ),
-              );
-            },
+              ),
+            ),
           ),
         ),
-      ],
-    );
-  }
 
-  Widget _buildActionItem({
-    required String label,
-    required IconData icon,
-    required List<Color> accentGradient,
-    required VoidCallback onPressed,
-    required double delayFactor,
-  }) {
-    return AnimatedBuilder(
-      animation: _expandAnimation,
-      builder: (context, child) {
-        final progress = _expandAnimation.value;
-        if (progress == 0.0) return const SizedBox.shrink();
-
-        return Opacity(
-          opacity: progress.clamp(0.0, 1.0),
-          child: Transform.scale(
-            scale: 0.7 + (0.3 * progress),
-            alignment: Alignment.bottomRight,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Text Label badge
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface.withValues(alpha: 0.95),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: AppColors.surfaceBorder,
-                      width: 1,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+        // AI Receipt Scanner Button (Dark circle matching IMG_6026.PNG)
+        ScaleTransition(
+          scale: _expandAnimation,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: GestureDetector(
+              onTap: () {
+                HapticFeedback.lightImpact();
+                widget.onScanReceipt();
+              },
+              child: Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1B2834),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: const Color(0xFF2B3D4E),
+                    width: 1,
                   ),
-                  child: Text(
-                    label,
-                    style: AppTypography.caption.copyWith(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.w600,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.35),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
                     ),
-                  ),
+                  ],
                 ),
-                const SizedBox(width: 10),
+                child: const Icon(
+                  Icons.crop_free_rounded,
+                  color: Color(0xFFE2E8F0),
+                  size: 21,
+                ),
+              ),
+            ),
+          ),
+        ),
 
-                // Action mini-FAB
-                GestureDetector(
-                  onTap: onPressed,
-                  child: Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: accentGradient,
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: accentGradient.first.withValues(alpha: 0.45),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Icon(
-                      icon,
-                      color: Colors.white,
-                      size: 22,
-                    ),
-                  ),
+        // Primary '+' Floating Button (Off-white circle matching IMG_6026.PNG)
+        GestureDetector(
+          onTap: () {
+            HapticFeedback.lightImpact();
+            widget.onQuickAdd();
+          },
+          onLongPress: _toggle,
+          child: Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: const Color(0xFFE6EDF5),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.4),
+                  blurRadius: 16,
+                  offset: const Offset(0, 6),
                 ),
               ],
             ),
+            child: const Icon(
+              Icons.add_rounded,
+              color: Color(0xFF0D1620),
+              size: 32,
+            ),
           ),
-        );
-      },
+        ),
+      ],
     );
   }
 }
