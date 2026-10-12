@@ -224,6 +224,6 @@ lib/
 - [x] **Phase 6: Advanced Smart Features**
   - Voice AI transaction parsing.
   - Receipt image picker & OCR simulation/integration.
-- [ ] **Phase 7: Settings, Preferences & Security**
+- [x] **Phase 7: Settings, Preferences & Security**
   - Back tap setup instructions page.
   - Biometric lock, currency formatting, CSV export/import, hide balances toggle.
