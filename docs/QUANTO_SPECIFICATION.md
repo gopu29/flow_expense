@@ -133,10 +133,18 @@ lib/
 - **Allocated Category Cards**: Displays allocated categories on the main budget screen with individual progress bars, spent vs limit, and over/under badges.
 
 ### 3.5. Analytics Screen (Screenshots `IMG_6029.PNG`, `IMG_6030.PNG`, `IMG_6031.PNG`)
-- **Income vs Expenses Comparison**: Dual gradient bar charts per month (May to Oct).
-- **Income Left Card**: Shows remaining income with balance / percentage toggle.
-- **Calendar Heatmap Matrix**: Calendar grid with day numbers and color-coded daily expense badges (e.g., green for positive, blue for expenses).
-- **Advanced Insights Cards**: Recurring subscription insights, category spending trends.
+- **Atmospheric Background & Navigation**: Transparent scaffold seamlessly displaying midnight gradient, top-left hexagonal settings nut button, and horizontal filter pills (`Monthly ⌵`, `All accounts ⌵`).
+- **Continuous Unified Vertical Feed**:
+  1. **Income vs Expenses Comparison Card**:
+     - Dual stat header with rounded green indicator for Income (`₹27,870.4`) and cyan indicator for Expenses (`₹24,893.32`).
+     - 6-month dual-bar comparison chart: horizontal mint/cyan dash pills for inactive zero-spend months, tall gradient rounded pill bars for active values, dark capsule highlight for the active month, and right Y-axis scale (`28k`, `14k`, `0`).
+  2. **Income Left Card**:
+     - Switcher toggle pill between currency amount (`₹2,977.08`) and percentage (`10.7%`).
+     - 6-month progression chart with glowing magenta/pink active month pill and translucent column track.
+  3. **Calendar Heatmap Matrix**:
+     - 7-column squircle grid (`M T W T F S S`) with day numbers and badges: vibrant ocean blue for expense days, mint green text for income days (`+6.66k`, `+107`), dark navy for zero activity, and tap-for-details bottom sheet.
+  4. **Insights Teaser Cards**:
+     - Frosted glass cards with lock icons and gradient pill buttons: "Unlock recurring insights" and "Unlock budgeting insights".
 
 ### 3.6. Accounts Screen (Screenshots `IMG_6032.PNG`, `IMG_6035.PNG`)
 - Total balance aggregated across accounts (e.g., `₹3,004.46`).
