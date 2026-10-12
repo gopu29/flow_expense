@@ -212,13 +212,13 @@ lib/
 - [ ] **Phase 3: iOS Back-Tap Overlay & App Intents**
   - Configure native Swift AppIntent for quick expense addition.
   - Configure App Group shared container for offline sync.
-- [ ] **Phase 4: Bottom Navigation & 5 Core Screens**
+- [x] **Phase 4: Bottom Navigation & 5 Core Screens**
   - Activity (Bar chart, timeline, filters).
   - Summary (Donut chart, category breakdown).
   - Budget (Circular gauge, limits).
   - Analytics (Income vs Expenses, calendar heatmap).
   - Accounts (Multi-account cards, balances, transfers).
-- [ ] **Phase 5: Quick Input Modals & Controls**
+- [x] **Phase 5: Quick Input Modals & Controls**
   - In-app custom keypad input modal.
   - Category picker with subcategories and emojis.
 - [ ] **Phase 6: Advanced Smart Features**
