@@ -147,9 +147,15 @@ lib/
      - Frosted glass cards with lock icons and gradient pill buttons: "Unlock recurring insights" and "Unlock budgeting insights".
 
 ### 3.6. Accounts Screen (Screenshots `IMG_6032.PNG`, `IMG_6035.PNG`)
-- Total balance aggregated across accounts (e.g., `₹3,004.46`).
-- Account card list (e.g., `Main account`, `Cash`, `Credit Card`) with reordering handle (`=`).
-- `+` Add account button (modal for account type, name, starting balance, currency).
+- **Atmospheric Background & Top Bar**: Transparent scaffold revealing midnight gradient, top-left hexagonal settings nut button, and top-right circular `+` button for adding new accounts.
+- **Hero Aggregated Balance Display**: Clean centered layout with subtitle "Total balance" and prominent bold aggregated amount (e.g., `₹3,004.46`).
+- **Reorderable Account Cards**:
+  - Dark rounded container cards (`BorderRadius.circular(22)`) with subtle borders.
+  - Left squircle emoji/icon container (`BorderRadius.circular(16)`), account name, and bold balance.
+  - Right iOS/Quanto drag handle with two horizontal parallel rounded bars (`=`) supporting live drag-and-drop reordering.
+- **Interactive Modals**:
+  - Sleek "New Account" bottom sheet with name, account type chips, icon carousel, and starting balance.
+  - "Account Details" bottom sheet for editing balance, viewing associated transactions, and managing accounts.
 
 ### 3.7. Full Transaction Input Modal (Screenshot `IMG_6033.PNG`)
 - In-app numpad transaction screen.

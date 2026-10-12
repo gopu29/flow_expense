@@ -1,112 +1,122 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../models/account.dart';
 
-/// Card displaying a single account with icon, balance, and type pill.
+/// Account row card matching Quanto IMG_6032.PNG:
+/// - Rounded container (#16202A) with border (#1E2A38)
+/// - Left squircle emoji/icon container (#1E2936)
+/// - Middle column: Account name (#8E9BAE) and Balance (Bold White)
+/// - Right reorder handle: Two parallel horizontal bars (#6B7E93)
 class AccountCard extends StatelessWidget {
   final Account account;
   final VoidCallback? onTap;
+  final Widget? dragHandle;
 
   const AccountCard({
     super.key,
     required this.account,
     this.onTap,
+    this.dragHandle,
   });
 
   @override
   Widget build(BuildContext context) {
-    final typeName = account.type.name[0].toUpperCase() +
-        account.type.name.substring(1);
-
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 5),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(18),
+        color: const Color(0xFF16202A),
+        borderRadius: BorderRadius.circular(22),
         border: Border.all(
-          color: AppColors.surfaceBorder.withOpacity(0.6),
+          color: const Color(0xFF1E2A38),
           width: 1,
         ),
       ),
-      child: InkWell(
-        onTap: onTap,
-        child: Row(
-          children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: Color(account.color).withOpacity(0.18),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: Color(account.color).withOpacity(0.35),
-                  width: 1,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(22),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              children: [
+                // Squircle Icon / Emoji Box matching IMG_6032.PNG
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E2936),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    account.icon,
+                    style: const TextStyle(fontSize: 24),
+                  ),
                 ),
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                account.icon,
-                style: const TextStyle(fontSize: 22),
-              ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+                const SizedBox(width: 14),
+
+                // Account Name & Balance
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         account.name,
-                        style: AppTypography.bodyLarge.copyWith(
-                          fontWeight: FontWeight.w600,
+                        style: const TextStyle(
+                          color: Color(0xFF8E9BAE),
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      if (account.isDefault) ...[
-                        const SizedBox(width: 6),
+                      const SizedBox(height: 4),
+                      Text(
+                        AppFormatters.currency(account.balance),
+                        style: TextStyle(
+                          color: account.balance >= 0
+                              ? Colors.white
+                              : const Color(0xFFF87171),
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.2,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Drag Handle '=' matching IMG_6032.PNG
+                if (dragHandle != null)
+                  dragHandle!
+                else
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
+                          width: 18,
+                          height: 2.2,
                           decoration: BoxDecoration(
-                            color: AppColors.surfaceHover,
-                            borderRadius: BorderRadius.circular(8),
+                            color: const Color(0xFF6B7E93),
+                            borderRadius: BorderRadius.circular(2),
                           ),
-                          child: Text(
-                            'Default',
-                            style: AppTypography.caption.copyWith(
-                              fontSize: 10,
-                              color: AppColors.textTertiary,
-                            ),
+                        ),
+                        const SizedBox(height: 4.5),
+                        Container(
+                          width: 18,
+                          height: 2.2,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF6B7E93),
+                            borderRadius: BorderRadius.circular(2),
                           ),
                         ),
                       ],
-                    ],
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    typeName,
-                    style: AppTypography.caption.copyWith(
-                      color: AppColors.textTertiary,
                     ),
                   ),
-                ],
-              ),
+              ],
             ),
-            Text(
-              AppFormatters.currency(account.balance),
-              style: AppTypography.bodyLarge.copyWith(
-                fontWeight: FontWeight.bold,
-                color: account.balance >= 0
-                    ? AppColors.textPrimary
-                    : AppColors.expense,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

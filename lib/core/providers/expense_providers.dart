@@ -57,6 +57,23 @@ class AccountsNotifier extends AsyncNotifier<List<Account>> {
     await repo.deleteAccount(id);
     ref.invalidateSelf();
   }
+
+  Future<void> reorderAccounts(int oldIndex, int newIndex) async {
+    final current = state.value ?? [];
+    if (current.isEmpty) return;
+    final list = List<Account>.from(current);
+    if (newIndex > oldIndex) {
+      newIndex -= 1;
+    }
+    final item = list.removeAt(oldIndex);
+    list.insert(newIndex, item);
+    state = AsyncData(list);
+
+    final repo = ref.read(repositoryProvider);
+    for (int i = 0; i < list.length; i++) {
+      await repo.updateAccount(list[i]);
+    }
+  }
 }
 
 final accountsProvider =
