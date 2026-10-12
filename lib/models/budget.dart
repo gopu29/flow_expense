@@ -20,7 +20,7 @@ class Budget {
       id: map['id'] as String,
       profileName: map['profileName'] as String? ?? 'Personal',
       monthlyLimit: (map['monthlyLimit'] as num).toDouble(),
-      categoryLimits: limits,
+      categoryLimits: const {},
       monthYear: map['monthYear'] as String,
     );
   }
