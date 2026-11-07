@@ -245,7 +245,7 @@ class _QuantoBarChartPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
 
     final selectedBarPaint = Paint()
-      ..color = const Color(0xFF38BDF8)
+      ..color = const Color(0xFFD9B77E)
       ..strokeWidth = 5.0
       ..strokeCap = StrokeCap.round;
 
@@ -305,7 +305,7 @@ class _QuantoBarChartPainter extends CustomPainter {
       final textSpan = TextSpan(
         text: '$day',
         style: TextStyle(
-          color: selectedDay == day ? const Color(0xFF38BDF8) : const Color(0xFF5A6F82),
+          color: selectedDay == day ? const Color(0xFFD9B77E) : const Color(0xFF5A6F82),
           fontSize: 10,
           fontWeight: FontWeight.w500,
         ),

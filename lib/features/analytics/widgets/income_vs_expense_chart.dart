@@ -144,7 +144,7 @@ class IncomeVsExpenseChart extends StatelessWidget {
                           width: 10,
                           height: 10,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF38BDF8),
+                            color: const Color(0xFFD9B77E),
                             borderRadius: BorderRadius.circular(3),
                           ),
                         ),
@@ -234,13 +234,13 @@ class IncomeVsExpenseChart extends StatelessWidget {
                                         _buildBarOrDash(
                                           height: expHeight,
                                           hasValue: data.expense > 0,
-                                          color: const Color(0xFF38BDF8),
+                                          color: const Color(0xFFD9B77E),
                                           gradient: const LinearGradient(
                                             begin: Alignment.topCenter,
                                             end: Alignment.bottomCenter,
                                             colors: [
-                                              Color(0xFF38BDF8),
-                                              Color(0xFF0284C7),
+                                              Color(0xFFD9B77E),
+                                              Color(0xFFA8834A),
                                             ],
                                           ),
                                         ),

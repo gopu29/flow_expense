@@ -124,7 +124,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: Color(0xFF38BDF8)),
+                      borderSide: const BorderSide(color: Color(0xFFD9B77E)),
                     ),
                   ),
                 ),
@@ -167,7 +167,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
                             color: isSelected
-                                ? const Color(0xFF38BDF8)
+                                ? const Color(0xFFD9B77E)
                                 : const Color(0xFF223142),
                             width: 1,
                           ),
@@ -222,7 +222,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(
                               color: isSelected
-                                  ? const Color(0xFF38BDF8)
+                                  ? const Color(0xFFD9B77E)
                                   : const Color(0xFF223142),
                               width: 1.5,
                             ),
@@ -256,7 +256,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
                   decoration: InputDecoration(
                     prefixText: '${AppFormatters.symbol} ',
                     prefixStyle: const TextStyle(
-                      color: Color(0xFF38BDF8),
+                      color: Color(0xFFD9B77E),
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -272,7 +272,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: Color(0xFF38BDF8)),
+                      borderSide: const BorderSide(color: Color(0xFFD9B77E)),
                     ),
                   ),
                 ),
@@ -304,7 +304,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
                       if (context.mounted) Navigator.pop(ctx);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF38BDF8),
+                      backgroundColor: const Color(0xFFD9B77E),
                       foregroundColor: const Color(0xFF0F172A),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25),
@@ -452,7 +452,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
                               child: Text(
                                 account.type.name.toUpperCase(),
                                 style: const TextStyle(
-                                  color: Color(0xFF7DD3FC),
+                                  color: Color(0xFFEBD3A6),
                                   fontSize: 10.5,
                                   fontWeight: FontWeight.w700,
                                   letterSpacing: 0.6,
@@ -759,7 +759,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
           decoration: InputDecoration(
             prefixText: '${AppFormatters.symbol} ',
             prefixStyle: const TextStyle(
-              color: Color(0xFF38BDF8),
+              color: Color(0xFFD9B77E),
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -788,7 +788,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
               if (context.mounted) Navigator.pop(ctx);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF38BDF8),
+              backgroundColor: const Color(0xFFD9B77E),
               foregroundColor: const Color(0xFF0F172A),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
@@ -1093,7 +1093,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
                   loading: () => const Center(
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: Color(0xFF38BDF8),
+                      color: Color(0xFFD9B77E),
                     ),
                   ),
                   error: (e, _) => Center(

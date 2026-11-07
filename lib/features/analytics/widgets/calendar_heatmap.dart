@@ -325,7 +325,7 @@ class _CalendarHeatmapState extends ConsumerState<CalendarHeatmap> {
 
               if (hasActivity) {
                 // Vibrant Cyan/Blue Squircle matching IMG_6030.PNG
-                cellBg = const Color(0xFF0284C7);
+                cellBg = const Color(0xFFA8834A);
                 dayTextColor = const Color(0xFFE0F2FE);
 
                 if (isIncomeDay) {
@@ -380,7 +380,7 @@ class _CalendarHeatmapState extends ConsumerState<CalendarHeatmap> {
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
                       color: isSelected
-                          ? const Color(0xFF38BDF8)
+                          ? const Color(0xFFD9B77E)
                           : Colors.transparent,
                       width: isSelected ? 1.5 : 0,
                     ),

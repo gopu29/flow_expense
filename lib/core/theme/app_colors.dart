@@ -42,16 +42,19 @@ class AppColors {
   static const Color warning = Color(0xFFF59E0B);  // Amber
 
   // Accents & Brand
-  static const Color primary = Color(0xFF6366F1);  // Electric Indigo
-  static const Color primaryLight = Color(0xFF818CF8);
-  static const Color accent = Color(0xFF6366F1);
-  static const Color accentHover = Color(0xFF818CF8);
-  static const Color accentCyan = Color(0xFF38BDF8);
+  // Champagne gold: selected states, highlights and primary actions.
+  static const Color primary = Color(0xFFD9B77E);
+  static const Color primaryLight = Color(0xFFEBD3A6);
+  static const Color accent = Color(0xFFD9B77E);
+  static const Color accentHover = Color(0xFFEBD3A6);
+  static const Color accentDeep = Color(0xFFA8834A);
+  // Kept for older call sites; now the same gold as [accent].
+  static const Color accentCyan = Color(0xFFD9B77E);
   static const Color accentPurple = Color(0xFFA855F7);
   static const Color accentPink = Color(0xFFEC4899);
 
   // Charts
-  static const Color chartBar = Color(0xFF6366F1);
+  static const Color chartBar = Color(0xFFD9B77E);
   static const Color chartOrange = Color(0xFFF59E0B);
 
   // Category Palette (for donut chart segments & category icons)

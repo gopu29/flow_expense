@@ -163,7 +163,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen>
                                 borderRadius: BorderRadius.circular(18),
                                 border: Border.all(
                                   color: isSelected
-                                      ? const Color(0xFF38BDF8)
+                                      ? const Color(0xFFD9B77E)
                                       : const Color(0xFF1E2D3C),
                                   width: isSelected ? 1.5 : 1,
                                 ),
@@ -180,7 +180,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen>
                                         b.profileName,
                                         style: TextStyle(
                                           color: isSelected
-                                              ? const Color(0xFF38BDF8)
+                                              ? const Color(0xFFD9B77E)
                                               : Colors.white,
                                           fontSize: 16,
                                           fontWeight: FontWeight.w600,
@@ -386,7 +386,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen>
               if (ctx.mounted) Navigator.pop(ctx);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF38BDF8),
+              backgroundColor: const Color(0xFFD9B77E),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             child: const Text('Create', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
@@ -475,7 +475,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen>
               if (ctx.mounted) Navigator.pop(ctx);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF38BDF8),
+              backgroundColor: const Color(0xFFD9B77E),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             child: const Text('Save', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
@@ -606,7 +606,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen>
                               valueColor: AlwaysStoppedAnimation<Color>(
                                 leftToAllocate < 0
                                     ? const Color(0xFFF43F5E)
-                                    : const Color(0xFF38BDF8),
+                                    : const Color(0xFFD9B77E),
                               ),
                               minHeight: 5,
                             ),

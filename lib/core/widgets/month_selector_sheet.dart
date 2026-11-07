@@ -105,18 +105,18 @@ class MonthSelectorSheet extends StatelessWidget {
                         height: 38,
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? const Color(0xFF38BDF8).withValues(alpha: 0.15)
+                              ? const Color(0xFFD9B77E).withValues(alpha: 0.15)
                               : const Color(0xFF1F2E3E),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: isSelected
-                                ? const Color(0xFF38BDF8).withValues(alpha: 0.35)
+                                ? const Color(0xFFD9B77E).withValues(alpha: 0.35)
                                 : const Color(0xFF2B3C4E),
                           ),
                         ),
                         child: Icon(
                           Icons.calendar_month_outlined,
-                          color: isSelected ? const Color(0xFF38BDF8) : Colors.white60,
+                          color: isSelected ? const Color(0xFFD9B77E) : Colors.white60,
                           size: 18,
                         ),
                       ),
@@ -124,14 +124,14 @@ class MonthSelectorSheet extends StatelessWidget {
                         DateFormat('MMMM yyyy').format(m),
                         style: TextStyle(
                           color: isSelected
-                              ? const Color(0xFF38BDF8)
+                              ? const Color(0xFFD9B77E)
                               : Colors.white,
                           fontSize: 15,
                           fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                         ),
                       ),
                       trailing: isSelected
-                          ? const Icon(Icons.check_circle_rounded, color: Color(0xFF38BDF8), size: 20)
+                          ? const Icon(Icons.check_circle_rounded, color: Color(0xFFD9B77E), size: 20)
                           : isCurrent
                               ? Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),

@@ -364,7 +364,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen>
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
-                          borderSide: const BorderSide(color: Color(0xFF3B82F6)),
+                          borderSide: const BorderSide(color: Color(0xFFD9B77E)),
                         ),
                       ),
                     ),

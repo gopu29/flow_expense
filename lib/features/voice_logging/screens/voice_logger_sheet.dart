@@ -378,18 +378,18 @@ class _VoiceLoggerSheetState extends ConsumerState<VoiceLoggerSheet> {
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [
-                        Color(0xFF0284C7),
+                        Color(0xFFA8834A),
                         Color(0xFF0369A1),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: const Color(0xFF38BDF8).withValues(alpha: 0.4),
+                      color: const Color(0xFFD9B77E).withValues(alpha: 0.4),
                       width: 1,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF0284C7).withValues(alpha: 0.35),
+                        color: const Color(0xFFA8834A).withValues(alpha: 0.35),
                         blurRadius: 14,
                         offset: const Offset(0, 4),
                       ),

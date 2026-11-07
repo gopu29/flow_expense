@@ -75,7 +75,7 @@ class NoteEntrySheet extends StatelessWidget {
             onPressed: () => Navigator.of(context).pop(),
             tooltip: 'Done',
             style: IconButton.styleFrom(
-              backgroundColor: const Color(0xFF0284C7),
+              backgroundColor: const Color(0xFFA8834A),
               foregroundColor: Colors.white,
             ),
             icon: const Icon(Icons.check_rounded),

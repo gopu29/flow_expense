@@ -92,7 +92,7 @@ class _Numpad3DKeyState extends State<Numpad3DKey> {
             color: widget.isAction
                 ? const Color(0xFF2A3A4B)
                 : (_isPressed
-                    ? const Color(0xFF38BDF8).withValues(alpha: 0.45)
+                    ? const Color(0xFFD9B77E).withValues(alpha: 0.45)
                     : const Color(0xFF344A61)),
             width: 1.2,
           ),
