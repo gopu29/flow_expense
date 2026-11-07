@@ -212,8 +212,18 @@ class WebDatabaseStore {
   // ---------------------------------------------------------------------------
 
   List<Category> getCategories({CategoryType? type}) {
-    if (type == null) return List.unmodifiable(_categories);
-    return _categories.where((c) => c.type == type).toList();
+    final sorted = [..._categories]..sort(Category.compareForDisplay);
+    if (type == null) return List.unmodifiable(sorted);
+    return sorted.where((c) => c.type == type).toList();
+  }
+
+  void reorderCategories(List<String> orderedIds) {
+    for (var index = 0; index < orderedIds.length; index++) {
+      final position = _categories.indexWhere((c) => c.id == orderedIds[index]);
+      if (position >= 0) {
+        _categories[position] = _categories[position].copyWith(sortOrder: index);
+      }
+    }
   }
 
   void saveCategory(Category category) {

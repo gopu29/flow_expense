@@ -66,7 +66,7 @@ class ExpenseRepository {
       'categories',
       where: type != null ? 'type = ?' : null,
       whereArgs: type != null ? [type.index] : null,
-      orderBy: 'name ASC',
+      orderBy: 'sortOrder ASC, name ASC',
     );
     return rows.map((r) => Category.fromMap(r)).toList();
   }
@@ -85,6 +85,25 @@ class ExpenseRepository {
       return;
     }
     await _dbHelper.update('categories', category.toMap(), category.id);
+  }
+
+  /// Saves the display order: each id gets its position in [orderedIds].
+  Future<void> reorderCategories(List<String> orderedIds) async {
+    if (kIsWeb) {
+      _webStore.reorderCategories(orderedIds);
+      return;
+    }
+    final db = await _dbHelper.database;
+    final batch = db.batch();
+    for (var index = 0; index < orderedIds.length; index++) {
+      batch.update(
+        'categories',
+        {'sortOrder': index},
+        where: 'id = ?',
+        whereArgs: [orderedIds[index]],
+      );
+    }
+    await batch.commit(noResult: true);
   }
 
   Future<void> deleteCategory(String id) async {

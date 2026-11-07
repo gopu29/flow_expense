@@ -15,7 +15,7 @@ class DatabaseHelper {
 
   static Database? _database;
   static const _dbName = 'flow_expense.db';
-  static const _dbVersion = 1;
+  static const _dbVersion = 2;
   static const _uuid = Uuid();
 
   /// Returns the singleton database instance, creating it on first call.
@@ -75,6 +75,7 @@ class DatabaseHelper {
         iconOrEmoji TEXT NOT NULL DEFAULT '📁',
         color INTEGER NOT NULL DEFAULT 0xFF6366F1,
         type INTEGER NOT NULL DEFAULT 0,
+        sortOrder INTEGER NOT NULL DEFAULT 0,
         FOREIGN KEY (parentId) REFERENCES categories (id) ON DELETE CASCADE
       )
     ''');
@@ -118,7 +119,11 @@ class DatabaseHelper {
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    // Future migrations go here
+    if (oldVersion < 2) {
+      await db.execute(
+        'ALTER TABLE categories ADD COLUMN sortOrder INTEGER NOT NULL DEFAULT 0',
+      );
+    }
   }
 
   // ---------------------------------------------------------------------------

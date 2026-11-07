@@ -104,6 +104,20 @@ class CategoriesNotifier extends AsyncNotifier<List<Category>> {
     await repo.deleteCategory(id);
     ref.invalidateSelf();
   }
+
+  /// Applies a new display order at once, then saves it.
+  Future<void> reorderCategories(List<String> orderedIds) async {
+    final positions = {
+      for (var index = 0; index < orderedIds.length; index++)
+        orderedIds[index]: index,
+    };
+    final updated = [
+      for (final c in state.value ?? const <Category>[])
+        positions.containsKey(c.id) ? c.copyWith(sortOrder: positions[c.id]) : c,
+    ]..sort(Category.compareForDisplay);
+    state = AsyncData(updated);
+    await ref.read(repositoryProvider).reorderCategories(orderedIds);
+  }
 }
 
 final categoriesProvider =

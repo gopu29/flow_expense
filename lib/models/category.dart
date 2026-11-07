@@ -10,6 +10,7 @@ class Category {
   final String iconOrEmoji;
   final int color;
   final CategoryType type;
+  final int sortOrder; // display position among siblings of the same type
 
   const Category({
     required this.id,
@@ -18,7 +19,14 @@ class Category {
     this.iconOrEmoji = '📁',
     this.color = 0xFF6366F1,
     this.type = CategoryType.expense,
+    this.sortOrder = 0,
   });
+
+  /// Orders categories by [sortOrder], then by name.
+  static int compareForDisplay(Category a, Category b) {
+    final byOrder = a.sortOrder.compareTo(b.sortOrder);
+    return byOrder != 0 ? byOrder : a.name.compareTo(b.name);
+  }
 
   /// Whether this is a sub-category.
   bool get isSubCategory => parentId != null;
@@ -31,6 +39,7 @@ class Category {
       iconOrEmoji: map['iconOrEmoji'] as String? ?? '📁',
       color: map['color'] as int? ?? 0xFF6366F1,
       type: CategoryType.values[map['type'] as int? ?? 0],
+      sortOrder: map['sortOrder'] as int? ?? 0,
     );
   }
 
@@ -42,6 +51,7 @@ class Category {
       'iconOrEmoji': iconOrEmoji,
       'color': color,
       'type': type.index,
+      'sortOrder': sortOrder,
     };
   }
 
@@ -52,6 +62,7 @@ class Category {
     String? iconOrEmoji,
     int? color,
     CategoryType? type,
+    int? sortOrder,
   }) {
     return Category(
       id: id ?? this.id,
@@ -60,6 +71,7 @@ class Category {
       iconOrEmoji: iconOrEmoji ?? this.iconOrEmoji,
       color: color ?? this.color,
       type: type ?? this.type,
+      sortOrder: sortOrder ?? this.sortOrder,
     );
   }
 }
