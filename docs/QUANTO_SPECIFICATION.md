@@ -209,6 +209,7 @@ lib/
 - `iconOrEmoji` (String)
 - `color` (Hex)
 - `type` (Expense | Income | Transfer)
+- `sortOrder` (Int, display order among siblings of the same type; added in database version 2)
 
 ### `Transaction`
 - `id` (UUID)
@@ -309,3 +310,7 @@ lib/
   - The Budgets chip shows the money left in the selected category limit, or in the whole budget if the category has no limit. It does not assign transactions to a budget.
 - [ ] **Backlog: Real Voice & Receipt Input**
   - `VoiceLoggerSheet` speech capture and `ReceiptScannerSheet` OCR are simulated with sample data and not reachable from the app. Real speech recognition and scan sources were skipped for now.
+- [x] **Phase 18: Reorderable Categories Screen**
+  - Rebuilt the Categories screen as one list per type (Expense / Income / Transfer). Drag the handle to reorder; tap a category to show its sub-categories plus `+ Sub-category` and `Edit`. A floating `New category` button adds one.
+  - `CategoryFormSheet` replaces the old dialog: a small sheet with a name field, emoji button and color button. Edit uses the same sheet, with Delete.
+  - Schema: database version 2 adds `categories.sortOrder`. Categories are listed by `sortOrder`, then name, everywhere, including the add-modal rail and grid.
