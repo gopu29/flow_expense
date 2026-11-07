@@ -323,3 +323,6 @@ lib/
   - First day of week changes the Analytics calendar columns (Monday or Sunday).
   - Export data builds a CSV with category and account names and copies it to the clipboard. Erase data deletes all transactions and budgets and sets account balances to zero, after a confirm dialog. Accounts and categories are kept.
   - Skipped: AI and voice settings, Apple Pay, widgets, control center, subscription, language, reminders, month start day, backup and import.
+- [x] **Phase 20: Champagne Gold Accent & Scrollable Filter Sheets**
+  - Replaced the cyan/indigo UI accent with champagne gold (`AppColors.accent` `#D9B77E`, light `#EBD3A6`, deep `#A8834A`) for selected states, highlights, chart selection and focused fields. Income green, expense red and each category's own color are unchanged.
+  - The Summary filter sheets (period, account, category) and the Analytics account filter now scroll, so long category lists no longer overflow.
