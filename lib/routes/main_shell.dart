@@ -53,27 +53,10 @@ class MainShell extends ConsumerWidget {
             ),
             child: Stack(
               children: [
-              // Smooth animated screen transitions
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 280),
-                switchInCurve: Curves.easeOutCubic,
-                switchOutCurve: Curves.easeInCubic,
-                transitionBuilder: (child, animation) {
-                  return FadeTransition(
-                    opacity: animation,
-                    child: SlideTransition(
-                      position: Tween<Offset>(
-                        begin: const Offset(0.0, 0.015),
-                        end: Offset.zero,
-                      ).animate(animation),
-                      child: child,
-                    ),
-                  );
-                },
-                child: KeyedSubtree(
-                  key: ValueKey<int>(currentIndex),
-                  child: screens[currentIndex],
-                ),
+              // Tab screens with preserved state and instant, artifact-free switching
+              IndexedStack(
+                index: currentIndex,
+                children: screens,
               ),
 
               // Floating Navigation Dock

@@ -71,9 +71,9 @@ class BottomNavDock extends StatelessWidget {
     final isSelected = currentIndex == index;
 
     return Expanded(
-      child: InkWell(
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: () => onTabSelected(index),
-        borderRadius: BorderRadius.circular(20),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeOutCubic,
