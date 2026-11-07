@@ -9,6 +9,7 @@ This document is the **single source of truth** for any AI agent interacting wit
 All detailed specifications, design assets, and screen references live in the `docs/` directory:
 
 - 📘 **Master Specification**: [`docs/QUANTO_SPECIFICATION.md`](docs/QUANTO_SPECIFICATION.md) — Contains the full product requirements, tech stack (Flutter 3.x, SQLite `sqflite`, Swift App Intents for iOS Back Tap), complete screen-by-screen breakdown, and data models (`Account`, `Category`, `Transaction`, `Budget`).
+- 📝 **Agent Working Notes**: [`docs/AGENT_NOTES.md`](docs/AGENT_NOTES.md) — Machine setup, build/install commands, git identity, and how the user wants work batched. Read this first to save tokens.
 - 🖼️ **UI Mockup Screenshots**: [`docs/screenshots/`](docs/screenshots/)
 
 ### Mockup Reference Map
