@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/utils/formatters.dart';
@@ -114,6 +115,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen>
                     alignment: Alignment.centerLeft,
                     child: GestureDetector(
                       onTap: () {
+                        HapticFeedback.lightImpact();
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -122,19 +124,33 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen>
                         );
                       },
                       child: Container(
-                        width: 42,
-                        height: 42,
+                        width: 44,
+                        height: 44,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF162330).withValues(alpha: 0.8),
+                          gradient: const LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Color(0xFF1D2C3B),
+                              Color(0xFF131D28),
+                            ],
+                          ),
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: const Color(0xFF243545),
+                            color: const Color(0xFF2B3F54),
                             width: 1,
                           ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.3),
+                              blurRadius: 10,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
                         ),
                         child: const Icon(
                           Icons.hexagon_outlined,
-                          color: Color(0xFFB0C2D2),
+                          color: Color(0xFFC0D3E5),
                           size: 20,
                         ),
                       ),
@@ -473,12 +489,26 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen>
                             // Single Unified Card Container for all items of this day!
                             Container(
                               decoration: BoxDecoration(
-                                color: const Color(0xFF131A22),
-                                borderRadius: BorderRadius.circular(18),
+                                gradient: const LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    Color(0xFF16212D),
+                                    Color(0xFF0F1722),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
-                                  color: const Color(0xFF1C2733),
+                                  color: const Color(0xFF223446),
                                   width: 1,
                                 ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.35),
+                                    blurRadius: 16,
+                                    offset: const Offset(0, 5),
+                                  ),
+                                ],
                               ),
                               clipBehavior: Clip.antiAlias,
                               child: Column(
@@ -535,18 +565,46 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen>
     required VoidCallback onTap,
   }) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () {
+        HapticFeedback.selectionClick();
+        onTap();
+      },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 220),
         curve: Curves.easeOutCubic,
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: isActive ? const Color(0xFF202E3B) : const Color(0xFF141F29),
+          gradient: isActive
+              ? const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFF253748),
+                    Color(0xFF1A2836),
+                  ],
+                )
+              : const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFF15202B),
+                    Color(0xFF0E1620),
+                  ],
+                ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isActive ? const Color(0xFF33475A) : const Color(0xFF1E2B38),
+            color: isActive ? const Color(0xFF3C5670) : const Color(0xFF213140),
             width: 1,
           ),
+          boxShadow: isActive
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.25),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
         ),
         child: AnimatedDefaultTextStyle(
           duration: const Duration(milliseconds: 220),

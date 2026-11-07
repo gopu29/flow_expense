@@ -352,7 +352,7 @@ class _SpeedDialFabState extends State<SpeedDialFab>
             ),
           ),
 
-          // 3. Primary '+' Floating Button (Off-white circle matching IMG_6026.PNG)
+          // 3. Primary '+' Floating Button with elevated tactile glassmorphic finish
           AnimatedScale(
             duration: const Duration(milliseconds: 160),
             scale: _isOpen ? 0.94 : 1.0,
@@ -360,12 +360,23 @@ class _SpeedDialFabState extends State<SpeedDialFab>
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                color: const Color(0xFFE6EDF5),
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFFF1F5F9),
+                    Color(0xFFD3DFEB),
+                  ],
+                ),
                 shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.9),
+                  width: 1.2,
+                ),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.45),
-                    blurRadius: 16,
+                    blurRadius: 18,
                     offset: const Offset(0, 6),
                   ),
                 ],
