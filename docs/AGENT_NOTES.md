@@ -11,6 +11,7 @@ Short, current facts for any agent. Read this before exploring the code, and kee
 ## Machine setup (Windows)
 - Flutter 3.47.7: `C:\Users\USER\develop\flutter\bin`. JDK 17: `C:\Users\USER\develop\jdk-17`.
 - Android SDK: `%LOCALAPPDATA%\Android\Sdk`. adb is at `platform-tools\adb.exe`.
+- SDK and JDK paths are also saved with `flutter config --android-sdk/--jdk-dir`, so old terminals work.
 - Builds need `JAVA_TOOL_OPTIONS=-Djava.net.preferIPv6Addresses=true`, because the network is IPv6-only.
 - Phone: Galaxy S21 FE, serial `RZCX10V25NJ`, package `com.example.flow_expense`.
 - `flutter pub get` rewrites 3 `windows/flutter/*` files with line-ending noise. Run `git checkout -- windows/flutter` before committing.
