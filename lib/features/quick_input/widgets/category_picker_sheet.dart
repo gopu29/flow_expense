@@ -1,5 +1,5 @@
+import 'package:flow_expense/core/utils/app_haptics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/expense_providers.dart';
 import '../../../core/theme/app_colors.dart';
@@ -52,7 +52,7 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
   void _select(Category category) => Navigator.of(context).pop(category);
 
   void _openCategoryManager() {
-    HapticFeedback.selectionClick();
+    AppHaptics.selectionClick();
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => const CategoryManagementScreen(),
@@ -183,7 +183,7 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
     final isActive = type == _type;
     return GestureDetector(
       onTap: () {
-        HapticFeedback.selectionClick();
+        AppHaptics.selectionClick();
         setState(() => _type = type);
       },
       child: AnimatedContainer(
@@ -219,7 +219,7 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
       subcategories: subcategories,
       selectedId: selected?.id,
       onTap: () {
-        HapticFeedback.selectionClick();
+        AppHaptics.selectionClick();
         _select(main);
       },
       onSelected: _select,

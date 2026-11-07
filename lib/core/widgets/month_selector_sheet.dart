@@ -1,5 +1,5 @@
+import 'package:flow_expense/core/utils/app_haptics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 /// Modal bottom sheet allowing users to select any month/year.
@@ -18,7 +18,7 @@ class MonthSelectorSheet extends StatelessWidget {
     required DateTime initialDate,
     required ValueChanged<DateTime> onDateSelected,
   }) {
-    HapticFeedback.lightImpact();
+    AppHaptics.lightImpact();
     return showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -153,7 +153,7 @@ class MonthSelectorSheet extends StatelessWidget {
                                 )
                               : null,
                       onTap: () {
-                        HapticFeedback.selectionClick();
+                        AppHaptics.selectionClick();
                         onDateSelected(m);
                         Navigator.pop(context);
                       },

@@ -1,5 +1,5 @@
+import 'package:flow_expense/core/utils/app_haptics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/utils/formatters.dart';
@@ -115,7 +115,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen>
                     alignment: Alignment.centerLeft,
                     child: GestureDetector(
                       onTap: () {
-                        HapticFeedback.lightImpact();
+                        AppHaptics.lightImpact();
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -568,7 +568,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen>
   }) {
     return GestureDetector(
       onTap: () {
-        HapticFeedback.selectionClick();
+        AppHaptics.selectionClick();
         onTap();
       },
       child: AnimatedContainer(

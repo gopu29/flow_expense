@@ -121,6 +121,7 @@ class _AccountCardState extends State<AccountCard> {
                         const SizedBox(height: 4),
                         AnimatedAmountText(
                           amount: widget.account.balance,
+                          isBalance: true,
                           style: TextStyle(
                             color: widget.account.balance >= 0
                                 ? Colors.white

@@ -1,5 +1,5 @@
+import 'package:flow_expense/core/utils/app_haptics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/utils/formatters.dart';
@@ -413,7 +413,7 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
                     ),
                   ),
                   subtitle: Text(
-                    AppFormatters.currency(acc.balance),
+                    AppFormatters.balance(acc.balance),
                     style: const TextStyle(color: Colors.white54, fontSize: 12),
                   ),
                   trailing: isSelected
@@ -596,7 +596,7 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
                 alignment: Alignment.centerLeft,
                 child: GestureDetector(
                   onTap: () {
-                    HapticFeedback.lightImpact();
+                    AppHaptics.lightImpact();
                     Navigator.push(
                       context,
                       MaterialPageRoute(

@@ -1,12 +1,11 @@
+import 'package:flow_expense/core/utils/app_haptics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../core/constants/app_constants.dart';
 import '../../../core/providers/entry_field_providers.dart';
 import '../../../core/providers/expense_providers.dart';
 import '../../../models/category.dart';
@@ -153,7 +152,7 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
                 ? 'Expense'
                 : _type == TransactionType.income
                 ? 'Income'
-                : 'Transfer'} of ${AppConstants.currencySymbol} $amount logged!',
+                : 'Transfer'} of ${AppFormatters.symbol} $amount logged!',
           ),
           backgroundColor: AppColors.surface,
           behavior: SnackBarBehavior.floating,
@@ -184,7 +183,7 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
   }
 
   void _clearAmount() {
-    HapticFeedback.mediumImpact();
+    AppHaptics.mediumImpact();
     setState(() => _amountString = '0');
   }
 
@@ -204,7 +203,7 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
   }
 
   Future<void> _pickDate() async {
-    HapticFeedback.selectionClick();
+    AppHaptics.selectionClick();
     final picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
@@ -217,7 +216,7 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
   }
 
   Future<void> _openConverter() async {
-    HapticFeedback.selectionClick();
+    AppHaptics.selectionClick();
     final converted = await CurrencyConverterSheet.show(context);
     if (converted != null && mounted) {
       setState(() => _amountString = formatAmountInput(converted));
@@ -252,7 +251,7 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
   }
 
   Future<void> _editNote() async {
-    HapticFeedback.selectionClick();
+    AppHaptics.selectionClick();
     await NoteEntrySheet.show(context, controller: _noteController);
     if (mounted) setState(() {});
   }
@@ -418,7 +417,7 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
             fit: BoxFit.scaleDown,
             child: AnimatedTypingAmountText(
               text: _amountString,
-              prefix: AppConstants.currencySymbol,
+              prefix: AppFormatters.symbol,
               prefixStyle: AppTypography.amountDisplay.copyWith(
                 color: AppColors.textSecondary,
                 fontSize: 28,
@@ -438,7 +437,7 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
           Align(
             alignment: const Alignment(0, 0.7),
             child: Text(
-              '= ${AppConstants.currencySymbol}'
+              '= ${AppFormatters.symbol}'
               '${formatAmountInput(evaluateAmountExpression(_amountString) ?? 0)}',
               style: AppTypography.bodyMedium.copyWith(
                 color: AppColors.textSecondary,
@@ -452,7 +451,7 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () {
-                HapticFeedback.selectionClick();
+                AppHaptics.selectionClick();
                 _onDelete();
               },
               onLongPress: _clearAmount,
@@ -490,7 +489,7 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
         PopupMenuButton<Account>(
           tooltip: 'Account',
           onSelected: (account) {
-            HapticFeedback.selectionClick();
+            AppHaptics.selectionClick();
             setState(() => _selectedAccount = account);
           },
           color: const Color(0xFF162330),

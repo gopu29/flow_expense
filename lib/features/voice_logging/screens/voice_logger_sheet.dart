@@ -1,5 +1,5 @@
+import 'package:flow_expense/core/utils/app_haptics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
@@ -195,7 +195,7 @@ class _VoiceLoggerSheetState extends ConsumerState<VoiceLoggerSheet> {
               VoiceWaveformMic(
                 isListening: _isListening,
                 onToggle: () {
-                  HapticFeedback.mediumImpact();
+                  AppHaptics.mediumImpact();
                   if (_isListening) {
                     setState(() => _isListening = false);
                   } else {
@@ -246,7 +246,7 @@ class _VoiceLoggerSheetState extends ConsumerState<VoiceLoggerSheet> {
                     final prompt = _samplePrompts[index];
                     return GestureDetector(
                       onTap: () {
-                        HapticFeedback.selectionClick();
+                        AppHaptics.selectionClick();
                         _speechController.text = prompt;
                       },
                       child: Container(
@@ -358,7 +358,7 @@ class _VoiceLoggerSheetState extends ConsumerState<VoiceLoggerSheet> {
                         const SizedBox(width: 6),
                         GestureDetector(
                           onTap: () {
-                            HapticFeedback.lightImpact();
+                            AppHaptics.lightImpact();
                             setState(() {
                               _proposals.removeAt(index);
                             });
@@ -400,7 +400,7 @@ class _VoiceLoggerSheetState extends ConsumerState<VoiceLoggerSheet> {
                     child: InkWell(
                       borderRadius: BorderRadius.circular(16),
                       onTap: () {
-                        HapticFeedback.mediumImpact();
+                        AppHaptics.mediumImpact();
                         _logAllTransactions();
                       },
                       child: Center(

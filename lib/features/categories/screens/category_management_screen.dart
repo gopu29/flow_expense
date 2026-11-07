@@ -1,5 +1,5 @@
+import 'package:flow_expense/core/utils/app_haptics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/expense_providers.dart';
 import '../../../core/theme/app_colors.dart';
@@ -28,7 +28,7 @@ class _CategoryManagementScreenState
   final Set<String> _expandedIds = {};
 
   void _openForm({Category? category, String? parentId}) {
-    HapticFeedback.selectionClick();
+    AppHaptics.selectionClick();
     CategoryFormSheet.show(
       context,
       initialCategory: category,
@@ -38,7 +38,7 @@ class _CategoryManagementScreenState
   }
 
   void _reorder(List<Category> mains, int oldIndex, int newIndex) {
-    HapticFeedback.selectionClick();
+    AppHaptics.selectionClick();
     final ordered = [...mains];
     final moved = ordered.removeAt(oldIndex);
     ordered.insert(newIndex, moved);
@@ -180,7 +180,7 @@ class _CategoryManagementScreenState
             Expanded(
               child: GestureDetector(
                 onTap: () {
-                  HapticFeedback.selectionClick();
+                  AppHaptics.selectionClick();
                   setState(() => _type = type);
                 },
                 child: AnimatedContainer(
@@ -239,7 +239,7 @@ class _CategoryManagementScreenState
             const Divider(height: 1, thickness: 1, color: _kDividerColor),
           InkWell(
             onTap: () {
-              HapticFeedback.selectionClick();
+              AppHaptics.selectionClick();
               setState(() {
                 isExpanded
                     ? _expandedIds.remove(main.id)

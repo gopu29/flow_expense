@@ -1,6 +1,6 @@
+import 'package:flow_expense/core/utils/formatters.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/amount_expression.dart';
@@ -72,7 +72,7 @@ class _CurrencyConverterSheetState extends State<CurrencyConverterSheet> {
   Widget build(BuildContext context) {
     final media = MediaQuery.of(context);
     final converted = _converted;
-    const symbol = AppConstants.currencySymbol;
+    final symbol = AppFormatters.symbol;
 
     return Container(
       decoration: const BoxDecoration(

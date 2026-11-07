@@ -1,5 +1,5 @@
+import 'package:flow_expense/core/utils/app_haptics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/utils/formatters.dart';
@@ -37,7 +37,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
   String? _selectedAccountId;
 
   void _showAccountSelector(List<Account> accounts) {
-    HapticFeedback.lightImpact();
+    AppHaptics.lightImpact();
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -128,7 +128,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                       ? const Icon(Icons.check_circle_rounded, color: Color(0xFF38BDF8), size: 20)
                       : null,
                   onTap: () {
-                    HapticFeedback.selectionClick();
+                    AppHaptics.selectionClick();
                     setState(() => _selectedAccountId = null);
                     Navigator.pop(context);
                   },
@@ -165,7 +165,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                       ),
                     ),
                     subtitle: Text(
-                      AppFormatters.currency(acc.balance),
+                      AppFormatters.balance(acc.balance),
                       style: TextStyle(
                         color: acc.balance < 0 ? const Color(0xFFF87171) : Colors.white54,
                         fontSize: 12,
@@ -176,7 +176,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                         ? const Icon(Icons.check_circle_rounded, color: Color(0xFF38BDF8), size: 20)
                         : null,
                     onTap: () {
-                      HapticFeedback.selectionClick();
+                      AppHaptics.selectionClick();
                       setState(() => _selectedAccountId = acc.id);
                       Navigator.pop(context);
                     },
@@ -231,7 +231,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                 alignment: Alignment.centerLeft,
                 child: GestureDetector(
                   onTap: () {
-                    HapticFeedback.lightImpact();
+                    AppHaptics.lightImpact();
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -281,7 +281,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                   // Period Selector Pill
                   GestureDetector(
                     onTap: () {
-                      HapticFeedback.selectionClick();
+                      AppHaptics.selectionClick();
                       MonthSelectorSheet.show(
                         context,
                         initialDate: selectedDate,

@@ -1,7 +1,7 @@
+import 'package:flow_expense/core/utils/app_haptics.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../models/category.dart';
@@ -59,12 +59,12 @@ class _SubcategoryHoldMenuState extends State<SubcategoryHoldMenu> {
 
   void _select(Category category) {
     _removeMenu();
-    HapticFeedback.selectionClick();
+    AppHaptics.selectionClick();
     widget.onSelected(category);
   }
 
   void _handleLongPressStart(LongPressStartDetails details) {
-    HapticFeedback.mediumImpact();
+    AppHaptics.mediumImpact();
     if (widget.subcategories.isEmpty) {
       widget.onSelected(widget.category);
       return;
@@ -188,7 +188,7 @@ class _MenuOverlayState extends State<_MenuOverlay> {
       if (index >= 0 && index < widget.rows.length) nextIndex = index;
     }
     if (nextIndex != _hoveredIndex) {
-      if (nextIndex != null) HapticFeedback.selectionClick();
+      if (nextIndex != null) AppHaptics.selectionClick();
       setState(() => _hoveredIndex = nextIndex);
     }
   }

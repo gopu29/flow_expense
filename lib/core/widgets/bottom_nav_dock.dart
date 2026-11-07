@@ -1,5 +1,5 @@
+import 'package:flow_expense/core/utils/app_haptics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 /// Floating bottom navigation dock matching Quanto's sleek aesthetic (IMG_6026.PNG)
 /// with a continuous fluid sliding active pill indicator, obsidian surface gradient,
@@ -130,7 +130,7 @@ class BottomNavDock extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         onTap: () {
           if (!isSelected) {
-            HapticFeedback.selectionClick();
+            AppHaptics.selectionClick();
             onTabSelected(index);
           }
         },

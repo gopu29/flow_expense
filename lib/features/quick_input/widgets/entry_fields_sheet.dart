@@ -1,5 +1,5 @@
+import 'package:flow_expense/core/utils/app_haptics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/entry_field_providers.dart';
 import '../../../core/theme/app_colors.dart';
@@ -74,7 +74,7 @@ class EntryFieldsSheet extends ConsumerWidget {
                 ),
                 value: visible.contains(field),
                 onChanged: (isVisible) {
-                  HapticFeedback.selectionClick();
+                  AppHaptics.selectionClick();
                   ref
                       .read(visibleEntryFieldsProvider.notifier)
                       .setVisible(field, isVisible: isVisible);

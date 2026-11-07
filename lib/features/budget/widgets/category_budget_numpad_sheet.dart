@@ -1,5 +1,5 @@
+import 'package:flow_expense/core/utils/app_haptics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/numpad_3d_key.dart';
 import '../../../core/widgets/animated_typing_amount_text.dart';
@@ -26,7 +26,7 @@ class CategoryBudgetNumpadSheet extends StatefulWidget {
     required double availableBudget,
     required double initialAmount,
   }) {
-    HapticFeedback.lightImpact();
+    AppHaptics.lightImpact();
     return showModalBottomSheet<double>(
       context: context,
       isScrollControlled: true,
@@ -64,7 +64,7 @@ class _CategoryBudgetNumpadSheetState extends State<CategoryBudgetNumpadSheet> {
   }
 
   void _onKeyPress(String val) {
-    HapticFeedback.lightImpact();
+    AppHaptics.lightImpact();
     setState(() {
       if (val == '.') {
         if (!_amountString.contains('.')) {
@@ -81,7 +81,7 @@ class _CategoryBudgetNumpadSheetState extends State<CategoryBudgetNumpadSheet> {
   }
 
   void _onDelete() {
-    HapticFeedback.lightImpact();
+    AppHaptics.lightImpact();
     setState(() {
       if (_amountString.length > 1) {
         _amountString = _amountString.substring(0, _amountString.length - 1);
@@ -92,14 +92,14 @@ class _CategoryBudgetNumpadSheetState extends State<CategoryBudgetNumpadSheet> {
   }
 
   void _onClear() {
-    HapticFeedback.lightImpact();
+    AppHaptics.lightImpact();
     setState(() {
       _amountString = '0';
     });
   }
 
   void _onSubmit() {
-    HapticFeedback.mediumImpact();
+    AppHaptics.mediumImpact();
     final value = double.tryParse(_amountString) ?? 0.0;
     widget.onConfirmed(value);
   }
@@ -158,7 +158,7 @@ class _CategoryBudgetNumpadSheetState extends State<CategoryBudgetNumpadSheet> {
                 children: [
                   GestureDetector(
                     onTap: () {
-                      HapticFeedback.lightImpact();
+                      AppHaptics.lightImpact();
                       Navigator.pop(context);
                     },
                     child: Container(

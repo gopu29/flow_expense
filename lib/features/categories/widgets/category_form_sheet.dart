@@ -1,5 +1,5 @@
+import 'package:flow_expense/core/utils/app_haptics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import '../../../core/providers/expense_providers.dart';
@@ -114,7 +114,7 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
   Future<void> _save() async {
     final name = _nameController.text.trim();
     if (name.isEmpty) return;
-    HapticFeedback.mediumImpact();
+    AppHaptics.mediumImpact();
 
     final notifier = ref.read(categoriesProvider.notifier);
     final initial = widget.initialCategory;
@@ -374,7 +374,7 @@ class _RoundChoiceButton extends StatelessWidget {
       label: label,
       child: GestureDetector(
         onTap: () {
-          HapticFeedback.selectionClick();
+          AppHaptics.selectionClick();
           onTap();
         },
         child: Container(

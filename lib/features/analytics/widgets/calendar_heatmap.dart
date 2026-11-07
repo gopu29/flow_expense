@@ -1,11 +1,13 @@
+import 'package:flow_expense/core/utils/app_haptics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import '../../../core/providers/app_settings_provider.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../models/transaction.dart';
 
 /// Calendar Heatmap visualizing daily spending and income intensity matching Quanto IMG_6030.PNG.
-class CalendarHeatmap extends StatefulWidget {
+class CalendarHeatmap extends ConsumerStatefulWidget {
   final DateTime selectedMonth;
   final List<Transaction> transactions;
 
@@ -16,14 +18,14 @@ class CalendarHeatmap extends StatefulWidget {
   });
 
   @override
-  State<CalendarHeatmap> createState() => _CalendarHeatmapState();
+  ConsumerState<CalendarHeatmap> createState() => _CalendarHeatmapState();
 }
 
-class _CalendarHeatmapState extends State<CalendarHeatmap> {
+class _CalendarHeatmapState extends ConsumerState<CalendarHeatmap> {
   int? _selectedDay;
 
   void _showDayDetailsSheet(int day, List<Transaction> dayTxs, double expense, double income) {
-    HapticFeedback.lightImpact();
+    AppHaptics.lightImpact();
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -203,8 +205,13 @@ class _CalendarHeatmapState extends State<CalendarHeatmap> {
     final daysInMonth =
         DateTime(widget.selectedMonth.year, widget.selectedMonth.month + 1, 0)
             .day;
-    // 1 = Monday, 7 = Sunday
-    final startingWeekday = firstDayOfMonth.weekday;
+    final firstDayOfWeek =
+        ref.watch(appSettingsProvider.select((s) => s.firstDayOfWeek));
+    final weekdayLabels = firstDayOfWeek == DateTime.sunday
+        ? const ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+        : const ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    // Empty cells before the 1st, counted from the chosen first day of week.
+    final leadingBlanks = (firstDayOfMonth.weekday - firstDayOfWeek + 7) % 7;
 
     // Aggregate daily expenses and incomes
     final Map<int, double> dailySpend = {};
@@ -225,7 +232,7 @@ class _CalendarHeatmapState extends State<CalendarHeatmap> {
       }
     }
 
-    final totalSlots = (startingWeekday - 1) + daysInMonth;
+    final totalSlots = leadingBlanks + daysInMonth;
 
     return Container(
       decoration: BoxDecoration(
@@ -265,10 +272,10 @@ class _CalendarHeatmapState extends State<CalendarHeatmap> {
           ),
           const SizedBox(height: 16),
 
-          // Weekday columns: M T W T F S S
+          // Weekday columns, starting on the chosen first day of week
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: const ['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day) {
+            children: weekdayLabels.map((day) {
               return Expanded(
                 child: Center(
                   child: Text(
@@ -297,12 +304,12 @@ class _CalendarHeatmapState extends State<CalendarHeatmap> {
             ),
             itemCount: totalSlots,
             itemBuilder: (context, index) {
-              if (index < startingWeekday - 1) {
+              if (index < leadingBlanks) {
                 // Empty offset slot before 1st of month
                 return const SizedBox.shrink();
               }
 
-              final day = index - (startingWeekday - 1) + 1;
+              final day = index - leadingBlanks + 1;
               final spend = dailySpend[day] ?? 0.0;
               final inc = dailyIncome[day] ?? 0.0;
               final dayTxs = dailyTransactions[day] ?? [];
@@ -362,7 +369,7 @@ class _CalendarHeatmapState extends State<CalendarHeatmap> {
 
               return GestureDetector(
                 onTap: () {
-                  HapticFeedback.selectionClick();
+                  AppHaptics.selectionClick();
                   setState(() => _selectedDay = day);
                   _showDayDetailsSheet(day, dayTxs, spend, inc);
                 },

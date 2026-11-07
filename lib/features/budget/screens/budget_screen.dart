@@ -1,5 +1,5 @@
+import 'package:flow_expense/core/utils/app_haptics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import '../../../core/constants/app_constants.dart';
@@ -838,7 +838,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen>
                   // Left Hexagonal Nut/Settings Button
                   GestureDetector(
                     onTap: () {
-                      HapticFeedback.lightImpact();
+                      AppHaptics.lightImpact();
                       Navigator.push(
                         context,
                         MaterialPageRoute(

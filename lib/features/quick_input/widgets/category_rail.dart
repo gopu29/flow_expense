@@ -1,5 +1,5 @@
+import 'package:flow_expense/core/utils/app_haptics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../models/category.dart';
@@ -99,7 +99,7 @@ class _CategoryRailState extends State<CategoryRail> {
       subcategories: subcategories,
       selectedId: widget.selected?.id,
       onTap: () {
-        HapticFeedback.selectionClick();
+        AppHaptics.selectionClick();
         widget.onSelected(main);
       },
       onSelected: widget.onSelected,
@@ -152,7 +152,7 @@ class _FourDotButton extends StatelessWidget {
       label: 'All categories',
       child: GestureDetector(
         onTap: () {
-          HapticFeedback.selectionClick();
+          AppHaptics.selectionClick();
           onTap();
         },
         child: Container(

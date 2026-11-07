@@ -1,5 +1,5 @@
+import 'package:flow_expense/core/utils/app_haptics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../theme/app_colors.dart';
 
 /// Flagship 3D tactile keypad keycap with realistic physical depth,
@@ -33,9 +33,9 @@ class _Numpad3DKeyState extends State<Numpad3DKey> {
 
   void _handleTapDown(TapDownDetails _) {
     if (widget.isAction) {
-      HapticFeedback.mediumImpact();
+      AppHaptics.mediumImpact();
     } else {
-      HapticFeedback.selectionClick();
+      AppHaptics.selectionClick();
     }
     setState(() => _isPressed = true);
   }

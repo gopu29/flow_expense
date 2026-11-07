@@ -1,5 +1,5 @@
+import 'package:flow_expense/core/utils/app_haptics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
@@ -254,7 +254,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
                   ),
                   style: const TextStyle(color: Colors.white, fontSize: 16),
                   decoration: InputDecoration(
-                    prefixText: '${AppConstants.currencySymbol} ',
+                    prefixText: '${AppFormatters.symbol} ',
                     prefixStyle: const TextStyle(
                       color: Color(0xFF38BDF8),
                       fontSize: 16,
@@ -464,6 +464,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
                       ),
                       AnimatedAmountText(
                         amount: account.balance,
+                        isBalance: true,
                         style: TextStyle(
                           color: account.balance >= 0
                               ? Colors.white
@@ -483,7 +484,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
                       Expanded(
                         child: GestureDetector(
                           onTap: () {
-                            HapticFeedback.selectionClick();
+                            AppHaptics.selectionClick();
                             Navigator.pop(ctx);
                             _showEditBalanceDialog(account);
                           },
@@ -531,7 +532,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
                       Expanded(
                         child: GestureDetector(
                           onTap: () {
-                            HapticFeedback.selectionClick();
+                            AppHaptics.selectionClick();
                             Navigator.pop(ctx);
                             _confirmDeleteAccount(account);
                           },
@@ -756,7 +757,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
           autofocus: true,
           style: const TextStyle(color: Colors.white, fontSize: 18),
           decoration: InputDecoration(
-            prefixText: '${AppConstants.currencySymbol} ',
+            prefixText: '${AppFormatters.symbol} ',
             prefixStyle: const TextStyle(
               color: Color(0xFF38BDF8),
               fontSize: 18,
@@ -877,7 +878,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
                   // Left Hex Nut Settings Button
                   GestureDetector(
                     onTap: () {
-                      HapticFeedback.lightImpact();
+                      AppHaptics.lightImpact();
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -921,7 +922,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
                   // Right Plus Button
                   GestureDetector(
                     onTap: () {
-                      HapticFeedback.lightImpact();
+                      AppHaptics.lightImpact();
                       _showAddAccountSheet();
                     },
                     child: Container(
@@ -976,6 +977,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
                   const SizedBox(height: 6),
                   AnimatedAmountText(
                     amount: netWorth,
+                    isBalance: true,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 38,

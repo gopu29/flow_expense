@@ -1,5 +1,5 @@
+import 'package:flow_expense/core/utils/app_haptics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 const double _kButtonSize = 56;
 
@@ -16,7 +16,7 @@ class AddTransactionFab extends StatelessWidget {
       label: 'Add transaction',
       child: GestureDetector(
         onTap: () {
-          HapticFeedback.lightImpact();
+          AppHaptics.lightImpact();
           onTap();
         },
         child: Container(

@@ -1,5 +1,5 @@
+import 'package:flow_expense/core/utils/app_haptics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
@@ -80,7 +80,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile>
   }
 
   Future<void> _confirmAndDelete(Category? category) async {
-    HapticFeedback.mediumImpact();
+    AppHaptics.mediumImpact();
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -221,7 +221,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile>
                 if (_dragOffset < -_fullSwipeThreshold || velocity < -700) {
                   _confirmAndDelete(category);
                 } else if (_dragOffset < -(_actionWidth / 2)) {
-                  HapticFeedback.lightImpact();
+                  AppHaptics.lightImpact();
                   _animateTo(-_actionWidth);
                 } else {
                   _close();
