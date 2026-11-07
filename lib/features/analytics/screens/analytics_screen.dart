@@ -1,6 +1,7 @@
 import 'package:flow_expense/core/utils/app_haptics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../core/constants/app_constants.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/month_selector_sheet.dart';
@@ -49,141 +50,156 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                Color(0xFF162330),
-                Color(0xFF0F1722),
-              ],
+              colors: [Color(0xFF162330), Color(0xFF0F1722)],
             ),
             borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
             border: Border(
-              top: BorderSide(
-                color: Color(0xFF2B3F54),
-                width: 1.5,
-              ),
+              top: BorderSide(color: Color(0xFF2B3F54), width: 1.5),
             ),
           ),
           child: SafeArea(
             top: false,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Top handle pill
-                Center(
-                  child: Container(
-                    margin: const EdgeInsets.only(top: 10, bottom: 16),
-                    width: 36,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.25),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Filter by Account',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 17,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -0.3,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Top handle pill
+                  Center(
+                    child: Container(
+                      margin: const EdgeInsets.only(top: 10, bottom: 16),
+                      width: 36,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.25),
+                        borderRadius: BorderRadius.circular(2),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-                  leading: Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF38BDF8).withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: const Color(0xFF38BDF8).withValues(alpha: 0.25),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Filter by Account',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.3,
+                        ),
                       ),
                     ),
-                    child: const Icon(
-                      Icons.all_inclusive_rounded,
-                      color: Color(0xFF38BDF8),
-                      size: 20,
-                    ),
                   ),
-                  title: Text(
-                    'All accounts',
-                    style: TextStyle(
-                      color: _selectedAccountId == null
-                          ? const Color(0xFF38BDF8)
-                          : Colors.white,
-                      fontWeight: _selectedAccountId == null
-                          ? FontWeight.w600
-                          : FontWeight.w500,
-                    ),
-                  ),
-                  trailing: _selectedAccountId == null
-                      ? const Icon(Icons.check_circle_rounded, color: Color(0xFF38BDF8), size: 20)
-                      : null,
-                  onTap: () {
-                    AppHaptics.selectionClick();
-                    setState(() => _selectedAccountId = null);
-                    Navigator.pop(context);
-                  },
-                ),
-                ...accounts.map((acc) {
-                  final isSelected = _selectedAccountId == acc.id;
-                  return ListTile(
+                  const SizedBox(height: 8),
+                  ListTile(
                     contentPadding: const EdgeInsets.symmetric(horizontal: 20),
                     leading: Container(
                       width: 38,
                       height: 38,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF8E9BAE).withValues(alpha: 0.12),
+                        color: const Color(0xFFD9B77E).withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: const Color(0xFF8E9BAE).withValues(alpha: 0.2),
+                          color: const Color(0xFFD9B77E)
+                              .withValues(alpha: 0.25),
                         ),
                       ),
-                      child: Icon(
-                        acc.type == AccountType.bank
-                            ? Icons.account_balance_outlined
-                            : acc.type == AccountType.creditCard
-                                ? Icons.credit_card_outlined
-                                : Icons.account_balance_wallet_outlined,
-                        color: Colors.white70,
+                      child: const Icon(
+                        Icons.all_inclusive_rounded,
+                        color: Color(0xFFD9B77E),
                         size: 20,
                       ),
                     ),
                     title: Text(
-                      acc.name,
+                      'All accounts',
                       style: TextStyle(
-                        color: isSelected ? const Color(0xFF38BDF8) : Colors.white,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                        color: _selectedAccountId == null
+                            ? const Color(0xFFD9B77E)
+                            : Colors.white,
+                        fontWeight: _selectedAccountId == null
+                            ? FontWeight.w600
+                            : FontWeight.w500,
                       ),
                     ),
-                    subtitle: Text(
-                      AppFormatters.balance(acc.balance),
-                      style: TextStyle(
-                        color: acc.balance < 0 ? const Color(0xFFF87171) : Colors.white54,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    trailing: isSelected
-                        ? const Icon(Icons.check_circle_rounded, color: Color(0xFF38BDF8), size: 20)
+                    trailing: _selectedAccountId == null
+                        ? const Icon(
+                            Icons.check_circle_rounded,
+                            color: Color(0xFFD9B77E),
+                            size: 20,
+                          )
                         : null,
                     onTap: () {
                       AppHaptics.selectionClick();
-                      setState(() => _selectedAccountId = acc.id);
+                      setState(() => _selectedAccountId = null);
                       Navigator.pop(context);
                     },
-                  );
-                }),
-                const SizedBox(height: 16),
-              ],
+                  ),
+                  ...accounts.map((acc) {
+                    final isSelected = _selectedAccountId == acc.id;
+                    return ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                      ),
+                      leading: Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF8E9BAE)
+                              .withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: const Color(0xFF8E9BAE)
+                                .withValues(alpha: 0.2),
+                          ),
+                        ),
+                        child: Icon(
+                          acc.type == AccountType.bank
+                              ? Icons.account_balance_outlined
+                              : acc.type == AccountType.creditCard
+                              ? Icons.credit_card_outlined
+                              : Icons.account_balance_wallet_outlined,
+                          color: Colors.white70,
+                          size: 20,
+                        ),
+                      ),
+                      title: Text(
+                        acc.name,
+                        style: TextStyle(
+                          color: isSelected
+                              ? const Color(0xFFD9B77E)
+                              : Colors.white,
+                          fontWeight: isSelected
+                              ? FontWeight.w600
+                              : FontWeight.w500,
+                        ),
+                      ),
+                      subtitle: Text(
+                        AppFormatters.balance(acc.balance),
+                        style: TextStyle(
+                          color: acc.balance < 0
+                              ? const Color(0xFFF87171)
+                              : Colors.white54,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      trailing: isSelected
+                          ? const Icon(
+                              Icons.check_circle_rounded,
+                              color: Color(0xFFD9B77E),
+                              size: 20,
+                            )
+                          : null,
+                      onTap: () {
+                        AppHaptics.selectionClick();
+                        setState(() => _selectedAccountId = acc.id);
+                        Navigator.pop(context);
+                      },
+                    );
+                  }),
+                  const SizedBox(height: 16),
+                ],
+              ),
             ),
           ),
         );
@@ -201,16 +217,16 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
     final accountsList = accountsAsync.value ?? [];
     final selectedAccountName = _selectedAccountId != null
         ? accountsList
-            .firstWhere(
-              (a) => a.id == _selectedAccountId,
-              orElse: () => const Account(
-                id: '',
-                name: 'Account',
-                type: AccountType.bank,
-                balance: 0,
-              ),
-            )
-            .name
+              .firstWhere(
+                (a) => a.id == _selectedAccountId,
+                orElse: () => const Account(
+                  id: '',
+                  name: 'Account',
+                  type: AccountType.bank,
+                  balance: 0,
+                ),
+              )
+              .name
         : 'All accounts';
 
     return Scaffold(
@@ -234,9 +250,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                     AppHaptics.lightImpact();
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => const SettingsScreen(),
-                      ),
+                      MaterialPageRoute(builder: (_) => const SettingsScreen()),
                     );
                   },
                   child: Container(
@@ -246,10 +260,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                       gradient: const LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [
-                          Color(0xFF1D2C3B),
-                          Color(0xFF131D28),
-                        ],
+                        colors: [Color(0xFF1D2C3B), Color(0xFF131D28)],
                       ),
                       shape: BoxShape.circle,
                       border: Border.all(
@@ -301,10 +312,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                         gradient: const LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFF1C2B3A),
-                            Color(0xFF121C26),
-                          ],
+                          colors: [Color(0xFF1C2B3A), Color(0xFF121C26)],
                         ),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
@@ -355,10 +363,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                         gradient: const LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFF1C2B3A),
-                            Color(0xFF121C26),
-                          ],
+                          colors: [Color(0xFF1C2B3A), Color(0xFF121C26)],
                         ),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
@@ -406,8 +411,8 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                     // Filter transactions by account if specified
                     final filteredTxs = _selectedAccountId != null
                         ? txs
-                            .where((t) => t.accountId == _selectedAccountId)
-                            .toList()
+                              .where((t) => t.accountId == _selectedAccountId)
+                              .toList()
                         : txs;
 
                     return ListView(
@@ -454,8 +459,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                           child: InsightsTeaserCard(
                             buttonText: 'Unlock recurring insights',
                             title: 'Recurring Subscriptions',
-                            description:
-                                'Track and manage recurring subscriptions, automatic utility bills, and fixed charges effortlessly.',
+                            description: 'Track and manage recurring subscriptions, automatic utility bills, and fixed charges effortlessly.',
                             showBarGraphic: false,
                           ),
                         ),
@@ -468,8 +472,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                           child: InsightsTeaserCard(
                             buttonText: 'Unlock budgeting insights',
                             title: 'Budgeting Intelligence',
-                            description:
-                                'Forecast your end-of-month financial trajectory and optimize your savings rate with smart spending velocity alerts.',
+                            description: 'Forecast your end-of-month financial trajectory and optimize your savings rate with smart spending velocity alerts.',
                             showBarGraphic: true,
                           ),
                         ),
@@ -479,7 +482,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                   loading: () => const Center(
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: Color(0xFF38BDF8),
+                      color: Color(0xFFD9B77E),
                     ),
                   ),
                   error: (e, _) => Center(

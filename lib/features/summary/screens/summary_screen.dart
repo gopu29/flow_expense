@@ -1,6 +1,7 @@
 import 'package:flow_expense/core/utils/app_haptics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../core/constants/app_constants.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/month_selector_sheet.dart';
@@ -76,7 +77,8 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
   @override
   bool get wantKeepAlive => true;
   String _selectedType = 'Expenses'; // 'Expenses', 'Income', 'All'
-  String _selectedPeriod = 'Monthly'; // 'Monthly', 'Weekly', 'Yearly', 'All Time'
+  String _selectedPeriod =
+      'Monthly'; // 'Monthly', 'Weekly', 'Yearly', 'All Time'
   String? _selectedAccountId;
   String? _selectedCategoryId;
 
@@ -130,7 +132,10 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
 
                 // Sheet Header
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
                   child: Row(
                     children: [
                       Container(
@@ -182,7 +187,11 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
                   ),
                 ),
 
-                const Divider(height: 1, thickness: 0.8, color: Color(0xFF1E2A38)),
+                const Divider(
+                  height: 1,
+                  thickness: 0.8,
+                  color: Color(0xFF1E2A38),
+                ),
 
                 // Transactions List
                 Expanded(
@@ -190,7 +199,10 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
                       ? const Center(
                           child: Text(
                             'No transactions found for this period',
-                            style: TextStyle(color: Color(0xFF6B7E93), fontSize: 14),
+                            style: TextStyle(
+                              color: Color(0xFF6B7E93),
+                              fontSize: 14,
+                            ),
                           ),
                         )
                       : ListView.builder(
@@ -209,7 +221,9 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
                               decoration: BoxDecoration(
                                 color: const Color(0xFF151E28),
                                 borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: const Color(0xFF223040)),
+                                border: Border.all(
+                                  color: const Color(0xFF223040),
+                                ),
                               ),
                               clipBehavior: Clip.antiAlias,
                               child: TransactionTile(
@@ -232,57 +246,63 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
   void _showTypeSelector() {
     showModalBottomSheet(
       context: context,
+      useSafeArea: true,
       backgroundColor: const Color(0xFF121B24),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
         return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                margin: const EdgeInsets.only(top: 8, bottom: 12),
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 8),
-                child: Text(
-                  'Transaction Type',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(top: 8, bottom: 12),
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-              ),
-              ...['Expenses', 'Income', 'All'].map((type) {
-                final isSelected = _selectedType == type;
-                return ListTile(
-                  title: Text(
-                    type,
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: Text(
+                    'Transaction Type',
                     style: TextStyle(
-                      color: isSelected ? const Color(0xFF38BDF8) : Colors.white,
-                      fontWeight:
-                          isSelected ? FontWeight.w600 : FontWeight.normal,
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  trailing: isSelected
-                      ? const Icon(Icons.check, color: Color(0xFF38BDF8))
-                      : null,
-                  onTap: () {
-                    setState(() => _selectedType = type);
-                    Navigator.pop(context);
-                  },
-                );
-              }),
-              const SizedBox(height: 12),
-            ],
+                ),
+                ...['Expenses', 'Income', 'All'].map((type) {
+                  final isSelected = _selectedType == type;
+                  return ListTile(
+                    title: Text(
+                      type,
+                      style: TextStyle(
+                        color: isSelected
+                            ? const Color(0xFFD9B77E)
+                            : Colors.white,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.normal,
+                      ),
+                    ),
+                    trailing: isSelected
+                        ? const Icon(Icons.check, color: Color(0xFFD9B77E))
+                        : null,
+                    onTap: () {
+                      setState(() => _selectedType = type);
+                      Navigator.pop(context);
+                    },
+                  );
+                }),
+                const SizedBox(height: 12),
+              ],
+            ),
           ),
         );
       },
@@ -292,57 +312,63 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
   void _showPeriodSelector() {
     showModalBottomSheet(
       context: context,
+      useSafeArea: true,
       backgroundColor: const Color(0xFF121B24),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
         return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                margin: const EdgeInsets.only(top: 8, bottom: 12),
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 8),
-                child: Text(
-                  'Select Period',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(top: 8, bottom: 12),
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-              ),
-              ...['Monthly', 'Weekly', 'Yearly', 'All Time'].map((period) {
-                final isSelected = _selectedPeriod == period;
-                return ListTile(
-                  title: Text(
-                    period,
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: Text(
+                    'Select Period',
                     style: TextStyle(
-                      color: isSelected ? const Color(0xFF38BDF8) : Colors.white,
-                      fontWeight:
-                          isSelected ? FontWeight.w600 : FontWeight.normal,
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  trailing: isSelected
-                      ? const Icon(Icons.check, color: Color(0xFF38BDF8))
-                      : null,
-                  onTap: () {
-                    setState(() => _selectedPeriod = period);
-                    Navigator.pop(context);
-                  },
-                );
-              }),
-              const SizedBox(height: 12),
-            ],
+                ),
+                ...['Monthly', 'Weekly', 'Yearly', 'All Time'].map((period) {
+                  final isSelected = _selectedPeriod == period;
+                  return ListTile(
+                    title: Text(
+                      period,
+                      style: TextStyle(
+                        color: isSelected
+                            ? const Color(0xFFD9B77E)
+                            : Colors.white,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.normal,
+                      ),
+                    ),
+                    trailing: isSelected
+                        ? const Icon(Icons.check, color: Color(0xFFD9B77E))
+                        : null,
+                    onTap: () {
+                      setState(() => _selectedPeriod = period);
+                      Navigator.pop(context);
+                    },
+                  );
+                }),
+                const SizedBox(height: 12),
+              ],
+            ),
           ),
         );
       },
@@ -352,81 +378,90 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
   void _showAccountSelector(List<Account> accounts) {
     showModalBottomSheet(
       context: context,
+      useSafeArea: true,
       backgroundColor: const Color(0xFF121B24),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
         return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                margin: const EdgeInsets.only(top: 8, bottom: 12),
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 8),
-                child: Text(
-                  'Filter by Account',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(top: 8, bottom: 12),
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-              ),
-              ListTile(
-                title: Text(
-                  'All accounts',
-                  style: TextStyle(
-                    color: _selectedAccountId == null
-                        ? const Color(0xFF38BDF8)
-                        : Colors.white,
-                    fontWeight: _selectedAccountId == null
-                        ? FontWeight.w600
-                        : FontWeight.normal,
-                  ),
-                ),
-                trailing: _selectedAccountId == null
-                    ? const Icon(Icons.check, color: Color(0xFF38BDF8))
-                    : null,
-                onTap: () {
-                  setState(() => _selectedAccountId = null);
-                  Navigator.pop(context);
-                },
-              ),
-              ...accounts.map((acc) {
-                final isSelected = _selectedAccountId == acc.id;
-                return ListTile(
-                  title: Text(
-                    acc.name,
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: Text(
+                    'Filter by Account',
                     style: TextStyle(
-                      color: isSelected ? const Color(0xFF38BDF8) : Colors.white,
-                      fontWeight:
-                          isSelected ? FontWeight.w600 : FontWeight.normal,
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  subtitle: Text(
-                    AppFormatters.balance(acc.balance),
-                    style: const TextStyle(color: Colors.white54, fontSize: 12),
+                ),
+                ListTile(
+                  title: Text(
+                    'All accounts',
+                    style: TextStyle(
+                      color: _selectedAccountId == null
+                          ? const Color(0xFFD9B77E)
+                          : Colors.white,
+                      fontWeight: _selectedAccountId == null
+                          ? FontWeight.w600
+                          : FontWeight.normal,
+                    ),
                   ),
-                  trailing: isSelected
-                      ? const Icon(Icons.check, color: Color(0xFF38BDF8))
+                  trailing: _selectedAccountId == null
+                      ? const Icon(Icons.check, color: Color(0xFFD9B77E))
                       : null,
                   onTap: () {
-                    setState(() => _selectedAccountId = acc.id);
+                    setState(() => _selectedAccountId = null);
                     Navigator.pop(context);
                   },
-                );
-              }),
-              const SizedBox(height: 12),
-            ],
+                ),
+                ...accounts.map((acc) {
+                  final isSelected = _selectedAccountId == acc.id;
+                  return ListTile(
+                    title: Text(
+                      acc.name,
+                      style: TextStyle(
+                        color: isSelected
+                            ? const Color(0xFFD9B77E)
+                            : Colors.white,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.normal,
+                      ),
+                    ),
+                    subtitle: Text(
+                      AppFormatters.balance(acc.balance),
+                      style: const TextStyle(
+                        color: Colors.white54,
+                        fontSize: 12,
+                      ),
+                    ),
+                    trailing: isSelected
+                        ? const Icon(Icons.check, color: Color(0xFFD9B77E))
+                        : null,
+                    onTap: () {
+                      setState(() => _selectedAccountId = acc.id);
+                      Navigator.pop(context);
+                    },
+                  );
+                }),
+                const SizedBox(height: 12),
+              ],
+            ),
           ),
         );
       },
@@ -436,78 +471,87 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
   void _showCategorySelector(List<Category> categories) {
     showModalBottomSheet(
       context: context,
+      useSafeArea: true,
       backgroundColor: const Color(0xFF121B24),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
         return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                margin: const EdgeInsets.only(top: 8, bottom: 12),
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 8),
-                child: Text(
-                  'Filter by Category',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(top: 8, bottom: 12),
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-              ),
-              ListTile(
-                title: Text(
-                  'All categories',
-                  style: TextStyle(
-                    color: _selectedCategoryId == null
-                        ? const Color(0xFF38BDF8)
-                        : Colors.white,
-                    fontWeight: _selectedCategoryId == null
-                        ? FontWeight.w600
-                        : FontWeight.normal,
-                  ),
-                ),
-                trailing: _selectedCategoryId == null
-                    ? const Icon(Icons.check, color: Color(0xFF38BDF8))
-                    : null,
-                onTap: () {
-                  setState(() => _selectedCategoryId = null);
-                  Navigator.pop(context);
-                },
-              ),
-              ...categories.map((cat) {
-                final isSelected = _selectedCategoryId == cat.id;
-                return ListTile(
-                  leading: Text(cat.iconOrEmoji, style: const TextStyle(fontSize: 20)),
-                  title: Text(
-                    cat.name,
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: Text(
+                    'Filter by Category',
                     style: TextStyle(
-                      color: isSelected ? const Color(0xFF38BDF8) : Colors.white,
-                      fontWeight:
-                          isSelected ? FontWeight.w600 : FontWeight.normal,
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  trailing: isSelected
-                      ? const Icon(Icons.check, color: Color(0xFF38BDF8))
+                ),
+                ListTile(
+                  title: Text(
+                    'All categories',
+                    style: TextStyle(
+                      color: _selectedCategoryId == null
+                          ? const Color(0xFFD9B77E)
+                          : Colors.white,
+                      fontWeight: _selectedCategoryId == null
+                          ? FontWeight.w600
+                          : FontWeight.normal,
+                    ),
+                  ),
+                  trailing: _selectedCategoryId == null
+                      ? const Icon(Icons.check, color: Color(0xFFD9B77E))
                       : null,
                   onTap: () {
-                    setState(() => _selectedCategoryId = cat.id);
+                    setState(() => _selectedCategoryId = null);
                     Navigator.pop(context);
                   },
-                );
-              }),
-              const SizedBox(height: 12),
-            ],
+                ),
+                ...categories.map((cat) {
+                  final isSelected = _selectedCategoryId == cat.id;
+                  return ListTile(
+                    leading: Text(
+                      cat.iconOrEmoji,
+                      style: const TextStyle(fontSize: 20),
+                    ),
+                    title: Text(
+                      cat.name,
+                      style: TextStyle(
+                        color: isSelected
+                            ? const Color(0xFFD9B77E)
+                            : Colors.white,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.normal,
+                      ),
+                    ),
+                    trailing: isSelected
+                        ? const Icon(Icons.check, color: Color(0xFFD9B77E))
+                        : null,
+                    onTap: () {
+                      setState(() => _selectedCategoryId = cat.id);
+                      Navigator.pop(context);
+                    },
+                  );
+                }),
+                const SizedBox(height: 12),
+              ],
+            ),
           ),
         );
       },
@@ -517,10 +561,13 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
   bool _matchesDateFilter(DateTime txDate, DateTime selectedDate) {
     switch (_selectedPeriod) {
       case 'Weekly':
-        final startOfWeek =
-            selectedDate.subtract(Duration(days: selectedDate.weekday - 1));
+        final startOfWeek = selectedDate.subtract(
+          Duration(days: selectedDate.weekday - 1),
+        );
         final endOfWeek = startOfWeek.add(const Duration(days: 7));
-        return txDate.isAfter(startOfWeek.subtract(const Duration(seconds: 1))) &&
+        return txDate.isAfter(
+              startOfWeek.subtract(const Duration(seconds: 1)),
+            ) &&
             txDate.isBefore(endOfWeek);
       case 'Yearly':
         return txDate.year == selectedDate.year;
@@ -553,29 +600,29 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
 
     final selectedAccountName = _selectedAccountId != null
         ? accountsList
-            .firstWhere(
-              (a) => a.id == _selectedAccountId,
-              orElse: () => const Account(
-                id: '',
-                name: 'Account',
-                type: AccountType.bank,
-                balance: 0,
-              ),
-            )
-            .name
+              .firstWhere(
+                (a) => a.id == _selectedAccountId,
+                orElse: () => const Account(
+                  id: '',
+                  name: 'Account',
+                  type: AccountType.bank,
+                  balance: 0,
+                ),
+              )
+              .name
         : 'All accounts';
 
     final selectedCategoryName = _selectedCategoryId != null
         ? categoriesList
-            .firstWhere(
-              (c) => c.id == _selectedCategoryId,
-              orElse: () => const Category(
-                id: '',
-                name: 'Category',
-                iconOrEmoji: '🏷️',
-              ),
-            )
-            .name
+              .firstWhere(
+                (c) => c.id == _selectedCategoryId,
+                orElse: () => const Category(
+                  id: '',
+                  name: 'Category',
+                  iconOrEmoji: '🏷️',
+                ),
+              )
+              .name
         : 'All categories';
 
     return Scaffold(
@@ -599,9 +646,7 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
                     AppHaptics.lightImpact();
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => const SettingsScreen(),
-                      ),
+                      MaterialPageRoute(builder: (_) => const SettingsScreen()),
                     );
                   },
                   child: Container(
@@ -611,10 +656,7 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
                       gradient: const LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [
-                          Color(0xFF1D2C3B),
-                          Color(0xFF131D28),
-                        ],
+                        colors: [Color(0xFF1D2C3B), Color(0xFF131D28)],
                       ),
                       shape: BoxShape.circle,
                       border: Border.all(
@@ -687,14 +729,18 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
                         final Map<String, List<Category>> subsByParentId = {};
                         for (final c in categories) {
                           if (c.parentId != null && c.parentId!.isNotEmpty) {
-                            subsByParentId.putIfAbsent(c.parentId!, () => []).add(c);
+                            subsByParentId
+                                .putIfAbsent(c.parentId!, () => [])
+                                .add(c);
                           }
                         }
 
                         // Helper to find the parent category for any transaction
                         String getParentCatId(Transaction tx) {
                           final cat = categoryMap[tx.categoryId];
-                          if (cat != null && cat.parentId != null && cat.parentId!.isNotEmpty) {
+                          if (cat != null &&
+                              cat.parentId != null &&
+                              cat.parentId!.isNotEmpty) {
                             return cat.parentId!;
                           }
                           return tx.categoryId;
@@ -702,12 +748,15 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
 
                         // Calculate grand total amount
                         double totalAmount = 0.0;
-                        final Map<String, List<Transaction>> txsByParentCatId = {};
+                        final Map<String, List<Transaction>> txsByParentCatId =
+                            {};
 
                         for (final tx in filteredTxs) {
                           totalAmount += tx.amount;
                           final parentId = getParentCatId(tx);
-                          txsByParentCatId.putIfAbsent(parentId, () => []).add(tx);
+                          txsByParentCatId
+                              .putIfAbsent(parentId, () => [])
+                              .add(tx);
                         }
 
                         // Build MainCategoryBreakdownItem list
@@ -719,7 +768,8 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
                           final parentId = entry.key;
                           final parentTxs = entry.value;
 
-                          final parentCat = categoryMap[parentId] ??
+                          final parentCat =
+                              categoryMap[parentId] ??
                               Category(
                                 id: parentId,
                                 name: 'General',
@@ -737,15 +787,18 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
                               : 0.0;
 
                           // Check defined subcategories
-                          final definedSubs = subsByParentId[parentCat.id] ?? [];
+                          final definedSubs =
+                              subsByParentId[parentCat.id] ?? [];
                           final subItems = <SubcategoryBreakdownItem>[];
                           final Set<String> matchedTxIds = {};
 
                           for (final sub in definedSubs) {
                             final subTxs = parentTxs
-                                .where((t) =>
-                                    t.categoryId == sub.id ||
-                                    t.subCategoryId == sub.id)
+                                .where(
+                                  (t) =>
+                                      t.categoryId == sub.id ||
+                                      t.subCategoryId == sub.id,
+                                )
                                 .toList();
 
                             for (final t in subTxs) {
@@ -778,7 +831,9 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
                           }
 
                           // Sort subcategories descending by amount
-                          subItems.sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
+                          subItems.sort(
+                            (a, b) => b.totalAmount.compareTo(a.totalAmount),
+                          );
 
                           // Direct transactions (not belonging to any defined subcategory)
                           final directTxs = parentTxs
@@ -811,8 +866,12 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
                         }
 
                         // Sort main categories descending by total amount
-                        breakdownItems.sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
-                        donutSpendData.sort((a, b) => b.amount.compareTo(a.amount));
+                        breakdownItems.sort(
+                          (a, b) => b.totalAmount.compareTo(a.totalAmount),
+                        );
+                        donutSpendData.sort(
+                          (a, b) => b.amount.compareTo(a.amount),
+                        );
 
                         return ListView(
                           physics: const BouncingScrollPhysics(),
@@ -858,7 +917,8 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
                                   const SizedBox(width: 8),
                                   _buildFilterChip(
                                     label: selectedAccountName,
-                                    onTap: () => _showAccountSelector(accountsList),
+                                    onTap: () =>
+                                        _showAccountSelector(accountsList),
                                   ),
                                   const SizedBox(width: 8),
                                   _buildFilterChip(
@@ -914,10 +974,16 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
                                     )
                                   : Column(
                                       children: [
-                                        for (int i = 0; i < breakdownItems.length; i++) ...[
+                                        for (
+                                          int i = 0;
+                                          i < breakdownItems.length;
+                                          i++
+                                        ) ...[
                                           StaggeredEntrance(
                                             index: i,
-                                            child: _buildMainCategoryTile(breakdownItems[i]),
+                                            child: _buildMainCategoryTile(
+                                              breakdownItems[i],
+                                            ),
                                           ),
                                           if (i < breakdownItems.length - 1)
                                             const Divider(
@@ -962,10 +1028,7 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
         decoration: BoxDecoration(
           color: const Color(0xFF18222C),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: const Color(0xFF263544),
-            width: 1,
-          ),
+          border: Border.all(color: const Color(0xFF263544), width: 1),
         ),
         child: Text(
           label,
@@ -1093,7 +1156,10 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
 
                 // Percentage Badge
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFF1A2633),
                     borderRadius: BorderRadius.circular(8),
@@ -1137,10 +1203,7 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
                     decoration: const BoxDecoration(
                       color: Color(0xFF0D141C),
                       border: Border(
-                        top: BorderSide(
-                          color: Color(0xFF182330),
-                          width: 0.8,
-                        ),
+                        top: BorderSide(color: Color(0xFF182330), width: 0.8),
                       ),
                     ),
                     child: Column(
@@ -1176,14 +1239,14 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
                                 const Icon(
                                   Icons.receipt_long_rounded,
                                   size: 16,
-                                  color: Color(0xFF38BDF8),
+                                  color: Color(0xFFD9B77E),
                                 ),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
                                     'View all ${item.category.name} transactions',
                                     style: const TextStyle(
-                                      color: Color(0xFF38BDF8),
+                                      color: Color(0xFFD9B77E),
                                       fontSize: 13,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -1271,7 +1334,6 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
         child: Row(
           children: [
             const SizedBox(width: 24), // Indentation for subcategory
-
             // Subcategory Icon squircle with colored outline
             Container(
               width: 36,
@@ -1280,7 +1342,8 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
                 color: const Color(0xFF141D26),
                 borderRadius: BorderRadius.circular(11),
                 border: Border.all(
-                  color: Color(subItem.subcategory.color).withValues(alpha: 0.8),
+                  color: Color(subItem.subcategory.color)
+                      .withValues(alpha: 0.8),
                   width: 1.2,
                 ),
               ),
@@ -1381,7 +1444,9 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
     required double parentTotal,
   }) {
     final directTotal = directTxs.fold<double>(0.0, (sum, t) => sum + t.amount);
-    final pctOfParent = parentTotal > 0 ? (directTotal / parentTotal) * 100 : 0.0;
+    final pctOfParent = parentTotal > 0
+        ? (directTotal / parentTotal) * 100
+        : 0.0;
 
     return InkWell(
       onTap: () {
@@ -1404,10 +1469,7 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
               decoration: BoxDecoration(
                 color: const Color(0xFF141D26),
                 borderRadius: BorderRadius.circular(11),
-                border: Border.all(
-                  color: const Color(0xFF334155),
-                  width: 1.2,
-                ),
+                border: Border.all(color: const Color(0xFF334155), width: 1.2),
               ),
               alignment: Alignment.center,
               child: const Icon(
