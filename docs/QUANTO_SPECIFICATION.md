@@ -329,3 +329,9 @@ lib/
 - [x] **Phase 21: Quanto-Style Summary Category List**
   - Category rows follow Quanto: a colored squircle badge, the name with a count pill, then the amount and a percentage pill. The wide trailing chevron is gone; a small arrow next to the count shows that a row expands.
   - Expanding shows only sub-categories that have transactions, indented along a thin line in the category color, with smaller badges and the share of the parent. Spending saved on the main category itself shows as a muted "No sub-category" row. A gold "See all N transactions" link replaces the large "View all" box.
+- [ ] **Phase 22: iOS Back Tap Wiring (code done, not yet tested on a Mac)**
+  - `AddExpenseIntent.swift` is now part of the Runner target in the Xcode project, so the "Log Flow Expense" shortcut is built into the app.
+  - Added `Runner.entitlements` with the App Group `group.com.quanto.flowexpense`, set as `CODE_SIGN_ENTITLEMENTS` for Debug, Release and Profile.
+  - `AppDelegate` registers the `app_intent` channel in `didInitializeImplicitFlutterEngine`, because the scene-based engine has no root view controller at launch.
+  - `PlatformIntentService` waits for categories and accounts to load, keeps the time the shortcut ran, syncs again on app resume, and guards against importing the same queue twice.
+  - Still to do: build on a Mac, enable the App Group for the bundle id in the Apple Developer account, and test on an iPhone. The Quanto-style custom keypad overlay is not built; the shortcut uses Siri's standard prompts.
