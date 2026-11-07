@@ -281,3 +281,8 @@ lib/
   - Oceanic 3D action submit key (`→`) with glowing cyan borders and solid depth ledge.
   - `AnimatedTypingAmountText` digit-by-digit animation: newly typed numbers slide up with an elastic pop-in and fade; erased digits drop down and dissolve smoothly on backspace.
   - Integrated across both the Category Budget allocation keypad sheet and the Quick Input entry modal.
+- [x] **Phase 12: System Navigation Insets & Safe Area Constraints**
+  - Lifted floating bottom navigation dock and Speed Dial FAB dynamically using `MediaQuery.of(context).padding.bottom` to float cleanly above Android 3-button (`||| [O] <`) and gesture navigation bars.
+  - Extended bottom scroll padding across all 5 main screen `ListView`s to `120 + MediaQuery.of(context).padding.bottom`, ensuring bottom items are fully reachable and not hidden behind the floating dock.
+  - Enforced `useSafeArea: true` and capped `maxChildSize: 0.88` on all modal bottom sheets (including the Allocate Budget range bar sheet, Month Selector, Quick Input modal, Account Details, Receipt Scanner, and Voice AI Logger) preventing status bar, punch hole, and system header clipping.
+  - Resolved Flutter Web font loading 404s by adding explicit `assets/` bundle configuration and native Inter font headers.
