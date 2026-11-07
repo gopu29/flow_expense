@@ -23,10 +23,10 @@ class CategoryIconBadge extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: baseColor.withOpacity(0.18),
+        color: baseColor.withValues(alpha: 0.18),
         borderRadius: BorderRadius.circular(size * 0.3),
         border: Border.all(
-          color: baseColor.withOpacity(0.35),
+          color: baseColor.withValues(alpha: 0.35),
           width: 1,
         ),
       ),
