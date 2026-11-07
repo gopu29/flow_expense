@@ -7,13 +7,18 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/providers/expense_providers.dart';
-import '../../../core/widgets/category_icon_badge.dart';
 import '../../../models/category.dart';
 import '../../../models/account.dart';
 import '../../../models/transaction.dart';
-import '../../categories/widgets/category_form_dialog.dart';
 import '../../../core/widgets/animated_typing_amount_text.dart';
+import '../widgets/category_picker_sheet.dart';
+import '../widgets/category_rail.dart';
+import '../widgets/note_entry_sheet.dart';
 import '../widgets/numpad.dart';
+
+const double _kSheetHeightFactor = 0.985;
+const double _kChipHeight = 44;
+const double _kRoundButtonSize = 46;
 
 /// Modal bottom sheet allowing zero-friction instant logging of transactions.
 class QuickInputModal extends ConsumerStatefulWidget {
@@ -41,7 +46,6 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
   Account? _selectedToAccount; // for transfers
   DateTime _selectedDate = DateTime.now();
   final TextEditingController _noteController = TextEditingController();
-  bool _showNoteField = false;
 
   @override
   void dispose() {
@@ -143,486 +147,185 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
     }
   }
 
+  void _switchType(TransactionType type) {
+    HapticFeedback.selectionClick();
+    setState(() {
+      _type = type;
+      _selectedCategory = null; // the first category of the new type is chosen
+    });
+  }
+
+  void _selectCategory(Category category) {
+    setState(() {
+      _selectedCategory = category;
+      _type = switch (category.type) {
+        CategoryType.expense => TransactionType.expense,
+        CategoryType.income => TransactionType.income,
+        CategoryType.transfer => TransactionType.transfer,
+      };
+    });
+  }
+
+  void _resetEntry() {
+    HapticFeedback.selectionClick();
+    setState(() {
+      _amountString = '0';
+      _selectedDate = DateTime.now();
+      _noteController.clear();
+    });
+  }
+
+  void _clearAmount() {
+    HapticFeedback.mediumImpact();
+    setState(() => _amountString = '0');
+  }
+
+  CategoryType get _categoryType => switch (_type) {
+        TransactionType.expense => CategoryType.expense,
+        TransactionType.income => CategoryType.income,
+        TransactionType.transfer => CategoryType.transfer,
+      };
+
+  Future<void> _openCategoryPicker() async {
+    final picked = await CategoryPickerSheet.show(
+      context,
+      initialType: _categoryType,
+      selected: _selectedCategory,
+    );
+    if (picked != null && mounted) _selectCategory(picked);
+  }
+
+  Future<void> _pickDate() async {
+    HapticFeedback.selectionClick();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2035),
+    );
+    if (picked != null && mounted) {
+      setState(() => _selectedDate = picked);
+    }
+  }
+
+  Future<void> _editNote() async {
+    HapticFeedback.selectionClick();
+    await NoteEntrySheet.show(context, controller: _noteController);
+    if (mounted) setState(() {});
+  }
+
+  String get _dateLabel {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final selected = DateTime(
+      _selectedDate.year,
+      _selectedDate.month,
+      _selectedDate.day,
+    );
+    final dayDifference = today.difference(selected).inDays;
+    if (dayDifference == 0) return 'Today';
+    if (dayDifference == 1) return 'Yesterday';
+    return DateFormat('dd MMM').format(_selectedDate);
+  }
+
   @override
   Widget build(BuildContext context) {
     final categoriesAsync = ref.watch(categoriesProvider);
     final accountsAsync = ref.watch(accountsProvider);
 
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFF162330),
-            Color(0xFF0F1722),
-          ],
-        ),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-        border: Border(
-          top: BorderSide(
-            color: Color(0xFF2B3F54),
-            width: 1.5,
+    return FractionallySizedBox(
+      heightFactor: _kSheetHeightFactor,
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF162330),
+              Color(0xFF0F1722),
+            ],
+          ),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          border: Border(
+            top: BorderSide(
+              color: Color(0xFF2B3F54),
+              width: 1.5,
+            ),
           ),
         ),
-      ),
-      padding: EdgeInsets.only(
-        top: 12,
-        left: 16,
-        right: 16,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-      ),
-      child: SafeArea(
-        top: false,
-        child: SingleChildScrollView(
+        padding: const EdgeInsets.only(top: 12, left: 16, right: 16, bottom: 12),
+        child: SafeArea(
+          top: false,
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             children: [
               // Handle pill
-              Center(
-                child: Container(
-                  width: 36,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.25),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 14),
-
-              // Type Switcher: Expense / Income / Transfer
               Container(
-                padding: const EdgeInsets.all(4),
+                width: 36,
+                height: 4,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF131D27),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: const Color(0xFF243647),
-                    width: 1,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    _buildTypeChip('Expense', TransactionType.expense, AppColors.expense),
-                    _buildTypeChip('Income', TransactionType.income, AppColors.income),
-                    _buildTypeChip('Transfer', TransactionType.transfer, AppColors.transfer),
-                  ],
+                  color: Colors.white.withValues(alpha: 0.25),
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 10),
+              _buildTopBar(),
 
-              // Huge Amount Display with typing/erasing animation
-              Center(
-                child: AnimatedTypingAmountText(
-                  text: _amountString,
-                  prefix: AppConstants.currencySymbol,
-                  prefixStyle: AppTypography.amountDisplay.copyWith(
-                    color: AppColors.textSecondary,
-                    fontSize: 32,
-                  ),
-                  style: AppTypography.amountDisplay.copyWith(
-                    fontSize: 44,
-                    color: _type == TransactionType.expense
-                        ? AppColors.textPrimary
-                        : _type == TransactionType.income
-                            ? AppColors.income
-                            : AppColors.transfer,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
+              // Huge amount display with typing/erasing animation
+              Expanded(child: _buildAmountArea()),
 
-              // Category Picker Horizontal Row
-              categoriesAsync.when(
-                data: (categories) {
-                  final filtered = categories
-                      .where((c) =>
-                          _type == TransactionType.transfer
-                              ? c.type == CategoryType.transfer
-                              : _type == TransactionType.income
-                                  ? c.type == CategoryType.income
-                                  : c.type == CategoryType.expense)
-                      .toList();
-
-                  // Auto select first if not selected
-                  if (_selectedCategory == null && filtered.isNotEmpty) {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (mounted) setState(() => _selectedCategory = filtered.first);
-                    });
-                  }
-
-                  return SizedBox(
-                    height: 80,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: filtered.length + 1,
-                      separatorBuilder: (_, _) => const SizedBox(width: 12),
-                      itemBuilder: (context, index) {
-                        if (index == filtered.length) {
-                          // "+ Add" button
-                          return GestureDetector(
-                            onTap: () async {
-                              final newCat = await CategoryFormDialog.show(
-                                context,
-                                initialType: _type == TransactionType.income
-                                    ? CategoryType.income
-                                    : _type == TransactionType.transfer
-                                        ? CategoryType.transfer
-                                        : CategoryType.expense,
-                              );
-                              if (newCat != null && mounted) {
-                                setState(() => _selectedCategory = newCat);
-                              }
-                            },
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  width: 52,
-                                  height: 52,
-                                  decoration: BoxDecoration(
-                                    color: AppColors.surface,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: AppColors.surfaceBorder,
-                                      style: BorderStyle.solid,
-                                    ),
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: const Icon(
-                                    Icons.add_rounded,
-                                    color: AppColors.accent,
-                                    size: 26,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '+ Add',
-                                  style: AppTypography.caption.copyWith(
-                                    color: AppColors.accent,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }
-
-                        final cat = filtered[index];
-                        final isSelected = _selectedCategory?.id == cat.id;
-
-                        return GestureDetector(
-                          onTap: () {
-                            HapticFeedback.selectionClick();
-                            setState(() => _selectedCategory = cat);
-                          },
-                          child: AnimatedScale(
-                            scale: isSelected ? 1.08 : 1.0,
-                            duration: const Duration(milliseconds: 200),
-                            curve: Curves.easeOutBack,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(3),
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: isSelected
-                                          ? AppColors.accent
-                                          : Colors.transparent,
-                                      width: 2,
-                                    ),
-                                  ),
-                                  child: CategoryIconBadge(
-                                    iconOrEmoji: cat.iconOrEmoji,
-                                    colorValue: cat.color,
-                                    size: 46,
-                                    fontSize: 22,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  cat.isSubCategory ? '↳ ${cat.name}' : cat.name,
-                                  style: AppTypography.caption.copyWith(
-                                    color: isSelected
-                                        ? AppColors.textPrimary
-                                        : AppColors.textTertiary,
-                                    fontWeight: isSelected
-                                        ? FontWeight.w600
-                                        : FontWeight.normal,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                },
-                loading: () => const SizedBox(
-                  height: 80,
-                  child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                ),
-                error: (_, _) => const SizedBox(height: 80),
-              ),
-              const SizedBox(height: 12),
-
-              // Context Chips (Account, Date, Note toggle)
+              // Context chips: date, account, name
               accountsAsync.when(
                 data: (accounts) {
                   if (_selectedAccount == null && accounts.isNotEmpty) {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (mounted) setState(() => _selectedAccount = accounts.first);
+                      if (mounted) {
+                        setState(() => _selectedAccount = accounts.first);
+                      }
+                    });
+                  }
+                  return _buildContextChips(accounts);
+                },
+                loading: () => const SizedBox(height: _kChipHeight),
+                error: (_, _) => const SizedBox(height: _kChipHeight),
+              ),
+              const SizedBox(height: 12),
+
+              // Main categories: tap to select, hold for sub-categories
+              categoriesAsync.when(
+                data: (categories) {
+                  final ofType =
+                      categories.where((c) => c.type == _categoryType).toList();
+
+                  // Auto select the first main category if none is selected
+                  final firstMain =
+                      ofType.where((c) => !c.isSubCategory).firstOrNull;
+                  if (_selectedCategory == null && firstMain != null) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted) {
+                        setState(() => _selectedCategory = firstMain);
+                      }
                     });
                   }
 
-                  return SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        // Account chip
-                        PopupMenuButton<Account>(
-                          onSelected: (acc) {
-                            HapticFeedback.selectionClick();
-                            setState(() => _selectedAccount = acc);
-                          },
-                          color: const Color(0xFF162330),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            side: const BorderSide(color: Color(0xFF2B3F54)),
-                          ),
-                          itemBuilder: (context) => accounts
-                              .map(
-                                (a) => PopupMenuItem(
-                                  value: a,
-                                  child: Text('${a.icon} ${a.name}'),
-                                ),
-                              )
-                              .toList(),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  Color(0xFF1C2B3A),
-                                  Color(0xFF121C26),
-                                ],
-                              ),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: const Color(0xFF273A4D)),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.2),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              children: [
-                                Text(_selectedAccount?.icon ?? '🏦'),
-                                const SizedBox(width: 6),
-                                Text(
-                                  _selectedAccount?.name ?? 'Select Account',
-                                  style: AppTypography.caption.copyWith(
-                                    color: AppColors.textPrimary,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const Icon(Icons.arrow_drop_down, color: AppColors.textSecondary, size: 18),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-
-                        // Date chip
-                        GestureDetector(
-                          onTap: () async {
-                            HapticFeedback.selectionClick();
-                            final picked = await showDatePicker(
-                              context: context,
-                              initialDate: _selectedDate,
-                              firstDate: DateTime(2020),
-                              lastDate: DateTime(2035),
-                            );
-                            if (picked != null) {
-                              setState(() => _selectedDate = picked);
-                            }
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  Color(0xFF1C2B3A),
-                                  Color(0xFF121C26),
-                                ],
-                              ),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: const Color(0xFF273A4D)),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.2),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.calendar_today_rounded, size: 14, color: AppColors.textSecondary),
-                                const SizedBox(width: 6),
-                                Text(
-                                  DateFormat('dd MMM').format(_selectedDate),
-                                  style: AppTypography.caption.copyWith(
-                                    color: AppColors.textPrimary,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-
-                        // Note toggle chip
-                        GestureDetector(
-                          onTap: () {
-                            HapticFeedback.selectionClick();
-                            setState(() => _showNoteField = !_showNoteField);
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: _showNoteField
-                                    ? const [Color(0xFF25394E), Color(0xFF172535)]
-                                    : const [Color(0xFF1C2B3A), Color(0xFF121C26)],
-                              ),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                color: _showNoteField
-                                    ? const Color(0xFF38BDF8).withValues(alpha: 0.5)
-                                    : const Color(0xFF273A4D),
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.2),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.edit_note_rounded,
-                                  size: 16,
-                                  color: _showNoteField ? const Color(0xFF38BDF8) : AppColors.textSecondary,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  'Note',
-                                  style: AppTypography.caption.copyWith(
-                                    color: _showNoteField ? const Color(0xFF38BDF8) : AppColors.textPrimary,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                  return CategoryRail(
+                    categories: ofType,
+                    selected: _selectedCategory,
+                    onSelected: _selectCategory,
+                    onOpenPicker: _openCategoryPicker,
                   );
                 },
-                loading: () => const SizedBox(),
-                error: (_, _) => const SizedBox(),
+                loading: () => const SizedBox(
+                  height: 56,
+                  child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                ),
+                error: (_, _) => const SizedBox(height: 56),
               ),
               const SizedBox(height: 12),
 
-              // Optional note text field
-              if (_showNoteField) ...[
-                TextField(
-                  controller: _noteController,
-                  autofocus: true,
-                  style: AppTypography.bodyMedium.copyWith(color: AppColors.textPrimary),
-                  decoration: InputDecoration(
-                    hintText: 'Add a note (e.g., Grocery at Walmart)',
-                    hintStyle: AppTypography.bodyMedium.copyWith(color: AppColors.textTertiary),
-                    filled: true,
-                    fillColor: AppColors.surface,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: AppColors.surfaceBorder),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-              ],
-
-              // On-Screen Keypad
+              // On-screen keypad; the arrow key saves the transaction
               CustomNumpad(
                 onKeyPress: _onKeyPress,
-                onDelete: _onDelete,
                 onSubmit: _submitTransaction,
-              ),
-              const SizedBox(height: 12),
-
-              // Save Button
-              Container(
-                width: double.infinity,
-                height: 52,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color(0xFF0284C7),
-                      Color(0xFF0369A1),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(
-                    color: const Color(0xFF38BDF8).withValues(alpha: 0.4),
-                    width: 1,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF0284C7).withValues(alpha: 0.35),
-                      blurRadius: 14,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(18),
-                    onTap: () {
-                      HapticFeedback.mediumImpact();
-                      _submitTransaction();
-                    },
-                    child: Center(
-                      child: Text(
-                        'Save Transaction',
-                        style: AppTypography.titleMedium.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
               ),
             ],
           ),
@@ -631,44 +334,203 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
     );
   }
 
-  Widget _buildTypeChip(String title, TransactionType type, Color activeColor) {
-    final isSelected = _type == type;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          HapticFeedback.selectionClick();
-          setState(() {
-            _type = type;
-            _selectedCategory = null; // reset category on type switch
-          });
-        },
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          padding: const EdgeInsets.symmetric(vertical: 9),
-          decoration: BoxDecoration(
-            gradient: isSelected
-                ? LinearGradient(
-                    colors: [
-                      activeColor.withValues(alpha: 0.22),
-                      activeColor.withValues(alpha: 0.12),
-                    ],
-                  )
-                : null,
-            color: isSelected ? null : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-            border: isSelected
-                ? Border.all(color: activeColor.withValues(alpha: 0.55), width: 1)
-                : null,
+  Widget _buildTopBar() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        _buildRoundButton(
+          tooltip: 'Reset entry',
+          icon: Icons.refresh_rounded,
+          onTap: _resetEntry,
+        ),
+        PopupMenuButton<TransactionType>(
+          tooltip: 'Transaction type',
+          onSelected: _switchType,
+          color: const Color(0xFF162330),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: const BorderSide(color: Color(0xFF2B3F54)),
           ),
-          alignment: Alignment.center,
-          child: Text(
-            title,
-            style: AppTypography.caption.copyWith(
-              color: isSelected ? activeColor : AppColors.textSecondary,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+          itemBuilder: (_) => [
+            for (final type in TransactionType.values)
+              CheckedPopupMenuItem(
+                value: type,
+                checked: type == _type,
+                child: Text(switch (type) {
+                  TransactionType.expense => 'Expense',
+                  TransactionType.income => 'Income',
+                  TransactionType.transfer => 'Transfer',
+                }),
+              ),
+          ],
+          child: _buildRoundButton(icon: Icons.more_vert_rounded),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRoundButton({
+    required IconData icon,
+    String? tooltip,
+    VoidCallback? onTap,
+  }) {
+    final button = Container(
+      width: _kRoundButtonSize,
+      height: _kRoundButtonSize,
+      decoration: BoxDecoration(
+        color: const Color(0xFF1C2B3A),
+        shape: BoxShape.circle,
+        border: Border.all(color: const Color(0xFF273A4D)),
+      ),
+      child: Icon(icon, size: 22, color: AppColors.textSecondary),
+    );
+    if (onTap == null) return button;
+    return Tooltip(
+      message: tooltip ?? '',
+      child: GestureDetector(onTap: onTap, child: button),
+    );
+  }
+
+  Widget _buildAmountArea() {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 52),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: AnimatedTypingAmountText(
+              text: _amountString,
+              prefix: AppConstants.currencySymbol,
+              prefixStyle: AppTypography.amountDisplay.copyWith(
+                color: AppColors.textSecondary,
+                fontSize: 28,
+              ),
+              style: AppTypography.amountDisplay.copyWith(
+                fontSize: 64,
+                color: _type == TransactionType.expense
+                    ? AppColors.textPrimary
+                    : _type == TransactionType.income
+                        ? AppColors.income
+                        : AppColors.transfer,
+              ),
             ),
           ),
         ),
+        Align(
+          alignment: Alignment.centerRight,
+          child: Tooltip(
+            message: 'Delete, hold to clear',
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                HapticFeedback.selectionClick();
+                _onDelete();
+              },
+              onLongPress: _clearAmount,
+              child: const Padding(
+                padding: EdgeInsets.all(10),
+                child: Icon(
+                  Icons.backspace_rounded,
+                  size: 26,
+                  color: AppColors.textTertiary,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildContextChips(List<Account> accounts) {
+    final note = _noteController.text.trim();
+
+    return Row(
+      children: [
+        GestureDetector(
+          onTap: _pickDate,
+          child: _buildChip(
+            icon: Icons.calendar_today_outlined,
+            label: _dateLabel,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Flexible(
+          flex: 3,
+          child: PopupMenuButton<Account>(
+            tooltip: 'Account',
+            onSelected: (account) {
+              HapticFeedback.selectionClick();
+              setState(() => _selectedAccount = account);
+            },
+            color: const Color(0xFF162330),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: const BorderSide(color: Color(0xFF2B3F54)),
+            ),
+            itemBuilder: (_) => accounts
+                .map(
+                  (account) => PopupMenuItem(
+                    value: account,
+                    child: Text('${account.icon} ${account.name}'),
+                  ),
+                )
+                .toList(),
+            child: _buildChip(
+              icon: Icons.account_balance_wallet_outlined,
+              label: _selectedAccount?.name ?? 'Account',
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Flexible(
+          flex: 2,
+          child: GestureDetector(
+            onTap: _editNote,
+            child: _buildChip(
+              icon: Icons.sticky_note_2_outlined,
+              label: note.isEmpty ? 'Name' : note,
+              isMuted: note.isEmpty,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildChip({
+    required IconData icon,
+    required String label,
+    bool isMuted = false,
+  }) {
+    final color = isMuted ? AppColors.textTertiary : AppColors.textPrimary;
+
+    return Container(
+      height: _kChipHeight,
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1C2B3A),
+        borderRadius: BorderRadius.circular(_kChipHeight / 2),
+        border: Border.all(color: const Color(0xFF273A4D)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 17, color: color),
+          const SizedBox(width: 7),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTypography.caption.copyWith(
+                color: color,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

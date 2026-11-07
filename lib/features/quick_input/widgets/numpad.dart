@@ -4,13 +4,11 @@ import '../../../core/widgets/numpad_3d_key.dart';
 /// Custom 3D tactile numpad matching Quanto's sleek on-screen keypad with realistic depth.
 class CustomNumpad extends StatelessWidget {
   final ValueChanged<String> onKeyPress;
-  final VoidCallback onDelete;
   final VoidCallback onSubmit;
 
   const CustomNumpad({
     super.key,
     required this.onKeyPress,
-    required this.onDelete,
     required this.onSubmit,
   });
 
@@ -57,9 +55,10 @@ class CustomNumpad extends StatelessWidget {
           onTap: () => onKeyPress('0'),
         ),
         Numpad3DKey(
-          icon: Icons.backspace_outlined,
+          icon: Icons.arrow_forward_rounded,
+          isAction: true,
           height: 52,
-          onTap: onDelete,
+          onTap: onSubmit,
         ),
       ],
     );
