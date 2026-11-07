@@ -66,6 +66,9 @@ class _MainShellState extends ConsumerState<MainShell> {
 
     final bottomInset = MediaQuery.of(context).padding.bottom;
     final dockBottom = bottomInset > 0 ? bottomInset + 8 : 16.0;
+    // The body shrinks above the keyboard, so the floating controls would
+    // otherwise ride up and cover whatever field is being typed in.
+    final isKeyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
 
     return CallbackShortcuts(
       bindings: <ShortcutActivator, VoidCallback>{
@@ -93,35 +96,37 @@ class _MainShellState extends ConsumerState<MainShell> {
                   children: screens,
                 ),
 
-                // Floating Navigation Dock lifted above the system navigation bar
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: dockBottom,
-                  child: BottomNavDock(
-                    currentIndex: currentIndex,
-                    onTabSelected: (index) {
-                      ref.read(activeNavIndexProvider.notifier).setIndex(index);
-                    },
+                if (!isKeyboardOpen) ...[
+                  // Floating Navigation Dock lifted above the system navigation bar
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: dockBottom,
+                    child: BottomNavDock(
+                      currentIndex: currentIndex,
+                      onTabSelected: (index) {
+                        ref.read(activeNavIndexProvider.notifier).setIndex(index);
+                      },
+                    ),
                   ),
-                ),
 
-                // Floating Action Button at bottom-right (Tap: Quick add, Hold: Voice + Scan)
-                Positioned(
-                  right: 20,
-                  bottom: dockBottom + 68,
-                  child: SpeedDialFab(
-                    onQuickAdd: () {
-                      QuickInputModal.show(context);
-                    },
-                    onVoiceLog: () {
-                      VoiceLoggerSheet.show(context);
-                    },
-                    onScanReceipt: () {
-                      ReceiptScannerSheet.show(context);
-                    },
+                  // Floating Action Button at bottom-right (Tap: Quick add, Hold: Voice + Scan)
+                  Positioned(
+                    right: 20,
+                    bottom: dockBottom + 68,
+                    child: SpeedDialFab(
+                      onQuickAdd: () {
+                        QuickInputModal.show(context);
+                      },
+                      onVoiceLog: () {
+                        VoiceLoggerSheet.show(context);
+                      },
+                      onScanReceipt: () {
+                        ReceiptScannerSheet.show(context);
+                      },
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),
