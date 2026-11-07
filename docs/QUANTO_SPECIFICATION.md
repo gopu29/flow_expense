@@ -291,7 +291,7 @@ lib/
   - Extended bottom list padding on the Budgets and category transactions `DraggableScrollableSheet` lists by the same inset so the last rows stay reachable.
   - Enforced `useSafeArea: true` on the scroll-controlled Category Budget numpad sheet.
 - [x] **Phase 14: Quick Input Modal Redesign & Hold-to-Pick Sub-categories**
-  - Rebuilt the add modal as a near full-height sheet: reset and type (`⋮`) buttons, large centered amount with backspace beside it (hold to clear), Date / Account / Name chips, a main-category rail, and a 3D keypad whose arrow key saves (the separate Save button is gone).
+  - Rebuilt the add modal as a near full-height sheet: a type (`⋮`) button, large centered amount with backspace beside it (hold to clear), Date / Account / Name chips, a main-category rail, and a 3D keypad whose arrow key saves (the separate Save button is gone).
   - `CategoryRail` shows main categories only; tapping selects one, and the selected pill shows the chosen sub-category.
   - `SubcategoryHoldMenu`: holding a main category opens its sub-categories. Slide onto a row and release to select, with direction-aware edge auto-scroll, or release first and then scroll and tap. Holding a category without sub-categories selects it.
   - `CategoryPickerSheet`: four-dot button opens a 4-column category grid with an Expense/Income switch, a pencil shortcut to the Category Manager, and the same hold menu on tiles.
@@ -299,3 +299,5 @@ lib/
   - Budget category spend now rolls sub-category transactions up to their main category. No schema change: sub-category transactions keep storing the sub-category id in `categoryId`.
 - [x] **Phase 15: Keyboard-Aware Main Shell**
   - `MainShell` hides the floating navigation dock and Speed Dial FAB while the keyboard is open, so they no longer cover the Activity search field.
+- [x] **Phase 16: Muted Keypad Enter Key**
+  - The 3D keypad enter key is now a muted dark key with a gray arrow, in both the Quick Input and Category Budget keypads.
