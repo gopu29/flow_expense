@@ -301,3 +301,11 @@ lib/
   - `MainShell` hides the floating navigation dock and Speed Dial FAB while the keyboard is open, so they no longer cover the Activity search field.
 - [x] **Phase 16: Muted Keypad Enter Key**
   - The 3D keypad enter key is now a muted dark key with a gray arrow, in both the Quick Input and Category Budget keypads.
+- [x] **Phase 17: Optional Entry Tools & Simplified Add Button**
+  - The main screen now has a single `AddTransactionFab`. The Voice Logger and Receipt Scanner entry points are removed because both are simulated; their sheets stay in the codebase for later.
+  - The add modal `⋮` menu opens `EntryFieldsSheet`, which toggles Date, Name, Accounts, Currency converter, Budgets and Calculator. Choices persist through `shared_preferences` via `visibleEntryFieldsProvider`.
+  - Calculator adds a `+ − × ÷` key row; `evaluateAmountExpression` applies standard precedence and the arrow key saves the result.
+  - `CurrencyConverterSheet` converts offline using a user-entered rate, which is remembered.
+  - The Budgets chip shows the money left in the selected category limit, or in the whole budget if the category has no limit. It does not assign transactions to a budget.
+- [ ] **Backlog: Real Voice & Receipt Input**
+  - `VoiceLoggerSheet` speech capture and `ReceiptScannerSheet` OCR are simulated with sample data and not reachable from the app. Real speech recognition and scan sources were skipped for now.
