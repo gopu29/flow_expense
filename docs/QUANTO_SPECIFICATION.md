@@ -326,3 +326,6 @@ lib/
 - [x] **Phase 20: Champagne Gold Accent & Scrollable Filter Sheets**
   - Replaced the cyan/indigo UI accent with champagne gold (`AppColors.accent` `#D9B77E`, light `#EBD3A6`, deep `#A8834A`) for selected states, highlights, chart selection and focused fields. Income green, expense red and each category's own color are unchanged.
   - The Summary filter sheets (period, account, category) and the Analytics account filter now scroll, so long category lists no longer overflow.
+- [x] **Phase 21: Quanto-Style Summary Category List**
+  - Category rows follow Quanto: a colored squircle badge, the name with a count pill, then the amount and a percentage pill. The wide trailing chevron is gone; a small arrow next to the count shows that a row expands.
+  - Expanding shows only sub-categories that have transactions, indented along a thin line in the category color, with smaller badges and the share of the parent. Spending saved on the main category itself shows as a muted "No sub-category" row. A gold "See all N transactions" link replaces the large "View all" box.
