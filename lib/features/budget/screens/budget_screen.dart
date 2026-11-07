@@ -127,9 +127,11 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen>
                     Expanded(
                       child: ListView.builder(
                         controller: scrollController,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
+                        padding: EdgeInsets.fromLTRB(
+                          16,
+                          14,
+                          16,
+                          14 + MediaQuery.of(context).padding.bottom,
                         ),
                         itemCount: budgets.length,
                         itemBuilder: (context, index) {
@@ -753,7 +755,12 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen>
 
                     // Bottom Confirm Button (Matching User Screenshot 1)
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+                      padding: EdgeInsets.fromLTRB(
+                        20,
+                        8,
+                        20,
+                        24 + MediaQuery.of(context).padding.bottom,
+                      ),
                       child: SizedBox(
                         width: double.infinity,
                         height: 52,

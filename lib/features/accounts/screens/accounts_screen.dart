@@ -62,7 +62,9 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
             left: 20,
             right: 20,
             top: 14,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+            bottom: MediaQuery.of(context).viewInsets.bottom +
+                MediaQuery.of(context).padding.bottom +
+                24,
           ),
           child: SingleChildScrollView(
             child: Column(

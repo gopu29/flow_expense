@@ -195,9 +195,11 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
                         )
                       : ListView.builder(
                           controller: scrollController,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 14,
+                          padding: EdgeInsets.fromLTRB(
+                            16,
+                            14,
+                            16,
+                            14 + MediaQuery.of(context).padding.bottom,
                           ),
                           itemCount: transactions.length,
                           itemBuilder: (context, index) {

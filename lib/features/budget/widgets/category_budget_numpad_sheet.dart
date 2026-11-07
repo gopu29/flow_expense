@@ -30,6 +30,7 @@ class CategoryBudgetNumpadSheet extends StatefulWidget {
     return showModalBottomSheet<double>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => CategoryBudgetNumpadSheet(
         title: title,
