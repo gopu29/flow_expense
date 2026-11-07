@@ -148,8 +148,21 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
 
     return Container(
       decoration: const BoxDecoration(
-        color: AppColors.backgroundSecondary,
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xFF162330),
+            Color(0xFF0F1722),
+          ],
+        ),
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        border: Border(
+          top: BorderSide(
+            color: Color(0xFF2B3F54),
+            width: 1.5,
+          ),
+        ),
       ),
       padding: EdgeInsets.only(
         top: 12,
@@ -169,7 +182,7 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
                   width: 36,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.textTertiary.withValues(alpha: 0.4),
+                    color: Colors.white.withValues(alpha: 0.25),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -180,9 +193,12 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
               Container(
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: const Color(0xFF131D27),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.surfaceBorder),
+                  border: Border.all(
+                    color: const Color(0xFF243647),
+                    width: 1,
+                  ),
                 ),
                 child: Row(
                   children: [
@@ -387,8 +403,15 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
                       children: [
                         // Account chip
                         PopupMenuButton<Account>(
-                          onSelected: (acc) => setState(() => _selectedAccount = acc),
-                          color: AppColors.surface,
+                          onSelected: (acc) {
+                            HapticFeedback.selectionClick();
+                            setState(() => _selectedAccount = acc);
+                          },
+                          color: const Color(0xFF162330),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            side: const BorderSide(color: Color(0xFF2B3F54)),
+                          ),
                           itemBuilder: (context) => accounts
                               .map(
                                 (a) => PopupMenuItem(
@@ -398,11 +421,25 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
                               )
                               .toList(),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                             decoration: BoxDecoration(
-                              color: AppColors.surface,
+                              gradient: const LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Color(0xFF1C2B3A),
+                                  Color(0xFF121C26),
+                                ],
+                              ),
                               borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: AppColors.surfaceBorder),
+                              border: Border.all(color: const Color(0xFF273A4D)),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.2),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                             ),
                             child: Row(
                               children: [
@@ -410,7 +447,10 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
                                 const SizedBox(width: 6),
                                 Text(
                                   _selectedAccount?.name ?? 'Select Account',
-                                  style: AppTypography.caption.copyWith(color: AppColors.textPrimary),
+                                  style: AppTypography.caption.copyWith(
+                                    color: AppColors.textPrimary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                                 const Icon(Icons.arrow_drop_down, color: AppColors.textSecondary, size: 18),
                               ],
@@ -422,6 +462,7 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
                         // Date chip
                         GestureDetector(
                           onTap: () async {
+                            HapticFeedback.selectionClick();
                             final picked = await showDatePicker(
                               context: context,
                               initialDate: _selectedDate,
@@ -433,11 +474,25 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
                             }
                           },
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                             decoration: BoxDecoration(
-                              color: AppColors.surface,
+                              gradient: const LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Color(0xFF1C2B3A),
+                                  Color(0xFF121C26),
+                                ],
+                              ),
                               borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: AppColors.surfaceBorder),
+                              border: Border.all(color: const Color(0xFF273A4D)),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.2),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                             ),
                             child: Row(
                               children: [
@@ -445,7 +500,10 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
                                 const SizedBox(width: 6),
                                 Text(
                                   DateFormat('dd MMM').format(_selectedDate),
-                                  style: AppTypography.caption.copyWith(color: AppColors.textPrimary),
+                                  style: AppTypography.caption.copyWith(
+                                    color: AppColors.textPrimary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ],
                             ),
@@ -455,19 +513,49 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
 
                         // Note toggle chip
                         GestureDetector(
-                          onTap: () => setState(() => _showNoteField = !_showNoteField),
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            setState(() => _showNoteField = !_showNoteField);
+                          },
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                             decoration: BoxDecoration(
-                              color: _showNoteField ? AppColors.surfaceHover : AppColors.surface,
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: _showNoteField
+                                    ? const [Color(0xFF25394E), Color(0xFF172535)]
+                                    : const [Color(0xFF1C2B3A), Color(0xFF121C26)],
+                              ),
                               borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: AppColors.surfaceBorder),
+                              border: Border.all(
+                                color: _showNoteField
+                                    ? const Color(0xFF38BDF8).withValues(alpha: 0.5)
+                                    : const Color(0xFF273A4D),
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.2),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.edit_note_rounded, size: 16, color: AppColors.textSecondary),
+                                Icon(
+                                  Icons.edit_note_rounded,
+                                  size: 16,
+                                  color: _showNoteField ? const Color(0xFF38BDF8) : AppColors.textSecondary,
+                                ),
                                 const SizedBox(width: 4),
-                                Text('Note', style: AppTypography.caption.copyWith(color: AppColors.textPrimary)),
+                                Text(
+                                  'Note',
+                                  style: AppTypography.caption.copyWith(
+                                    color: _showNoteField ? const Color(0xFF38BDF8) : AppColors.textPrimary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -511,22 +599,45 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
               const SizedBox(height: 12),
 
               // Save Button
-              SizedBox(
+              Container(
                 width: double.infinity,
                 height: 52,
-                child: ElevatedButton(
-                  onPressed: _submitTransaction,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.accent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18),
-                    ),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [
+                      Color(0xFF0284C7),
+                      Color(0xFF0369A1),
+                    ],
                   ),
-                  child: Text(
-                    'Save Transaction',
-                    style: AppTypography.titleMedium.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(
+                    color: const Color(0xFF38BDF8).withValues(alpha: 0.4),
+                    width: 1,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF0284C7).withValues(alpha: 0.35),
+                      blurRadius: 14,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(18),
+                    onTap: () {
+                      HapticFeedback.mediumImpact();
+                      _submitTransaction();
+                    },
+                    child: Center(
+                      child: Text(
+                        'Save Transaction',
+                        style: AppTypography.titleMedium.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -543,24 +654,36 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
     return Expanded(
       child: GestureDetector(
         onTap: () {
+          HapticFeedback.selectionClick();
           setState(() {
             _type = type;
             _selectedCategory = null; // reset category on type switch
           });
         },
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(vertical: 9),
           decoration: BoxDecoration(
-            color: isSelected ? activeColor.withValues(alpha: 0.18) : Colors.transparent,
+            gradient: isSelected
+                ? LinearGradient(
+                    colors: [
+                      activeColor.withValues(alpha: 0.22),
+                      activeColor.withValues(alpha: 0.12),
+                    ],
+                  )
+                : null,
+            color: isSelected ? null : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
-            border: isSelected ? Border.all(color: activeColor.withValues(alpha: 0.6)) : null,
+            border: isSelected
+                ? Border.all(color: activeColor.withValues(alpha: 0.55), width: 1)
+                : null,
           ),
           alignment: Alignment.center,
           child: Text(
             title,
             style: AppTypography.caption.copyWith(
               color: isSelected ? activeColor : AppColors.textSecondary,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
             ),
           ),
         ),

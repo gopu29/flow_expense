@@ -105,25 +105,27 @@ class _NumpadButtonState extends State<_NumpadButton> {
               duration: const Duration(milliseconds: 120),
               height: 54,
               decoration: BoxDecoration(
-                color: _isPressed
-                    ? AppColors.surfaceHover
-                    : AppColors.surfaceHover.withValues(alpha: 0.55),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: _isPressed
+                      ? const [Color(0xFF26374A), Color(0xFF1E2B3A)]
+                      : const [Color(0xFF1B2836), Color(0xFF131D28)],
+                ),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: _isPressed
-                      ? AppColors.accent.withValues(alpha: 0.4)
-                      : AppColors.surfaceBorder.withValues(alpha: 0.6),
+                      ? const Color(0xFF38BDF8).withValues(alpha: 0.5)
+                      : const Color(0xFF263749),
                   width: 1,
                 ),
-                boxShadow: _isPressed
-                    ? [
-                        BoxShadow(
-                          color: AppColors.accent.withValues(alpha: 0.15),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ]
-                    : [],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.25),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               alignment: Alignment.center,
               child: widget.icon != null
