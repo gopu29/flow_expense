@@ -8,6 +8,8 @@ import '../../../models/transaction.dart';
 import '../widgets/daily_spend_bar_chart.dart';
 import '../widgets/transaction_tile.dart';
 import '../../settings/screens/settings_screen.dart';
+import '../../../core/widgets/animated_amount_text.dart';
+import '../../../core/widgets/staggered_entrance.dart';
 
 /// Flagship Activity Screen matching Quanto's exact gradient UI (IMG_6026.PNG).
 class ActivityScreen extends ConsumerStatefulWidget {
@@ -179,9 +181,9 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen>
 
               const SizedBox(height: 8),
 
-              // 2. Huge Centered Amount Display (Matching IMG_6026.PNG)
-              Text(
-                AppFormatters.currency(monthlyExpense),
+              // 2. Huge Centered Amount Display (Matching IMG_6026.PNG) with Smooth Rolling Counter
+              AnimatedAmountText(
+                amount: monthlyExpense,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 38,
@@ -482,10 +484,13 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen>
                               child: Column(
                                 children: [
                                   for (int i = 0; i < items.length; i++) ...[
-                                    TransactionTile(
-                                      transaction: items[i],
-                                      isFirst: i == 0,
-                                      isLast: i == items.length - 1,
+                                    StaggeredEntrance(
+                                      index: i,
+                                      child: TransactionTile(
+                                        transaction: items[i],
+                                        isFirst: i == 0,
+                                        isLast: i == items.length - 1,
+                                      ),
                                     ),
                                     if (i < items.length - 1)
                                       const Divider(

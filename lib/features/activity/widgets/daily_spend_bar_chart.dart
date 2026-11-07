@@ -5,7 +5,7 @@ import '../../../models/transaction.dart';
 
 /// Ultra-sleek, borderless daily spending bar chart matching Quanto (IMG_6026.PNG).
 /// Features 31-day vertical slot tracks, bright spend bars, dashed average line,
-/// and right-aligned Y-axis labels.
+/// animated bar growth on month change, and right-aligned Y-axis labels.
 class DailySpendBarChart extends StatefulWidget {
   final List<Transaction> transactions;
   final DateTime selectedMonth;
@@ -20,8 +20,40 @@ class DailySpendBarChart extends StatefulWidget {
   State<DailySpendBarChart> createState() => _DailySpendBarChartState();
 }
 
-class _DailySpendBarChartState extends State<DailySpendBarChart> {
+class _DailySpendBarChartState extends State<DailySpendBarChart>
+    with SingleTickerProviderStateMixin {
   int? _selectedDay;
+  late final AnimationController _animController;
+  late final Animation<double> _chartAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 650),
+    );
+    _chartAnimation = CurvedAnimation(
+      parent: _animController,
+      curve: Curves.easeOutCubic,
+    );
+    _animController.forward();
+  }
+
+  @override
+  void didUpdateWidget(DailySpendBarChart oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.selectedMonth != widget.selectedMonth ||
+        oldWidget.transactions != widget.transactions) {
+      _animController.forward(from: 0.0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +104,7 @@ class _DailySpendBarChartState extends State<DailySpendBarChart> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Tooltip display on tap
-        if (_selectedDay != null && dailyTotals[_selectedDay!]! > 0)
+        if (_selectedDay != null && (dailyTotals[_selectedDay!] ?? 0) > 0)
           Padding(
             padding: const EdgeInsets.only(bottom: 6),
             child: Row(
@@ -118,16 +150,22 @@ class _DailySpendBarChartState extends State<DailySpendBarChart> {
                           _selectedDay = (_selectedDay == tappedDay) ? null : tappedDay;
                         });
                       },
-                      child: CustomPaint(
-                        size: Size(chartWidth, constraints.maxHeight),
-                        painter: _QuantoBarChartPainter(
-                          dailyTotals: dailyTotals,
-                          daysInMonth: daysInMonth,
-                          maxSpend: maxSpend,
-                          avgSpend: avgSpend,
-                          selectedDay: _selectedDay,
-                          chartHeight: chartHeight,
-                        ),
+                      child: AnimatedBuilder(
+                        animation: _chartAnimation,
+                        builder: (context, child) {
+                          return CustomPaint(
+                            size: Size(chartWidth, constraints.maxHeight),
+                            painter: _QuantoBarChartPainter(
+                              dailyTotals: dailyTotals,
+                              daysInMonth: daysInMonth,
+                              maxSpend: maxSpend,
+                              avgSpend: avgSpend,
+                              selectedDay: _selectedDay,
+                              chartHeight: chartHeight,
+                              progress: _chartAnimation.value,
+                            ),
+                          );
+                        },
                       ),
                     );
                   },
@@ -182,6 +220,7 @@ class _QuantoBarChartPainter extends CustomPainter {
   final double avgSpend;
   final int? selectedDay;
   final double chartHeight;
+  final double progress;
 
   _QuantoBarChartPainter({
     required this.dailyTotals,
@@ -190,6 +229,7 @@ class _QuantoBarChartPainter extends CustomPainter {
     required this.avgSpend,
     required this.selectedDay,
     required this.chartHeight,
+    required this.progress,
   });
 
   @override
@@ -217,7 +257,7 @@ class _QuantoBarChartPainter extends CustomPainter {
 
     // 1. Draw dashed average horizontal line across the chart
     final avgRatio = (avgSpend / maxSpend).clamp(0.0, 1.0);
-    final avgY = chartHeight - (avgRatio * chartHeight);
+    final avgY = chartHeight - (avgRatio * chartHeight * progress);
 
     const dashWidth = 4.0;
     const dashSpace = 4.0;
@@ -246,42 +286,45 @@ class _QuantoBarChartPainter extends CustomPainter {
       // Active spend bar
       if (spend > 0) {
         final heightRatio = (spend / maxSpend).clamp(0.05, 1.0);
-        final barHeight = heightRatio * chartHeight;
+        final barHeight = heightRatio * chartHeight * progress;
         final barTop = chartHeight - barHeight;
 
-        final isSel = selectedDay == day;
+        final isSelected = selectedDay == day;
         canvas.drawLine(
           Offset(x, chartHeight),
           Offset(x, barTop),
-          isSel ? selectedBarPaint : barPaint,
+          isSelected ? selectedBarPaint : barPaint,
         );
       }
     }
 
-    // 3. Draw X-axis day labels (1, 9, 16, 24, 31) matching IMG_6026.PNG
-    final labelDays = [1, 9, 16, 24, daysInMonth];
-    final textStyle = TextStyle(
-      color: AppColors.textTertiary,
-      fontSize: 10,
-      fontFamily: 'Inter',
-    );
-
+    // 3. X-axis Day labels (1, 5, 10, 15, 20, 25, 30)
+    final labelDays = [1, 5, 10, 15, 20, 25, 30].where((d) => d <= daysInMonth);
     for (final day in labelDays) {
-      final textSpan = TextSpan(text: '$day', style: textStyle);
-      final textPainter = TextPainter(
+      final x = (day - 0.5) * slotWidth;
+      final textSpan = TextSpan(
+        text: '$day',
+        style: TextStyle(
+          color: selectedDay == day ? const Color(0xFF38BDF8) : const Color(0xFF5A6F82),
+          fontSize: 10,
+          fontWeight: FontWeight.w500,
+        ),
+      );
+      final tp = TextPainter(
         text: textSpan,
         textDirection: TextDirection.ltr,
       )..layout();
 
-      final x = (day - 0.5) * slotWidth - (textPainter.width / 2);
-      textPainter.paint(canvas, Offset(x, chartHeight + 4));
+      tp.paint(canvas, Offset(x - (tp.width / 2), chartHeight + 6));
     }
   }
 
   @override
   bool shouldRepaint(covariant _QuantoBarChartPainter oldDelegate) {
-    return oldDelegate.maxSpend != maxSpend ||
+    return oldDelegate.dailyTotals != dailyTotals ||
         oldDelegate.selectedDay != selectedDay ||
-        oldDelegate.dailyTotals != dailyTotals;
+        oldDelegate.progress != progress ||
+        oldDelegate.maxSpend != maxSpend ||
+        oldDelegate.avgSpend != avgSpend;
   }
 }
