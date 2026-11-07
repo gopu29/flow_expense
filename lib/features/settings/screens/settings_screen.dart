@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,6 +12,8 @@ import '../../../core/utils/formatters.dart';
 import '../../categories/screens/category_management_screen.dart';
 import '../widgets/settings_option_sheet.dart';
 import '../widgets/settings_tiles.dart';
+import '../../../core/services/android_shortcuts_service.dart';
+import 'android_shortcuts_guide_screen.dart';
 import 'back_tap_guide_screen.dart';
 
 /// Settings screen grouped like Quanto: General, Automations, Preferences,
@@ -69,9 +72,31 @@ class SettingsScreen extends ConsumerWidget {
                 title: 'Back tap',
                 onTap: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const BackTapGuideScreen()),
+                  MaterialPageRoute(
+                    builder: (_) => isAndroid
+                        ? const AndroidShortcutsGuideScreen()
+                        : const BackTapGuideScreen(),
+                  ),
                 ),
               ),
+              if (isAndroid) ...[
+                SettingsNavTile(
+                  icon: Icons.widgets_outlined,
+                  title: 'Widgets & shortcuts',
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AndroidShortcutsGuideScreen(),
+                    ),
+                  ),
+                ),
+                SettingsSwitchTile(
+                  icon: Icons.notifications_none_rounded,
+                  title: 'Notification shortcut',
+                  value: settings.quickAddNotification,
+                  onChanged: (v) => _setNotification(context, notifier, v),
+                ),
+              ],
             ]),
             const SettingsSectionLabel('Preferences'),
             SettingsGroup(children: [
@@ -137,6 +162,25 @@ class SettingsScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  static bool get isAndroid =>
+      !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+
+  Future<void> _setNotification(
+    BuildContext context,
+    AppSettingsNotifier notifier,
+    bool enabled,
+  ) async {
+    await notifier.update((s) => s.copyWith(quickAddNotification: enabled));
+    final shown = await setQuickAddNotification(enabled);
+    if (enabled && !shown && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Allow notifications to show the Add expense shortcut'),
+        ),
+      );
+    }
   }
 
   static String _formatSample(AppSettings settings, NumberStyle style) {

@@ -60,6 +60,9 @@ class AppSettings {
   final bool hapticsEnabled;
   final bool hideBalances;
 
+  /// Android: ongoing notification with an Add expense button.
+  final bool quickAddNotification;
+
   /// `DateTime.monday` or `DateTime.sunday`.
   final int firstDayOfWeek;
 
@@ -69,6 +72,7 @@ class AppSettings {
     this.showCents = true,
     this.hapticsEnabled = true,
     this.hideBalances = false,
+    this.quickAddNotification = false,
     this.firstDayOfWeek = DateTime.monday,
   });
 
@@ -80,6 +84,7 @@ class AppSettings {
     bool? showCents,
     bool? hapticsEnabled,
     bool? hideBalances,
+    bool? quickAddNotification,
     int? firstDayOfWeek,
   }) {
     return AppSettings(
@@ -88,6 +93,7 @@ class AppSettings {
       showCents: showCents ?? this.showCents,
       hapticsEnabled: hapticsEnabled ?? this.hapticsEnabled,
       hideBalances: hideBalances ?? this.hideBalances,
+      quickAddNotification: quickAddNotification ?? this.quickAddNotification,
       firstDayOfWeek: firstDayOfWeek ?? this.firstDayOfWeek,
     );
   }
@@ -100,11 +106,12 @@ class AppSettings {
       other.showCents == showCents &&
       other.hapticsEnabled == hapticsEnabled &&
       other.hideBalances == hideBalances &&
+      other.quickAddNotification == quickAddNotification &&
       other.firstDayOfWeek == firstDayOfWeek;
 
   @override
   int get hashCode => Object.hash(currencyCode, numberStyle, showCents,
-      hapticsEnabled, hideBalances, firstDayOfWeek);
+      hapticsEnabled, hideBalances, quickAddNotification, firstDayOfWeek);
 
   static const _kCurrency = 'settings_currency';
   static const _kNumberStyle = 'settings_number_style';
@@ -112,6 +119,7 @@ class AppSettings {
   static const _kHaptics = 'settings_haptics';
   static const _kHideBalances = 'settings_hide_balances';
   static const _kFirstDay = 'settings_first_day_of_week';
+  static const _kQuickAddNotification = 'settings_quick_add_notification';
 
   static AppSettings fromPrefs(SharedPreferences prefs) {
     final styleName = prefs.getString(_kNumberStyle);
@@ -124,6 +132,7 @@ class AppSettings {
       showCents: prefs.getBool(_kShowCents) ?? true,
       hapticsEnabled: prefs.getBool(_kHaptics) ?? true,
       hideBalances: prefs.getBool(_kHideBalances) ?? false,
+      quickAddNotification: prefs.getBool(_kQuickAddNotification) ?? false,
       firstDayOfWeek: prefs.getInt(_kFirstDay) ?? DateTime.monday,
     );
   }
@@ -134,6 +143,7 @@ class AppSettings {
     await prefs.setBool(_kShowCents, showCents);
     await prefs.setBool(_kHaptics, hapticsEnabled);
     await prefs.setBool(_kHideBalances, hideBalances);
+    await prefs.setBool(_kQuickAddNotification, quickAddNotification);
     await prefs.setInt(_kFirstDay, firstDayOfWeek);
   }
 

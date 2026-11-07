@@ -7,6 +7,7 @@ import '../core/widgets/add_transaction_fab.dart';
 import '../core/providers/expense_providers.dart';
 import '../core/providers/app_settings_provider.dart';
 import '../core/services/platform_intent_service.dart';
+import '../core/services/android_shortcuts_service.dart';
 import '../features/activity/screens/activity_screen.dart';
 import '../features/summary/screens/summary_screen.dart';
 import '../features/budget/screens/budget_screen.dart';
@@ -41,6 +42,7 @@ class _MainShellState extends ConsumerState<MainShell> {
   Widget build(BuildContext context) {
     // Activate platform intent sync service
     ref.watch(platformIntentServiceProvider);
+    ref.watch(androidShortcutsServiceProvider);
 
     final currentIndex = ref.watch(activeNavIndexProvider);
 
