@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
@@ -207,15 +208,27 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
                     ),
                   ),
                   const SizedBox(width: 6),
-                  Text(
-                    _amountString,
-                    style: AppTypography.amountDisplay.copyWith(
-                      fontSize: 44,
-                      color: _type == TransactionType.expense
-                          ? AppColors.textPrimary
-                          : _type == TransactionType.income
-                              ? AppColors.income
-                              : AppColors.transfer,
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 140),
+                    transitionBuilder: (child, animation) {
+                      return ScaleTransition(
+                        scale: Tween<double>(begin: 0.94, end: 1.0).animate(
+                          CurvedAnimation(parent: animation, curve: Curves.easeOutBack),
+                        ),
+                        child: child,
+                      );
+                    },
+                    child: Text(
+                      _amountString,
+                      key: ValueKey<String>(_amountString),
+                      style: AppTypography.amountDisplay.copyWith(
+                        fontSize: 44,
+                        color: _type == TransactionType.expense
+                            ? AppColors.textPrimary
+                            : _type == TransactionType.income
+                                ? AppColors.income
+                                : AppColors.transfer,
+                      ),
                     ),
                   ),
                 ],
@@ -302,41 +315,49 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
                         final isSelected = _selectedCategory?.id == cat.id;
 
                         return GestureDetector(
-                          onTap: () => setState(() => _selectedCategory = cat),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(3),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: isSelected
-                                        ? AppColors.accent
-                                        : Colors.transparent,
-                                    width: 2,
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            setState(() => _selectedCategory = cat);
+                          },
+                          child: AnimatedScale(
+                            scale: isSelected ? 1.08 : 1.0,
+                            duration: const Duration(milliseconds: 200),
+                            curve: Curves.easeOutBack,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(3),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: isSelected
+                                          ? AppColors.accent
+                                          : Colors.transparent,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: CategoryIconBadge(
+                                    iconOrEmoji: cat.iconOrEmoji,
+                                    colorValue: cat.color,
+                                    size: 46,
+                                    fontSize: 22,
                                   ),
                                 ),
-                                child: CategoryIconBadge(
-                                  iconOrEmoji: cat.iconOrEmoji,
-                                  colorValue: cat.color,
-                                  size: 46,
-                                  fontSize: 22,
+                                const SizedBox(height: 4),
+                                Text(
+                                  cat.isSubCategory ? '↳ ${cat.name}' : cat.name,
+                                  style: AppTypography.caption.copyWith(
+                                    color: isSelected
+                                        ? AppColors.textPrimary
+                                        : AppColors.textTertiary,
+                                    fontWeight: isSelected
+                                        ? FontWeight.w600
+                                        : FontWeight.normal,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                cat.isSubCategory ? '↳ ${cat.name}' : cat.name,
-                                style: AppTypography.caption.copyWith(
-                                  color: isSelected
-                                      ? AppColors.textPrimary
-                                      : AppColors.textTertiary,
-                                  fontWeight: isSelected
-                                      ? FontWeight.w600
-                                      : FontWeight.normal,
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         );
                       },

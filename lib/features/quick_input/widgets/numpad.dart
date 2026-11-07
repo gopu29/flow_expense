@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 
@@ -87,7 +88,10 @@ class _NumpadButtonState extends State<_NumpadButton> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 5),
         child: GestureDetector(
-          onTapDown: (_) => setState(() => _isPressed = true),
+          onTapDown: (_) {
+            HapticFeedback.selectionClick();
+            setState(() => _isPressed = true);
+          },
           onTapUp: (_) {
             setState(() => _isPressed = false);
             widget.onTap();
