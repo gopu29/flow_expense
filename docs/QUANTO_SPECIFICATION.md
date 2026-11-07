@@ -262,3 +262,11 @@ lib/
   - On-the-fly category/subcategory creation inside the Quick Input modal.
   - Symmetrical 5-tab floating bottom navigation dock.
   - Bottom-right floating Speed Dial FAB: tap opens quick entry numpad; hold/long-press reveals animated Voice AI Logger and Receipt Scanner buttons.
+- [x] **Phase 9: Premium Animation Suite**
+  - Continuous sliding active pill indicator with scale bounce on tab selection.
+  - Smooth hardware-accelerated `PageView` with `AutomaticKeepAliveClientMixin` tab state preservation.
+  - Animated bar growth on the Activity daily spend chart and Analytics dual-bar chart.
+  - Sweeping donut chart segments and 360-degree circular budget gauge animation.
+  - Reusable `AnimatedAmountText` counting ticker for financial figures across all screens.
+  - Staggered entrance animations (`StaggeredEntrance`) for transactions, category bars, and account cards.
+  - Tactile micro-interactions: press-down scale feedback (`0.98x`) on account cards, numpad key feedback, and category selection bounce.
