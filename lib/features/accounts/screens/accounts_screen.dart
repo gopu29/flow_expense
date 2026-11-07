@@ -9,6 +9,8 @@ import '../../../models/account.dart';
 import '../../../models/transaction.dart';
 import '../../settings/screens/settings_screen.dart';
 import '../widgets/account_card.dart';
+import '../../../core/widgets/animated_amount_text.dart';
+import '../../../core/widgets/staggered_entrance.dart';
 
 /// Flagship Accounts Screen matching Quanto IMG_6032.PNG & IMG_6035.PNG:
 /// - Atmospheric transparent background seamlessly revealing the midnight gradient
@@ -764,8 +766,8 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
                     ),
                   ),
                   const SizedBox(height: 6),
-                  Text(
-                    AppFormatters.currency(netWorth),
+                  AnimatedAmountText(
+                    amount: netWorth,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 34,
@@ -834,38 +836,41 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
                       itemBuilder: (context, index) {
                         final acc = accounts[index];
 
-                        return AccountCard(
+                        return StaggeredEntrance(
                           key: ValueKey(acc.id),
-                          account: acc,
-                          onTap: () => _showAccountDetailsSheet(acc),
-                          dragHandle: ReorderableDragStartListener(
-                            index: index,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 12,
-                              ),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    width: 18,
-                                    height: 2.2,
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF6B7E93),
-                                      borderRadius: BorderRadius.circular(2),
+                          index: index,
+                          child: AccountCard(
+                            account: acc,
+                            onTap: () => _showAccountDetailsSheet(acc),
+                            dragHandle: ReorderableDragStartListener(
+                              index: index,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 12,
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      width: 18,
+                                      height: 2.2,
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF6B7E93),
+                                        borderRadius: BorderRadius.circular(2),
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 4.5),
-                                  Container(
-                                    width: 18,
-                                    height: 2.2,
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF6B7E93),
-                                      borderRadius: BorderRadius.circular(2),
+                                    const SizedBox(height: 4.5),
+                                    Container(
+                                      width: 18,
+                                      height: 2.2,
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF6B7E93),
+                                        borderRadius: BorderRadius.circular(2),
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),
