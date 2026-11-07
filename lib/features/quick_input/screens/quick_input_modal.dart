@@ -172,14 +172,6 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
     });
   }
 
-  void _switchType(TransactionType type) {
-    HapticFeedback.selectionClick();
-    setState(() {
-      _type = type;
-      _selectedCategory = null; // the first category of the new type is chosen
-    });
-  }
-
   void _selectCategory(Category category) {
     setState(() {
       _selectedCategory = category;
@@ -396,11 +388,7 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
       child: Tooltip(
         message: 'Options',
         child: GestureDetector(
-          onTap: () => EntryFieldsSheet.show(
-            context,
-            selectedType: _type,
-            onTypeSelected: _switchType,
-          ),
+          onTap: () => EntryFieldsSheet.show(context),
           child: Container(
             width: _kRoundButtonSize,
             height: _kRoundButtonSize,

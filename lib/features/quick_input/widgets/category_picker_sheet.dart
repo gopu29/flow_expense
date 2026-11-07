@@ -131,11 +131,7 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
   }
 
   Widget _buildHeader() {
-    final types = [
-      CategoryType.expense,
-      CategoryType.income,
-      if (widget.initialType == CategoryType.transfer) CategoryType.transfer,
-    ];
+    const types = CategoryType.values;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -192,7 +188,7 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 9),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
         decoration: BoxDecoration(
           color: isActive ? const Color(0xFF263A4D) : Colors.transparent,
           borderRadius: BorderRadius.circular(18),
