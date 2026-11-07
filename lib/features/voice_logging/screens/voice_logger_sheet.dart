@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
@@ -111,8 +112,21 @@ class _VoiceLoggerSheetState extends ConsumerState<VoiceLoggerSheet> {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: AppColors.backgroundSecondary,
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xFF162330),
+            Color(0xFF0F1722),
+          ],
+        ),
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        border: Border(
+          top: BorderSide(
+            color: Color(0xFF2B3F54),
+            width: 1.5,
+          ),
+        ),
       ),
       padding: EdgeInsets.only(
         top: 12,
@@ -132,7 +146,7 @@ class _VoiceLoggerSheetState extends ConsumerState<VoiceLoggerSheet> {
                   width: 36,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.textTertiary.withValues(alpha: 0.4),
+                    color: Colors.white.withValues(alpha: 0.25),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -144,10 +158,13 @@ class _VoiceLoggerSheetState extends ConsumerState<VoiceLoggerSheet> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: AppColors.accent.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: AppColors.accent.withValues(alpha: 0.3),
+                      ),
                     ),
                     child: Text(
                       'AI ASSISTANT',
@@ -155,6 +172,7 @@ class _VoiceLoggerSheetState extends ConsumerState<VoiceLoggerSheet> {
                         color: AppColors.accent,
                         fontWeight: FontWeight.bold,
                         fontSize: 10,
+                        letterSpacing: 0.8,
                       ),
                     ),
                   ),
@@ -176,6 +194,7 @@ class _VoiceLoggerSheetState extends ConsumerState<VoiceLoggerSheet> {
               VoiceWaveformMic(
                 isListening: _isListening,
                 onToggle: () {
+                  HapticFeedback.mediumImpact();
                   if (_isListening) {
                     setState(() => _isListening = false);
                   } else {
@@ -201,11 +220,15 @@ class _VoiceLoggerSheetState extends ConsumerState<VoiceLoggerSheet> {
                   hintText: 'e.g. Spent 250 for lunch and 80 for coffee',
                   hintStyle: AppTypography.bodyMedium.copyWith(color: AppColors.textTertiary),
                   filled: true,
-                  fillColor: AppColors.surface,
+                  fillColor: const Color(0xFF131D28),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(color: AppColors.surfaceBorder),
+                    borderSide: const BorderSide(color: Color(0xFF243647)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: const BorderSide(color: Color(0xFF243647)),
                   ),
                 ),
               ),
@@ -222,20 +245,24 @@ class _VoiceLoggerSheetState extends ConsumerState<VoiceLoggerSheet> {
                     final prompt = _samplePrompts[index];
                     return GestureDetector(
                       onTap: () {
+                        HapticFeedback.selectionClick();
                         _speechController.text = prompt;
                       },
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: AppColors.surface,
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF1C2B3A), Color(0xFF121C26)],
+                          ),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.surfaceBorder),
+                          border: Border.all(color: const Color(0xFF273A4D)),
                         ),
                         child: Text(
                           prompt,
                           style: AppTypography.caption.copyWith(
                             fontSize: 11,
                             color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
@@ -263,9 +290,20 @@ class _VoiceLoggerSheetState extends ConsumerState<VoiceLoggerSheet> {
                     margin: const EdgeInsets.symmetric(vertical: 4),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [Color(0xFF172433), Color(0xFF0F1722)],
+                      ),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.surfaceBorder),
+                      border: Border.all(color: const Color(0xFF243649)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.25),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Row(
                       children: [
@@ -290,7 +328,7 @@ class _VoiceLoggerSheetState extends ConsumerState<VoiceLoggerSheet> {
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                     decoration: BoxDecoration(
-                                      color: AppColors.surfaceHover,
+                                      color: const Color(0xFF223447),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(
@@ -319,6 +357,7 @@ class _VoiceLoggerSheetState extends ConsumerState<VoiceLoggerSheet> {
                         const SizedBox(width: 6),
                         GestureDetector(
                           onTap: () {
+                            HapticFeedback.lightImpact();
                             setState(() {
                               _proposals.removeAt(index);
                             });
@@ -332,20 +371,45 @@ class _VoiceLoggerSheetState extends ConsumerState<VoiceLoggerSheet> {
                 const SizedBox(height: 16),
 
                 // Commit Button
-                SizedBox(
+                Container(
                   width: double.infinity,
                   height: 50,
-                  child: ElevatedButton(
-                    onPressed: _logAllTransactions,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.accent,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color(0xFF0284C7),
+                        Color(0xFF0369A1),
+                      ],
                     ),
-                    child: Text(
-                      'Log All (${_proposals.length}) Transactions',
-                      style: AppTypography.bodyLarge.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: const Color(0xFF38BDF8).withValues(alpha: 0.4),
+                      width: 1,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF0284C7).withValues(alpha: 0.35),
+                        blurRadius: 14,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(16),
+                      onTap: () {
+                        HapticFeedback.mediumImpact();
+                        _logAllTransactions();
+                      },
+                      child: Center(
+                        child: Text(
+                          'Log All (${_proposals.length}) Transactions',
+                          style: AppTypography.bodyLarge.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
                   ),
