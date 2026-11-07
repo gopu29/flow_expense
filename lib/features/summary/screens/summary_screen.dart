@@ -1042,66 +1042,43 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
     );
   }
 
-  /// Main Category Item with Tap-to-Expand Accordion for Subcategories
+  void _openCategoryTransactions(MainCategoryBreakdownItem item) {
+    _showTransactionsSheet(
+      title: item.category.name,
+      iconOrEmoji: item.category.iconOrEmoji,
+      colorValue: item.category.color,
+      totalAmount: item.totalAmount,
+      transactions: item.allTransactions,
+    );
+  }
+
+  /// Main category row, Quanto style. Tapping a category with sub-categories
+  /// expands them in place; otherwise it opens its transactions.
   Widget _buildMainCategoryTile(MainCategoryBreakdownItem item) {
     final isExpanded = _expandedCategoryIds.contains(item.category.id);
-    final hasSubs = item.hasSubcategories;
+    final visibleSubs =
+        item.subcategories.where((sub) => sub.count > 0).toList();
+    final canExpand = visibleSubs.isNotEmpty;
+    final color = Color(item.category.color);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Main Category Header Row
         InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: () {
-            if (hasSubs) {
-              _toggleCategoryExpansion(item.category.id);
-            } else {
-              // Directly view transaction list if no subcategories exist
-              _showTransactionsSheet(
-                title: item.category.name,
-                iconOrEmoji: item.category.iconOrEmoji,
-                colorValue: item.category.color,
-                totalAmount: item.totalAmount,
-                transactions: item.allTransactions,
-              );
-            }
-          },
-          onLongPress: () {
-            // Long press always opens the transaction list for this category
-            _showTransactionsSheet(
-              title: item.category.name,
-              iconOrEmoji: item.category.iconOrEmoji,
-              colorValue: item.category.color,
-              totalAmount: item.totalAmount,
-              transactions: item.allTransactions,
-            );
-          },
+          onTap: () => canExpand
+              ? _toggleCategoryExpansion(item.category.id)
+              : _openCategoryTransactions(item),
+          onLongPress: () => _openCategoryTransactions(item),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             child: Row(
               children: [
-                // Category Icon squircle with colored border matching category
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF151E28),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                      color: Color(item.category.color),
-                      width: 1.5,
-                    ),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    item.category.iconOrEmoji,
-                    style: const TextStyle(fontSize: 20),
-                  ),
+                _CategoryBadge(
+                  emoji: item.category.iconOrEmoji,
+                  color: color,
+                  size: 46,
                 ),
                 const SizedBox(width: 14),
-
-                // Category Name & Transaction Count Badge
                 Expanded(
                   child: Row(
                     children: [
@@ -1112,439 +1089,284 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 7,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1F2B37),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          '${item.count}',
-                          style: const TextStyle(
-                            color: Color(0xFF7D91A4),
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
+                      _CountPill(count: item.count),
+                      if (canExpand) ...[
+                        const SizedBox(width: 2),
+                        AnimatedRotation(
+                          turns: isExpanded ? 0.5 : 0.0,
+                          duration: const Duration(milliseconds: 220),
+                          curve: Curves.easeOutCubic,
+                          child: const Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            color: Color(0xFF6B7E93),
+                            size: 20,
                           ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
                 ),
-
                 const SizedBox(width: 8),
-
-                // Total Amount with rolling counter
                 AnimatedAmountText(
                   amount: item.totalAmount,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-
                 const SizedBox(width: 8),
-
-                // Percentage Badge
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1A2633),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    '${item.percentage.toStringAsFixed(2)}%',
-                    style: const TextStyle(
-                      color: Color(0xFF8B9EB2),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-
-                // Expand Chevron (shown when category has subcategories)
-                if (hasSubs) ...[
-                  const SizedBox(width: 6),
-                  AnimatedRotation(
-                    turns: isExpanded ? 0.5 : 0.0,
-                    duration: const Duration(milliseconds: 220),
-                    curve: Curves.easeOutCubic,
-                    child: const Icon(
-                      Icons.keyboard_arrow_down_rounded,
-                      color: Color(0xFF7D91A4),
-                      size: 20,
-                    ),
-                  ),
-                ],
+                _PercentPill(percentage: item.percentage),
               ],
             ),
           ),
         ),
-
-        // Subcategory Accordion Expansion
-        if (hasSubs)
-          AnimatedSize(
-            duration: const Duration(milliseconds: 260),
-            curve: Curves.easeInOutCubic,
-            child: isExpanded
-                ? Container(
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF0D141C),
+        AnimatedSize(
+          duration: const Duration(milliseconds: 260),
+          curve: Curves.easeInOutCubic,
+          alignment: Alignment.topCenter,
+          child: !(canExpand && isExpanded)
+              ? const SizedBox(width: double.infinity)
+              : Padding(
+                  padding: const EdgeInsets.fromLTRB(36, 0, 14, 8),
+                  child: Container(
+                    padding: const EdgeInsets.only(left: 18),
+                    decoration: BoxDecoration(
                       border: Border(
-                        top: BorderSide(color: Color(0xFF182330), width: 0.8),
+                        left: BorderSide(
+                          color: color.withValues(alpha: 0.35),
+                          width: 1.5,
+                        ),
                       ),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Quick Action: View all transactions for this main category
-                        InkWell(
-                          onTap: () {
-                            _showTransactionsSheet(
-                              title: '${item.category.name} (All)',
-                              iconOrEmoji: item.category.iconOrEmoji,
-                              colorValue: item.category.color,
-                              totalAmount: item.totalAmount,
-                              transactions: item.allTransactions,
-                            );
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 9,
+                        for (final sub in visibleSubs)
+                          _SubcategoryRow(
+                            emoji: sub.subcategory.iconOrEmoji,
+                            color: Color(sub.subcategory.color),
+                            name: sub.subcategory.name,
+                            count: sub.count,
+                            amount: sub.totalAmount,
+                            percentage: sub.percentageOfParent,
+                            onTap: () => _showTransactionsSheet(
+                              title:
+                                  '${item.category.name} · ${sub.subcategory.name}',
+                              iconOrEmoji: sub.subcategory.iconOrEmoji,
+                              colorValue: sub.subcategory.color,
+                              totalAmount: sub.totalAmount,
+                              transactions: sub.transactions,
                             ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF152230),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: const Color(0xFF22364A),
-                                width: 1,
+                          ),
+                        if (item.directTransactions.isNotEmpty)
+                          _buildDirectRow(item),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: TextButton(
+                            onPressed: () => _openCategoryTransactions(item),
+                            style: TextButton.styleFrom(
+                              foregroundColor: const Color(0xFFD9B77E),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                                vertical: 6,
                               ),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.receipt_long_rounded,
-                                  size: 16,
-                                  color: Color(0xFFD9B77E),
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    'View all ${item.category.name} transactions',
-                                    style: const TextStyle(
-                                      color: Color(0xFFD9B77E),
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                                Text(
-                                  '(${item.count})',
-                                  style: const TextStyle(
-                                    color: Color(0xFF7D91A4),
-                                    fontSize: 12,
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                                const Icon(
-                                  Icons.chevron_right_rounded,
-                                  size: 16,
-                                  color: Color(0xFF7D91A4),
-                                ),
-                              ],
+                            child: Text(
+                              'See all ${item.count} transactions  ›',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
                         ),
-
-                        // Subcategory list rows
-                        for (int s = 0; s < item.subcategories.length; s++) ...[
-                          _buildSubcategoryRow(
-                            parentCat: item.category,
-                            subItem: item.subcategories[s],
-                          ),
-                          if (s < item.subcategories.length - 1)
-                            const Padding(
-                              padding: EdgeInsets.only(left: 60),
-                              child: Divider(
-                                height: 1,
-                                thickness: 0.6,
-                                color: Color(0xFF16202A),
-                              ),
-                            ),
-                        ],
-
-                        // Direct / Unassigned transactions row if any exist alongside subcategories
-                        if (item.directTransactions.isNotEmpty) ...[
-                          const Padding(
-                            padding: EdgeInsets.only(left: 60),
-                            child: Divider(
-                              height: 1,
-                              thickness: 0.6,
-                              color: Color(0xFF16202A),
-                            ),
-                          ),
-                          _buildDirectCategoryRow(
-                            parentCat: item.category,
-                            directTxs: item.directTransactions,
-                            parentTotal: item.totalAmount,
-                          ),
-                        ],
-
-                        const SizedBox(height: 6),
                       ],
                     ),
-                  )
-                : const SizedBox.shrink(),
-          ),
+                  ),
+                ),
+        ),
       ],
     );
   }
 
-  /// Single Subcategory Row with Tap-to-View Transactions
-  Widget _buildSubcategoryRow({
-    required Category parentCat,
-    required SubcategoryBreakdownItem subItem,
-  }) {
+  /// Transactions saved on the main category itself, not a sub-category.
+  Widget _buildDirectRow(MainCategoryBreakdownItem item) {
+    final directTxs = item.directTransactions;
+    final directTotal =
+        directTxs.fold<double>(0.0, (sum, t) => sum + t.amount);
+    final pct =
+        item.totalAmount > 0 ? directTotal / item.totalAmount * 100 : 0.0;
+    return _SubcategoryRow(
+      emoji: item.category.iconOrEmoji,
+      color: const Color(0xFF4A5B6C),
+      name: 'No sub-category',
+      isMuted: true,
+      count: directTxs.length,
+      amount: directTotal,
+      percentage: pct,
+      onTap: () => _showTransactionsSheet(
+        title: '${item.category.name} · No sub-category',
+        iconOrEmoji: item.category.iconOrEmoji,
+        colorValue: item.category.color,
+        totalAmount: directTotal,
+        transactions: directTxs,
+      ),
+    );
+  }
+}
+
+class _CategoryBadge extends StatelessWidget {
+  final String emoji;
+  final Color color;
+  final double size;
+
+  const _CategoryBadge({
+    required this.emoji,
+    required this.color,
+    required this.size,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: const Color(0xFF151E28),
+        borderRadius: BorderRadius.circular(size * 0.32),
+        border: Border.all(color: color, width: size > 40 ? 2 : 1.5),
+      ),
+      alignment: Alignment.center,
+      child: Text(emoji, style: TextStyle(fontSize: size * 0.44)),
+    );
+  }
+}
+
+class _CountPill extends StatelessWidget {
+  final int count;
+  const _CountPill({required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1F2B37),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(
+        '$count',
+        style: const TextStyle(
+          color: Color(0xFF7D91A4),
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
+  }
+}
+
+class _PercentPill extends StatelessWidget {
+  final double percentage;
+  final bool small;
+  const _PercentPill({required this.percentage, this.small = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: BoxConstraints(minWidth: small ? 48 : 58),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: small ? 3 : 5),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A2633),
+        borderRadius: BorderRadius.circular(9),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        '${percentage.toStringAsFixed(percentage >= 100 ? 0 : 1)}%',
+        style: TextStyle(
+          color: const Color(0xFF8B9EB2),
+          fontSize: small ? 11 : 12,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
+  }
+}
+
+class _SubcategoryRow extends StatelessWidget {
+  final String emoji;
+  final Color color;
+  final String name;
+  final int count;
+  final double amount;
+  final double percentage;
+  final VoidCallback onTap;
+  final bool isMuted;
+
+  const _SubcategoryRow({
+    required this.emoji,
+    required this.color,
+    required this.name,
+    required this.count,
+    required this.amount,
+    required this.percentage,
+    required this.onTap,
+    this.isMuted = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
-        _showTransactionsSheet(
-          title: '${parentCat.name} ↳ ${subItem.subcategory.name}',
-          iconOrEmoji: subItem.subcategory.iconOrEmoji,
-          colorValue: subItem.subcategory.color,
-          totalAmount: subItem.totalAmount,
-          transactions: subItem.transactions,
-        );
-      },
+      borderRadius: BorderRadius.circular(12),
+      onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(
           children: [
-            const SizedBox(width: 24), // Indentation for subcategory
-            // Subcategory Icon squircle with colored outline
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: const Color(0xFF141D26),
-                borderRadius: BorderRadius.circular(11),
-                border: Border.all(
-                  color: Color(subItem.subcategory.color)
-                      .withValues(alpha: 0.8),
-                  width: 1.2,
-                ),
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                subItem.subcategory.iconOrEmoji,
-                style: const TextStyle(fontSize: 16),
-              ),
-            ),
+            _CategoryBadge(emoji: emoji, color: color, size: 34),
             const SizedBox(width: 12),
-
-            // Subcategory Name & Count
             Expanded(
               child: Row(
                 children: [
                   Flexible(
                     child: Text(
-                      subItem.subcategory.name,
+                      name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Color(0xFFCBD5E1),
+                      style: TextStyle(
+                        color: isMuted
+                            ? const Color(0xFF8B9EB2)
+                            : const Color(0xFFD5DEE7),
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1A2530),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      '${subItem.count}',
-                      style: const TextStyle(
-                        color: Color(0xFF64748B),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(width: 8),
-
-            // Amount
-            Text(
-              AppFormatters.currency(subItem.totalAmount),
-              style: const TextStyle(
-                color: Color(0xFFE2E8F0),
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-
-            const SizedBox(width: 8),
-
-            // Percentage of Parent Category
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-              decoration: BoxDecoration(
-                color: const Color(0xFF16212B),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Text(
-                '${subItem.percentageOfParent.toStringAsFixed(1)}%',
-                style: const TextStyle(
-                  color: Color(0xFF7A8D9F),
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-
-            const SizedBox(width: 4),
-            const Icon(
-              Icons.chevron_right_rounded,
-              size: 16,
-              color: Color(0xFF5A6F82),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Direct / Main-level Transactions Row
-  Widget _buildDirectCategoryRow({
-    required Category parentCat,
-    required List<Transaction> directTxs,
-    required double parentTotal,
-  }) {
-    final directTotal = directTxs.fold<double>(0.0, (sum, t) => sum + t.amount);
-    final pctOfParent = parentTotal > 0
-        ? (directTotal / parentTotal) * 100
-        : 0.0;
-
-    return InkWell(
-      onTap: () {
-        _showTransactionsSheet(
-          title: '${parentCat.name} (Direct / General)',
-          iconOrEmoji: parentCat.iconOrEmoji,
-          colorValue: parentCat.color,
-          totalAmount: directTotal,
-          transactions: directTxs,
-        );
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        child: Row(
-          children: [
-            const SizedBox(width: 24),
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: const Color(0xFF141D26),
-                borderRadius: BorderRadius.circular(11),
-                border: Border.all(color: const Color(0xFF334155), width: 1.2),
-              ),
-              alignment: Alignment.center,
-              child: const Icon(
-                Icons.folder_open_rounded,
-                size: 16,
-                color: Color(0xFF94A3B8),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Row(
-                children: [
-                  const Flexible(
-                    child: Text(
-                      'General / Direct',
-                      style: TextStyle(
-                        color: Color(0xFF94A3B8),
-                        fontSize: 14,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1A2530),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      '${directTxs.length}',
-                      style: const TextStyle(
-                        color: Color(0xFF64748B),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
+                  const SizedBox(width: 6),
+                  _CountPill(count: count),
                 ],
               ),
             ),
             const SizedBox(width: 8),
             Text(
-              AppFormatters.currency(directTotal),
+              AppFormatters.currency(amount),
               style: const TextStyle(
-                color: Color(0xFFCBD5E1),
+                color: Color(0xFFD5DEE7),
                 fontSize: 14,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
             const SizedBox(width: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-              decoration: BoxDecoration(
-                color: const Color(0xFF16212B),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Text(
-                '${pctOfParent.toStringAsFixed(1)}%',
-                style: const TextStyle(
-                  color: Color(0xFF7A8D9F),
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            const SizedBox(width: 4),
-            const Icon(
-              Icons.chevron_right_rounded,
-              size: 16,
-              color: Color(0xFF5A6F82),
-            ),
+            _PercentPill(percentage: percentage, small: true),
           ],
         ),
       ),
