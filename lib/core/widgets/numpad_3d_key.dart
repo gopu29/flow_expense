@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../theme/app_colors.dart';
 
 /// Flagship 3D tactile keypad keycap with realistic physical depth,
 /// a push-down click animation, top chamfer highlight, and bottom extrusion ledge.
@@ -76,8 +77,8 @@ class _Numpad3DKeyState extends State<Numpad3DKey> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: _isPressed
-                      ? const [Color(0xFF0369A1), Color(0xFF075985)]
-                      : const [Color(0xFF0284C7), Color(0xFF0369A1)],
+                      ? const [Color(0xFF131D28), Color(0xFF0D151E)]
+                      : const [Color(0xFF18242F), Color(0xFF111A23)],
                 )
               : LinearGradient(
                   begin: Alignment.topCenter,
@@ -89,53 +90,34 @@ class _Numpad3DKeyState extends State<Numpad3DKey> {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: widget.isAction
-                ? (_isPressed
-                    ? const Color(0xFF38BDF8)
-                    : const Color(0xFF38BDF8).withValues(alpha: 0.6))
+                ? const Color(0xFF2A3A4B)
                 : (_isPressed
                     ? const Color(0xFF38BDF8).withValues(alpha: 0.45)
                     : const Color(0xFF344A61)),
             width: 1.2,
           ),
-          boxShadow: widget.isAction
-              ? [
-                  // 3D physical extrusion ledge (zero blur = solid bevel edge)
-                  BoxShadow(
-                    color: const Color(0xFF075985),
-                    offset: Offset(0, _isPressed ? pressedLedge : ledgeHeight),
-                    blurRadius: 0,
-                  ),
-                  // Ambient cyan glow
-                  BoxShadow(
-                    color: const Color(0xFF0284C7).withValues(
-                      alpha: _isPressed ? 0.2 : 0.38,
-                    ),
-                    offset: Offset(0, _isPressed ? 2 : 5),
-                    blurRadius: _isPressed ? 3 : 9,
-                  ),
-                ]
-              : [
-                  // 3D physical extrusion ledge (crisp shelf under the key)
-                  BoxShadow(
-                    color: const Color(0xFF080F16),
-                    offset: Offset(0, _isPressed ? pressedLedge : ledgeHeight),
-                    blurRadius: 0,
-                  ),
-                  // Ambient drop shadow
-                  BoxShadow(
-                    color: Colors.black.withValues(
-                      alpha: _isPressed ? 0.25 : 0.45,
-                    ),
-                    offset: Offset(0, _isPressed ? 2 : 5),
-                    blurRadius: _isPressed ? 2 : 7,
-                  ),
-                ],
+          boxShadow: [
+            // 3D physical extrusion ledge (crisp shelf under the key)
+            BoxShadow(
+              color: const Color(0xFF080F16),
+              offset: Offset(0, _isPressed ? pressedLedge : ledgeHeight),
+              blurRadius: 0,
+            ),
+            // Ambient drop shadow
+            BoxShadow(
+              color: Colors.black.withValues(
+                alpha: _isPressed ? 0.25 : 0.45,
+              ),
+              offset: Offset(0, _isPressed ? 2 : 5),
+              blurRadius: _isPressed ? 2 : 7,
+            ),
+          ],
         ),
         alignment: Alignment.center,
         child: widget.icon != null
             ? Icon(
                 widget.icon,
-                color: Colors.white,
+                color: widget.isAction ? AppColors.textSecondary : Colors.white,
                 size: 22,
               )
             : Text(
