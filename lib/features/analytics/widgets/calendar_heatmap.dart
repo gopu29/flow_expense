@@ -28,6 +28,7 @@ class _CalendarHeatmapState extends State<CalendarHeatmap> {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
+      useSafeArea: true,
       builder: (context) {
         final dateStr = DateFormat('EEEE, MMMM d, yyyy').format(
           DateTime(widget.selectedMonth.year, widget.selectedMonth.month, day),

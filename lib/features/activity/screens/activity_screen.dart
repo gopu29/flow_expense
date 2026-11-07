@@ -438,7 +438,9 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen>
 
                       content = ListView.builder(
                         key: ValueKey('list_tx_$_selectedTypeFilter'),
-                        padding: const EdgeInsets.only(bottom: 96),
+                        padding: EdgeInsets.only(
+                          bottom: 120 + MediaQuery.of(context).padding.bottom,
+                        ),
                         itemCount: groupHeaders.length,
                         itemBuilder: (context, index) {
                           final header = groupHeaders[index];

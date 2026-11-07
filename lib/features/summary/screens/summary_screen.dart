@@ -103,6 +103,7 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: const Color(0xFF101923),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -813,7 +814,9 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
 
                         return ListView(
                           physics: const BouncingScrollPhysics(),
-                          padding: const EdgeInsets.only(bottom: 120),
+                          padding: EdgeInsets.only(
+                            bottom: 120 + MediaQuery.of(context).padding.bottom,
+                          ),
                           children: [
                             // 2. Hero Segmented Donut Chart (Matching IMG_6027.PNG)
                             SummaryDonutChart(

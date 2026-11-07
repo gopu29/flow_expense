@@ -43,6 +43,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: const Color(0xFF101923),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -51,7 +52,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen>
         return DraggableScrollableSheet(
           initialChildSize: 0.65,
           minChildSize: 0.4,
-          maxChildSize: 0.9,
+          maxChildSize: 0.85,
           expand: false,
           builder: (sheetContext, scrollController) {
             return Consumer(
@@ -508,6 +509,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: const Color(0xFF101923),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -521,9 +523,9 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen>
             final leftToAllocate = totalLimit - allocatedSum;
 
             return DraggableScrollableSheet(
-              initialChildSize: 0.85,
-              minChildSize: 0.5,
-              maxChildSize: 0.95,
+              initialChildSize: 0.82,
+              minChildSize: 0.45,
+              maxChildSize: 0.88,
               expand: false,
               builder: (ctx, scrollController) {
                 return Column(
@@ -978,7 +980,9 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen>
 
                             return ListView(
                               physics: const BouncingScrollPhysics(),
-                              padding: const EdgeInsets.only(bottom: 120),
+                              padding: EdgeInsets.only(
+                                bottom: 120 + MediaQuery.of(context).padding.bottom,
+                              ),
                               children: [
                                 const SizedBox(height: 12),
 

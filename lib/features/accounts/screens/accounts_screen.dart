@@ -51,6 +51,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: const Color(0xFF101923),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -330,6 +331,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) {
         final transactionsAsync = ref.watch(transactionsProvider);
@@ -1030,7 +1032,9 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
 
                     return ReorderableListView.builder(
                       buildDefaultDragHandles: false,
-                      padding: const EdgeInsets.only(bottom: 110),
+                      padding: EdgeInsets.only(
+                        bottom: 120 + MediaQuery.of(context).padding.bottom,
+                      ),
                       itemCount: accounts.length,
                       onReorderItem: (oldIndex, newIndex) {
                         ref

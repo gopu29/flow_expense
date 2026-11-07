@@ -64,6 +64,9 @@ class _MainShellState extends ConsumerState<MainShell> {
       AccountsScreen(),
     ];
 
+    final bottomInset = MediaQuery.of(context).padding.bottom;
+    final dockBottom = bottomInset > 0 ? bottomInset + 8 : 16.0;
+
     return CallbackShortcuts(
       bindings: <ShortcutActivator, VoidCallback>{
         const SingleActivator(LogicalKeyboardKey.keyN, alt: true): () {
@@ -90,11 +93,11 @@ class _MainShellState extends ConsumerState<MainShell> {
                   children: screens,
                 ),
 
-                // Floating Navigation Dock
+                // Floating Navigation Dock lifted above the system navigation bar
                 Positioned(
                   left: 0,
                   right: 0,
-                  bottom: 0,
+                  bottom: dockBottom,
                   child: BottomNavDock(
                     currentIndex: currentIndex,
                     onTabSelected: (index) {
@@ -106,7 +109,7 @@ class _MainShellState extends ConsumerState<MainShell> {
                 // Floating Action Button at bottom-right (Tap: Quick add, Hold: Voice + Scan)
                 Positioned(
                   right: 20,
-                  bottom: 84,
+                  bottom: dockBottom + 68,
                   child: SpeedDialFab(
                     onQuickAdd: () {
                       QuickInputModal.show(context);

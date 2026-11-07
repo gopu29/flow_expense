@@ -18,6 +18,7 @@ class VoiceLoggerSheet extends ConsumerStatefulWidget {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => const VoiceLoggerSheet(),
     );

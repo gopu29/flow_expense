@@ -42,6 +42,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
+      useSafeArea: true,
       builder: (context) {
         return Container(
           decoration: const BoxDecoration(
@@ -410,7 +411,9 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                         : txs;
 
                     return ListView(
-                      padding: const EdgeInsets.only(bottom: 110),
+                      padding: EdgeInsets.only(
+                        bottom: 120 + MediaQuery.of(context).padding.bottom,
+                      ),
                       children: [
                         // Card 1: Income vs Expenses Dual-Bar Chart matching IMG_6029.PNG
                         StaggeredEntrance(

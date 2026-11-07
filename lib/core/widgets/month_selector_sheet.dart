@@ -23,6 +23,7 @@ class MonthSelectorSheet extends StatelessWidget {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
+      useSafeArea: true,
       builder: (ctx) => MonthSelectorSheet(
         selectedDate: initialDate,
         onDateSelected: onDateSelected,
