@@ -11,6 +11,7 @@ import '../../../models/transaction.dart';
 import '../../settings/screens/settings_screen.dart';
 import '../widgets/budget_gauge.dart';
 import '../widgets/category_budget_numpad_sheet.dart';
+import '../../../core/widgets/staggered_entrance.dart';
 
 /// Flagship Budget Screen matching Quanto's IMG_6028.PNG & design specification:
 /// - Atmospheric transparent background seamlessly revealing the midnight gradient
@@ -1002,16 +1003,19 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen>
                                         for (int i = 0;
                                             i < allocatedEntries.length;
                                             i++) ...[
-                                          _buildAllocatedCategoryTile(
-                                            entry: allocatedEntries[i],
-                                            categories: categories,
-                                            catSpent: catSpent,
-                                            onTap: () =>
-                                                _showAllocateBudgetSheet(
-                                              context,
-                                              ref,
-                                              activeBudget,
-                                              categories,
+                                          StaggeredEntrance(
+                                            index: i,
+                                            child: _buildAllocatedCategoryTile(
+                                              entry: allocatedEntries[i],
+                                              categories: categories,
+                                              catSpent: catSpent,
+                                              onTap: () =>
+                                                  _showAllocateBudgetSheet(
+                                                context,
+                                                ref,
+                                                activeBudget,
+                                                categories,
+                                              ),
                                             ),
                                           ),
                                           if (i < allocatedEntries.length - 1)
