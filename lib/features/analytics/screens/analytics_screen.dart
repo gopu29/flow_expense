@@ -28,7 +28,10 @@ class AnalyticsScreen extends ConsumerStatefulWidget {
   ConsumerState<AnalyticsScreen> createState() => _AnalyticsScreenState();
 }
 
-class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
+class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
   String? _selectedAccountId;
 
   void _showAccountSelector(List<Account> accounts) {
@@ -118,6 +121,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final selectedDate = ref.watch(selectedDateProvider);
     final transactionsAsync = ref.watch(transactionsProvider);
     final accountsAsync = ref.watch(accountsProvider);

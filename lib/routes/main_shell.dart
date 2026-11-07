@@ -16,15 +16,45 @@ import '../features/voice_logging/screens/voice_logger_sheet.dart';
 import '../features/receipt_scanner/screens/receipt_scanner_sheet.dart';
 
 /// Main scaffold container hosting the 5 core tabs with smooth page transitions.
-class MainShell extends ConsumerWidget {
+class MainShell extends ConsumerStatefulWidget {
   const MainShell({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MainShell> createState() => _MainShellState();
+}
+
+class _MainShellState extends ConsumerState<MainShell> {
+  late final PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: ref.read(activeNavIndexProvider));
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     // Activate platform intent sync service
     ref.watch(platformIntentServiceProvider);
 
     final currentIndex = ref.watch(activeNavIndexProvider);
+
+    // Keep PageView in sync when activeNavIndexProvider changes
+    ref.listen<int>(activeNavIndexProvider, (previous, next) {
+      if (previous != next && _pageController.hasClients) {
+        _pageController.animateToPage(
+          next,
+          duration: const Duration(milliseconds: 280),
+          curve: Curves.easeOutCubic,
+        );
+      }
+    });
 
     final screens = const [
       ActivityScreen(),
@@ -53,46 +83,47 @@ class MainShell extends ConsumerWidget {
             ),
             child: Stack(
               children: [
-              // Tab screens with preserved state and instant, artifact-free switching
-              IndexedStack(
-                index: currentIndex,
-                children: screens,
-              ),
-
-              // Floating Navigation Dock
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: BottomNavDock(
-                  currentIndex: currentIndex,
-                  onTabSelected: (index) {
-                    ref.read(activeNavIndexProvider.notifier).setIndex(index);
-                  },
+                // Smooth hardware-accelerated PageView without background opacity gaps
+                PageView(
+                  controller: _pageController,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: screens,
                 ),
-              ),
 
-              // Floating Action Button at bottom-right (Tap: Quick add, Hold: Voice + Scan)
-              Positioned(
-                right: 20,
-                bottom: 84,
-                child: SpeedDialFab(
-                  onQuickAdd: () {
-                    QuickInputModal.show(context);
-                  },
-                  onVoiceLog: () {
-                    VoiceLoggerSheet.show(context);
-                  },
-                  onScanReceipt: () {
-                    ReceiptScannerSheet.show(context);
-                  },
+                // Floating Navigation Dock
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: BottomNavDock(
+                    currentIndex: currentIndex,
+                    onTabSelected: (index) {
+                      ref.read(activeNavIndexProvider.notifier).setIndex(index);
+                    },
+                  ),
                 ),
-              ),
-            ],
+
+                // Floating Action Button at bottom-right (Tap: Quick add, Hold: Voice + Scan)
+                Positioned(
+                  right: 20,
+                  bottom: 84,
+                  child: SpeedDialFab(
+                    onQuickAdd: () {
+                      QuickInputModal.show(context);
+                    },
+                    onVoiceLog: () {
+                      VoiceLoggerSheet.show(context);
+                    },
+                    onScanReceipt: () {
+                      ReceiptScannerSheet.show(context);
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }

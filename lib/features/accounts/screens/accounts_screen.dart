@@ -23,7 +23,10 @@ class AccountsScreen extends ConsumerStatefulWidget {
   ConsumerState<AccountsScreen> createState() => _AccountsScreenState();
 }
 
-class _AccountsScreenState extends ConsumerState<AccountsScreen> {
+class _AccountsScreenState extends ConsumerState<AccountsScreen>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
   // Show sleek "Add New Account" bottom sheet
   void _showAddAccountSheet() {
     final nameController = TextEditingController();
@@ -674,6 +677,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final netWorth = ref.watch(totalNetWorthProvider);
     final accountsAsync = ref.watch(accountsProvider);
 

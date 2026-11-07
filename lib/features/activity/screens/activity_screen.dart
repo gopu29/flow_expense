@@ -18,7 +18,9 @@ class ActivityScreen extends ConsumerStatefulWidget {
 }
 
 class _ActivityScreenState extends ConsumerState<ActivityScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
   String _selectedTypeFilter = 'All'; // Default to 'All'
   bool _showSearchBar = false;
   final TextEditingController _searchController = TextEditingController();
@@ -80,6 +82,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final selectedDate = ref.watch(selectedDateProvider);
     final monthlyExpense = ref.watch(monthlyExpenseTotalProvider);
     final transactionsAsync = ref.watch(transactionsProvider);

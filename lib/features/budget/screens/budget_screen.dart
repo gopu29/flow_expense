@@ -25,7 +25,10 @@ class BudgetScreen extends ConsumerStatefulWidget {
   ConsumerState<BudgetScreen> createState() => _BudgetScreenState();
 }
 
-class _BudgetScreenState extends ConsumerState<BudgetScreen> {
+class _BudgetScreenState extends ConsumerState<BudgetScreen>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
   // ---------------------------------------------------------------------------
   // 1. "Budgets" Modal Sheet (Multiple Budget Profiles Manager)
   // ---------------------------------------------------------------------------
@@ -790,6 +793,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final selectedDate = ref.watch(selectedDateProvider);
     final monthlyExpense = ref.watch(monthlyExpenseTotalProvider);
     final budgetsAsync = ref.watch(monthlyBudgetsProvider);

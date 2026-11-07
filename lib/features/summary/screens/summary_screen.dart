@@ -68,7 +68,10 @@ class SummaryScreen extends ConsumerStatefulWidget {
   ConsumerState<SummaryScreen> createState() => _SummaryScreenState();
 }
 
-class _SummaryScreenState extends ConsumerState<SummaryScreen> {
+class _SummaryScreenState extends ConsumerState<SummaryScreen>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
   String _selectedType = 'Expenses'; // 'Expenses', 'Income', 'All'
   String _selectedPeriod = 'Monthly'; // 'Monthly', 'Weekly', 'Yearly', 'All Time'
   String? _selectedAccountId;
@@ -526,6 +529,7 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final selectedDate = ref.watch(selectedDateProvider);
     final transactionsAsync = ref.watch(transactionsProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
