@@ -276,3 +276,8 @@ lib/
   - High-end Account Details modal sheet with top-shine accent line, squircle category badges per transaction, and semantic currency coloration.
   - Glassmorphic modal sheets across Month Selector, Quick Input, and Voice AI Logger with tactile controls and haptic micro-feedback.
   - Tactile numpad buttons with stateful gradient transitions and cyan accent glows.
+- [x] **Phase 11: 3D Mechanical Keypads & Typing/Erasing Displays**
+  - Reusable `Numpad3DKey` with realistic 4px extrusion ledge, push-down click physics (`3.5px` compression), specular gradient highlights, and tactile haptics.
+  - Oceanic 3D action submit key (`→`) with glowing cyan borders and solid depth ledge.
+  - `AnimatedTypingAmountText` digit-by-digit animation: newly typed numbers slide up with an elastic pop-in and fade; erased digits drop down and dissolve smoothly on backspace.
+  - Integrated across both the Category Budget allocation keypad sheet and the Quick Input entry modal.
