@@ -974,9 +974,16 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen>
                                 .toList();
 
                             final Map<String, double> catSpent = {};
+                            // Limits are set on main categories, so sub-category
+                            // spending counts toward its parent.
+                            final parentIds = {
+                              for (final c in categories) c.id: c.parentId,
+                            };
                             for (final tx in monthTxs) {
-                              catSpent[tx.categoryId] =
-                                  (catSpent[tx.categoryId] ?? 0.0) + tx.amount;
+                              final mainId =
+                                  parentIds[tx.categoryId] ?? tx.categoryId;
+                              catSpent[mainId] =
+                                  (catSpent[mainId] ?? 0.0) + tx.amount;
                             }
 
                             // Allocated category cards
