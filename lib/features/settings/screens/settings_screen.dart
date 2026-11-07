@@ -1,66 +1,241 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/constants/app_constants.dart';
+import '../../../core/providers/app_settings_provider.dart';
+import '../../../core/providers/expense_providers.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../core/constants/app_constants.dart';
-import '../../../core/widgets/glass_card.dart';
-import '../../../core/providers/expense_providers.dart';
+import '../../../core/utils/app_haptics.dart';
+import '../../../core/utils/formatters.dart';
 import '../../categories/screens/category_management_screen.dart';
+import '../widgets/settings_option_sheet.dart';
+import '../widgets/settings_tiles.dart';
 import 'back_tap_guide_screen.dart';
 
-/// Settings and preferences screen matching Quanto.
-class SettingsScreen extends ConsumerStatefulWidget {
+/// Settings screen grouped like Quanto: General, Automations, Preferences,
+/// Privacy & security, and Data.
+class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
   @override
-  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(appSettingsProvider);
+    final notifier = ref.read(appSettingsProvider.notifier);
 
-class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-  bool _hideBalances = false;
-  String _selectedCurrency = 'INR (₹)';
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        title: Text('Settings', style: AppTypography.titleMedium),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: SafeArea(
+        top: false,
+        child: ListView(
+          padding: EdgeInsets.fromLTRB(
+            AppConstants.horizontalPadding,
+            8,
+            AppConstants.horizontalPadding,
+            24 + MediaQuery.paddingOf(context).bottom,
+          ),
+          children: [
+            const SettingsSectionLabel('General'),
+            SettingsGroup(children: [
+              SettingsNavTile(
+                icon: Icons.grid_view_rounded,
+                title: 'Categories',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const CategoryManagementScreen()),
+                ),
+              ),
+              SettingsNavTile(
+                icon: Icons.attach_money_rounded,
+                title: 'Currency',
+                value: settings.currencyCode,
+                onTap: () => _pickCurrency(context, settings, notifier),
+              ),
+            ]),
+            const SettingsSectionLabel('Automations'),
+            SettingsGroup(children: [
+              SettingsNavTile(
+                icon: Icons.touch_app_outlined,
+                title: 'Back tap',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const BackTapGuideScreen()),
+                ),
+              ),
+            ]),
+            const SettingsSectionLabel('Preferences'),
+            SettingsGroup(children: [
+              SettingsNavTile(
+                icon: Icons.calendar_view_week_rounded,
+                title: 'First day of week',
+                value: settings.firstDayOfWeek == DateTime.sunday ? 'Sunday' : 'Monday',
+                onTap: () => _pickFirstDay(context, settings, notifier),
+              ),
+              SettingsNavTile(
+                icon: Icons.payments_outlined,
+                title: 'Currency format',
+                value: _formatSample(settings, settings.numberStyle),
+                onTap: () => _pickNumberStyle(context, settings, notifier),
+              ),
+              SettingsSwitchTile(
+                icon: Icons.toll_outlined,
+                title: 'Display cents',
+                value: settings.showCents,
+                onChanged: (v) => notifier.update((s) => s.copyWith(showCents: v)),
+              ),
+              SettingsSwitchTile(
+                icon: Icons.vibration_rounded,
+                title: 'Haptic feedback',
+                value: settings.hapticsEnabled,
+                onChanged: (v) {
+                  notifier.update((s) => s.copyWith(hapticsEnabled: v));
+                  AppHaptics.selectionClick();
+                },
+              ),
+            ]),
+            const SettingsSectionLabel('Privacy & security'),
+            SettingsGroup(children: [
+              SettingsSwitchTile(
+                icon: Icons.visibility_off_outlined,
+                title: 'Hide balances',
+                value: settings.hideBalances,
+                onChanged: (v) => notifier.update((s) => s.copyWith(hideBalances: v)),
+              ),
+            ]),
+            const SettingsSectionLabel('Data'),
+            SettingsGroup(children: [
+              SettingsNavTile(
+                icon: Icons.description_outlined,
+                title: 'Export data',
+                onTap: () => _exportCsv(context, ref),
+              ),
+              SettingsNavTile(
+                icon: Icons.delete_outline_rounded,
+                title: 'Erase data',
+                isDestructive: true,
+                onTap: () => _confirmErase(context, ref),
+              ),
+            ]),
+            const SizedBox(height: 28),
+            Center(
+              child: Text(
+                '${AppConstants.appName} v1.0.0 • Offline, stored on this device',
+                style: AppTypography.caption.copyWith(color: AppColors.textTertiary),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-  final List<String> _currencies = [
-    'INR (₹)',
-    'USD (\$)',
-    'EUR (€)',
-    'GBP (£)',
-    'JPY (¥)',
-  ];
+  static String _formatSample(AppSettings settings, NumberStyle style) {
+    return AppFormatters.sample(
+      symbol: settings.currency.symbol,
+      locale: style.locale,
+      pattern: style.pattern,
+      showCents: settings.showCents,
+    );
+  }
 
-  void _exportTransactionsCsv() {
-    final txs = ref.read(transactionsProvider).value ?? [];
+  void _pickCurrency(BuildContext context, AppSettings settings, AppSettingsNotifier notifier) {
+    showSettingsOptionSheet<String>(
+      context: context,
+      title: 'Currency',
+      selected: settings.currencyCode,
+      options: [
+        for (final c in supportedCurrencies)
+          SettingsOption(value: c.code, label: '${c.code} · ${c.name}', leading: c.symbol),
+      ],
+      onSelected: (code) => notifier.update((s) => s.copyWith(currencyCode: code)),
+    );
+  }
+
+  void _pickFirstDay(BuildContext context, AppSettings settings, AppSettingsNotifier notifier) {
+    showSettingsOptionSheet<int>(
+      context: context,
+      title: 'First day of week',
+      selected: settings.firstDayOfWeek,
+      options: const [
+        SettingsOption(value: DateTime.monday, label: 'Monday'),
+        SettingsOption(value: DateTime.sunday, label: 'Sunday'),
+      ],
+      onSelected: (day) => notifier.update((s) => s.copyWith(firstDayOfWeek: day)),
+    );
+  }
+
+  void _pickNumberStyle(BuildContext context, AppSettings settings, AppSettingsNotifier notifier) {
+    showSettingsOptionSheet<NumberStyle>(
+      context: context,
+      title: 'Currency format',
+      selected: settings.numberStyle,
+      options: [
+        for (final style in NumberStyle.values)
+          SettingsOption(value: style, label: _formatSample(settings, style)),
+      ],
+      onSelected: (style) => notifier.update((s) => s.copyWith(numberStyle: style)),
+    );
+  }
+
+  static String _csvField(String value) {
+    if (value.contains(RegExp(r'[",\n]'))) {
+      return '"${value.replaceAll('"', '""')}"';
+    }
+    return value;
+  }
+
+  Future<void> _exportCsv(BuildContext context, WidgetRef ref) async {
+    final txs = await ref.read(transactionsProvider.future);
+    final categories = await ref.read(categoriesProvider.future);
+    final accounts = await ref.read(accountsProvider.future);
+    if (!context.mounted) return;
+
     if (txs.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No transactions to export'),
-          backgroundColor: AppColors.surface,
-        ),
+        const SnackBar(content: Text('No transactions to export')),
       );
       return;
     }
 
-    final buffer = StringBuffer();
-    buffer.writeln('ID,Amount,Type,CategoryID,AccountID,Date,Note');
+    final categoryNames = {for (final c in categories) c.id: c.name};
+    final accountNames = {for (final a in accounts) a.id: a.name};
+
+    final buffer = StringBuffer('Date,Type,Amount,Category,Account,Note\n');
     for (final t in txs) {
-      buffer.writeln(
-        '${t.id},${t.amount},${t.type.name},${t.categoryId},${t.accountId},${t.date.toIso8601String()},"${t.note ?? ''}"',
-      );
+      buffer.writeln([
+        t.date.toIso8601String(),
+        t.type.name,
+        t.amount.toStringAsFixed(2),
+        _csvField(categoryNames[t.categoryId] ?? ''),
+        _csvField(accountNames[t.accountId] ?? ''),
+        _csvField(t.note ?? ''),
+      ].join(','));
     }
+    final csv = buffer.toString();
 
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: Text('CSV Export Ready', style: AppTypography.titleMedium),
+        title: Text('Export data', style: AppTypography.titleMedium),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('${txs.length} transactions converted to CSV format.', style: AppTypography.caption),
+            Text('${txs.length} transactions as CSV.', style: AppTypography.caption),
             const SizedBox(height: 12),
             Container(
-              height: 120,
+              height: 140,
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: AppColors.surfaceHover,
@@ -68,7 +243,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               child: SingleChildScrollView(
                 child: Text(
-                  buffer.toString(),
+                  csv,
                   style: const TextStyle(fontFamily: 'monospace', fontSize: 11),
                 ),
               ),
@@ -76,221 +251,61 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ],
         ),
         actions: [
-          ElevatedButton(
+          TextButton(
             onPressed: () => Navigator.pop(ctx),
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.accent),
             child: const Text('Close'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              await Clipboard.setData(ClipboardData(text: csv));
+              if (!ctx.mounted) return;
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('CSV copied to clipboard')),
+              );
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.accent),
+            child: const Text('Copy CSV'),
           ),
         ],
       ),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Text('Settings & Preferences', style: AppTypography.titleMedium),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
-          onPressed: () => Navigator.pop(context),
+  Future<void> _confirmErase(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: Text('Erase data?', style: AppTypography.titleMedium),
+        content: Text(
+          'This deletes every transaction and budget and sets all account '
+          'balances to zero. Accounts and categories are kept. This cannot be undone.',
+          style: AppTypography.bodyMedium,
         ),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppConstants.horizontalPadding),
-          child: ListView(
-            children: [
-              const SizedBox(height: 12),
-
-              // Flagship Back Tap Banner
-              GlassCard(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const BackTapGuideScreen()),
-                  );
-                },
-                child: Row(
-                  children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: AppColors.accent.withValues(alpha: 0.18),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.touch_app_rounded, color: AppColors.accent),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'iOS Back Tap Setup',
-                            style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'Configure double-tap shortcut logging',
-                            style: AppTypography.caption.copyWith(color: AppColors.textTertiary),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppColors.textTertiary),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Preferences Section
-              Text('Preferences', style: AppTypography.titleMedium),
-              const SizedBox(height: 10),
-
-              Material(
-                color: AppColors.surface,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  side: const BorderSide(color: AppColors.surfaceBorder),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: Column(
-                  children: [
-                    ListTile(
-                      leading: const Icon(Icons.currency_exchange_rounded, color: AppColors.accent),
-                      title: Text('Primary Currency', style: AppTypography.bodyLarge),
-                      trailing: DropdownButton<String>(
-                        value: _selectedCurrency,
-                        underline: const SizedBox(),
-                        dropdownColor: AppColors.surface,
-                        style: AppTypography.caption.copyWith(color: AppColors.textPrimary),
-                        items: _currencies.map((c) {
-                          return DropdownMenuItem(value: c, child: Text(c));
-                        }).toList(),
-                        onChanged: (val) {
-                          if (val != null) {
-                            setState(() => _selectedCurrency = val);
-                          }
-                        },
-                      ),
-                    ),
-                    const Divider(height: 1, color: AppColors.surfaceBorder),
-                    SwitchListTile(
-                      secondary: const Icon(Icons.visibility_off_outlined, color: AppColors.accent),
-                      title: Text('Hide Balances', style: AppTypography.bodyLarge),
-                      subtitle: Text(
-                        'Mask total net worth and amounts on launch',
-                        style: AppTypography.caption.copyWith(color: AppColors.textTertiary),
-                      ),
-                      value: _hideBalances,
-                      activeThumbColor: AppColors.accent,
-                      onChanged: (val) {
-                        setState(() => _hideBalances = val);
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Categories & Organization
-              Text('Organization', style: AppTypography.titleMedium),
-              const SizedBox(height: 10),
-
-              Material(
-                color: AppColors.surface,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  side: const BorderSide(color: AppColors.surfaceBorder),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: ListTile(
-                  leading: const Icon(Icons.category_rounded, color: AppColors.accent),
-                  title: Text('Categories & Subcategories', style: AppTypography.bodyLarge),
-                  subtitle: Text(
-                    'Customize spending icons, colors, and hierarchies',
-                    style: AppTypography.caption.copyWith(color: AppColors.textTertiary),
-                  ),
-                  trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppColors.textTertiary),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const CategoryManagementScreen(),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Data Management
-              Text('Data & Backups', style: AppTypography.titleMedium),
-              const SizedBox(height: 10),
-
-              Material(
-                color: AppColors.surface,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  side: const BorderSide(color: AppColors.surfaceBorder),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: ListTile(
-                  onTap: _exportTransactionsCsv,
-                  leading: const Icon(Icons.file_download_outlined, color: AppColors.income),
-                  title: Text('Export to CSV', style: AppTypography.bodyLarge),
-                  subtitle: Text(
-                    'Download all transactions in standard CSV table',
-                    style: AppTypography.caption.copyWith(color: AppColors.textTertiary),
-                  ),
-                  trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.textTertiary),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // App Info Card
-              GlassCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            color: AppColors.accent.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          alignment: Alignment.center,
-                          child: const Text('⚡', style: TextStyle(fontSize: 16)),
-                        ),
-                        const SizedBox(width: 10),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              AppConstants.appName,
-                              style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                            Text('v1.0.0 (Build 1) • 100% Offline Local SQLite', style: AppTypography.caption),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-            ],
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
           ),
-        ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.expense),
+            child: const Text('Erase'),
+          ),
+        ],
       ),
+    );
+    if (confirmed != true) return;
+
+    AppHaptics.mediumImpact();
+    await ref.read(repositoryProvider).eraseActivity();
+    ref.invalidate(transactionsProvider);
+    ref.invalidate(accountsProvider);
+    ref.invalidate(monthlyBudgetsProvider);
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('All transactions and budgets erased')),
     );
   }
 }
