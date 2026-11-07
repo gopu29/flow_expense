@@ -46,6 +46,15 @@ class ExpenseRepository {
     await _dbHelper.update('accounts', account.toMap(), account.id);
   }
 
+  /// Erases all transactions and budgets and resets account balances to zero.
+  Future<void> eraseActivity() async {
+    if (kIsWeb) {
+      _webStore.eraseActivity();
+      return;
+    }
+    await _dbHelper.eraseActivity();
+  }
+
   Future<void> deleteAccount(String id) async {
     if (kIsWeb) {
       _webStore.deleteAccount(id);

@@ -231,6 +231,17 @@ class DatabaseHelper {
     return db.update(table, row, where: 'id = ?', whereArgs: [id]);
   }
 
+  /// Deletes every transaction and budget and sets account balances to zero.
+  /// Accounts and categories are kept.
+  Future<void> eraseActivity() async {
+    final db = await database;
+    await db.transaction((txn) async {
+      await txn.delete('transactions');
+      await txn.delete('budgets');
+      await txn.update('accounts', {'balance': 0.0});
+    });
+  }
+
   /// Delete a row by id.
   Future<int> delete(String table, String id) async {
     final db = await database;

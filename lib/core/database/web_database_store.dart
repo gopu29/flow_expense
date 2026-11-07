@@ -183,6 +183,15 @@ class WebDatabaseStore {
   // Accounts
   // ---------------------------------------------------------------------------
 
+  /// Deletes every transaction and budget and sets account balances to zero.
+  void eraseActivity() {
+    _transactions.clear();
+    _budgets.clear();
+    for (var i = 0; i < _accounts.length; i++) {
+      _accounts[i] = _accounts[i].copyWith(balance: 0.0);
+    }
+  }
+
   List<Account> getAccounts() {
     return List.unmodifiable(_accounts);
   }
