@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/utils/formatters.dart';
@@ -36,84 +37,153 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
   String? _selectedAccountId;
 
   void _showAccountSelector(List<Account> accounts) {
+    HapticFeedback.lightImpact();
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF121B24),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
-      ),
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                margin: const EdgeInsets.only(top: 8, bottom: 12),
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(2),
-                ),
+        return Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF162330),
+                Color(0xFF0F1722),
+              ],
+            ),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+            border: Border(
+              top: BorderSide(
+                color: Color(0xFF2B3F54),
+                width: 1.5,
               ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 8),
-                child: Text(
-                  'Filter by Account',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              ListTile(
-                title: Text(
-                  'All accounts',
-                  style: TextStyle(
-                    color: _selectedAccountId == null
-                        ? const Color(0xFF38BDF8)
-                        : Colors.white,
-                    fontWeight: _selectedAccountId == null
-                        ? FontWeight.w600
-                        : FontWeight.normal,
-                  ),
-                ),
-                trailing: _selectedAccountId == null
-                    ? const Icon(Icons.check, color: Color(0xFF38BDF8))
-                    : null,
-                onTap: () {
-                  setState(() => _selectedAccountId = null);
-                  Navigator.pop(context);
-                },
-              ),
-              ...accounts.map((acc) {
-                final isSelected = _selectedAccountId == acc.id;
-                return ListTile(
-                  title: Text(
-                    acc.name,
-                    style: TextStyle(
-                      color:
-                          isSelected ? const Color(0xFF38BDF8) : Colors.white,
-                      fontWeight:
-                          isSelected ? FontWeight.w600 : FontWeight.normal,
+            ),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Top handle pill
+                Center(
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 10, bottom: 16),
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.25),
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                  subtitle: Text(
-                    AppFormatters.currency(acc.balance),
-                    style: const TextStyle(color: Colors.white54, fontSize: 12),
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Filter by Account',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.3,
+                      ),
+                    ),
                   ),
-                  trailing: isSelected
-                      ? const Icon(Icons.check, color: Color(0xFF38BDF8))
+                ),
+                const SizedBox(height: 8),
+                ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                  leading: Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF38BDF8).withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: const Color(0xFF38BDF8).withValues(alpha: 0.25),
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.all_inclusive_rounded,
+                      color: Color(0xFF38BDF8),
+                      size: 20,
+                    ),
+                  ),
+                  title: Text(
+                    'All accounts',
+                    style: TextStyle(
+                      color: _selectedAccountId == null
+                          ? const Color(0xFF38BDF8)
+                          : Colors.white,
+                      fontWeight: _selectedAccountId == null
+                          ? FontWeight.w600
+                          : FontWeight.w500,
+                    ),
+                  ),
+                  trailing: _selectedAccountId == null
+                      ? const Icon(Icons.check_circle_rounded, color: Color(0xFF38BDF8), size: 20)
                       : null,
                   onTap: () {
-                    setState(() => _selectedAccountId = acc.id);
+                    HapticFeedback.selectionClick();
+                    setState(() => _selectedAccountId = null);
                     Navigator.pop(context);
                   },
-                );
-              }),
-              const SizedBox(height: 12),
-            ],
+                ),
+                ...accounts.map((acc) {
+                  final isSelected = _selectedAccountId == acc.id;
+                  return ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                    leading: Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF8E9BAE).withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: const Color(0xFF8E9BAE).withValues(alpha: 0.2),
+                        ),
+                      ),
+                      child: Icon(
+                        acc.type == AccountType.bank
+                            ? Icons.account_balance_outlined
+                            : acc.type == AccountType.creditCard
+                                ? Icons.credit_card_outlined
+                                : Icons.account_balance_wallet_outlined,
+                        color: Colors.white70,
+                        size: 20,
+                      ),
+                    ),
+                    title: Text(
+                      acc.name,
+                      style: TextStyle(
+                        color: isSelected ? const Color(0xFF38BDF8) : Colors.white,
+                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                      ),
+                    ),
+                    subtitle: Text(
+                      AppFormatters.currency(acc.balance),
+                      style: TextStyle(
+                        color: acc.balance < 0 ? const Color(0xFFF87171) : Colors.white54,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    trailing: isSelected
+                        ? const Icon(Icons.check_circle_rounded, color: Color(0xFF38BDF8), size: 20)
+                        : null,
+                    onTap: () {
+                      HapticFeedback.selectionClick();
+                      setState(() => _selectedAccountId = acc.id);
+                      Navigator.pop(context);
+                    },
+                  );
+                }),
+                const SizedBox(height: 16),
+              ],
+            ),
           ),
         );
       },
@@ -160,6 +230,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                 alignment: Alignment.centerLeft,
                 child: GestureDetector(
                   onTap: () {
+                    HapticFeedback.lightImpact();
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -168,19 +239,33 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                     );
                   },
                   child: Container(
-                    width: 42,
-                    height: 42,
+                    width: 44,
+                    height: 44,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF162330).withValues(alpha: 0.8),
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Color(0xFF1D2C3B),
+                          Color(0xFF131D28),
+                        ],
+                      ),
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: const Color(0xFF243545),
+                        color: const Color(0xFF2B3F54),
                         width: 1,
                       ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.3),
+                          blurRadius: 10,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
                     ),
                     child: const Icon(
                       Icons.hexagon_outlined,
-                      color: Color(0xFFB0C2D2),
+                      color: Color(0xFFC0D3E5),
                       size: 20,
                     ),
                   ),
@@ -195,6 +280,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                   // Period Selector Pill
                   GestureDetector(
                     onTap: () {
+                      HapticFeedback.selectionClick();
                       MonthSelectorSheet.show(
                         context,
                         initialDate: selectedDate,
@@ -208,15 +294,29 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 14,
-                        vertical: 7,
+                        vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1A2633),
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFF1C2B3A),
+                            Color(0xFF121C26),
+                          ],
+                        ),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: const Color(0xFF263747),
+                          color: const Color(0xFF273A4D),
                           width: 1,
                         ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.25),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -248,15 +348,29 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 14,
-                        vertical: 7,
+                        vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1A2633),
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFF1C2B3A),
+                            Color(0xFF121C26),
+                          ],
+                        ),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: const Color(0xFF263747),
+                          color: const Color(0xFF273A4D),
                           width: 1,
                         ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.25),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,

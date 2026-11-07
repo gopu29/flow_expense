@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import '../../../core/constants/app_constants.dart';
@@ -828,6 +829,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen>
                   // Left Hexagonal Nut/Settings Button
                   GestureDetector(
                     onTap: () {
+                      HapticFeedback.lightImpact();
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -836,19 +838,33 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen>
                       );
                     },
                     child: Container(
-                      width: 42,
-                      height: 42,
+                      width: 44,
+                      height: 44,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF162330).withValues(alpha: 0.8),
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFF1D2C3B),
+                            Color(0xFF131D28),
+                          ],
+                        ),
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: const Color(0xFF243545),
+                          color: const Color(0xFF2B3F54),
                           width: 1,
                         ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.3),
+                            blurRadius: 10,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
                       ),
                       child: const Icon(
                         Icons.hexagon_outlined,
-                        color: Color(0xFFB0C2D2),
+                        color: Color(0xFFC0D3E5),
                         size: 20,
                       ),
                     ),
@@ -990,13 +1006,26 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen>
                                 if (allocatedEntries.isNotEmpty) ...[
                                   Container(
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFF121B24)
-                                          .withValues(alpha: 0.9),
+                                      gradient: const LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        colors: [
+                                          Color(0xFF16212D),
+                                          Color(0xFF0F1722),
+                                        ],
+                                      ),
                                       borderRadius: BorderRadius.circular(22),
                                       border: Border.all(
-                                        color: const Color(0xFF202D3B),
+                                        color: const Color(0xFF223446),
                                         width: 1,
                                       ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withValues(alpha: 0.35),
+                                          blurRadius: 16,
+                                          offset: const Offset(0, 5),
+                                        ),
+                                      ],
                                     ),
                                     child: Column(
                                       children: [
