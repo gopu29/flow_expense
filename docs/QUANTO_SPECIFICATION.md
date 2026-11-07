@@ -247,6 +247,7 @@ lib/
   - Budget (Circular gauge, limits).
   - Analytics (Income vs Expenses, calendar heatmap).
   - Accounts (Multi-account cards, balances, transfers).
+  - High-performance, artifact-free `IndexedStack` navigation and gesture-driven bottom dock with zero tap flash overlays.
 - [x] **Phase 5: Quick Input Modals & Controls**
   - In-app custom keypad input modal.
   - Category picker with subcategories and emojis.
