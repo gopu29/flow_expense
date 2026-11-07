@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../core/widgets/animated_amount_text.dart';
 import '../../../models/transaction.dart';
 
 class MonthIncomeLeftData {
@@ -173,17 +174,37 @@ class _IncomeLeftCardState extends State<IncomeLeftCard> {
 
           const SizedBox(height: 10),
 
-          // Large Amount / Percentage Display
-          Text(
-            _isPercentageMode
-                ? '${savingsRate >= 0 ? '' : '-'}${savingsRate.abs().toStringAsFixed(1)}%'
-                : AppFormatters.currency(netSaved),
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 28,
-              fontWeight: FontWeight.w700,
-              letterSpacing: -0.4,
-            ),
+          // Large Amount / Percentage Display with smooth transition
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 250),
+            child: _isPercentageMode
+                ? TweenAnimationBuilder<double>(
+                    key: const ValueKey('percent'),
+                    tween: Tween<double>(begin: 0.0, end: savingsRate),
+                    duration: const Duration(milliseconds: 550),
+                    curve: Curves.easeOutCubic,
+                    builder: (context, rate, child) {
+                      return Text(
+                        '${rate >= 0 ? '' : '-'}${rate.abs().toStringAsFixed(1)}%',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.4,
+                        ),
+                      );
+                    },
+                  )
+                : AnimatedAmountText(
+                    key: const ValueKey('amount'),
+                    amount: netSaved,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 28,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.4,
+                    ),
+                  ),
           ),
 
           const SizedBox(height: 20),

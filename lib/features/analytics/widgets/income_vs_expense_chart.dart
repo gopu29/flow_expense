@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../core/widgets/animated_amount_text.dart';
 import '../../../models/transaction.dart';
 
 class MonthDualBarData {
@@ -105,8 +106,8 @@ class IncomeVsExpenseChart extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 6),
-                    Text(
-                      AppFormatters.currency(currentMonthData.income),
+                    AnimatedAmountText(
+                      amount: currentMonthData.income,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -145,8 +146,8 @@ class IncomeVsExpenseChart extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 6),
-                    Text(
-                      AppFormatters.currency(currentMonthData.expense),
+                    AnimatedAmountText(
+                      amount: currentMonthData.expense,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -176,57 +177,64 @@ class IncomeVsExpenseChart extends StatelessWidget {
                       height: chartHeight + 36, // bars + month labels
                       child: Column(
                         children: [
-                          // Vertical Bars / Horizontal Dashes
+                          // Vertical Bars / Horizontal Dashes with smooth animated growth
                           SizedBox(
                             height: chartHeight,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: monthsData.map((data) {
-                                final incHeight = maxVal > 0
-                                    ? (data.income / maxVal) * (chartHeight - 14)
-                                    : 0.0;
-                                final expHeight = maxVal > 0
-                                    ? (data.expense / maxVal) * (chartHeight - 14)
-                                    : 0.0;
-
+                            child: TweenAnimationBuilder<double>(
+                              tween: Tween<double>(begin: 0.0, end: 1.0),
+                              duration: const Duration(milliseconds: 650),
+                              curve: Curves.easeOutCubic,
+                              builder: (context, progress, child) {
                                 return Row(
-                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                                   crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    // Income Bar (Mint Green)
-                                    _buildBarOrDash(
-                                      height: incHeight,
-                                      hasValue: data.income > 0,
-                                      color: const Color(0xFF34D399),
-                                      gradient: const LinearGradient(
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                        colors: [
-                                          Color(0xFF34D399),
-                                          Color(0xFF059669),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(width: 4),
+                                  children: monthsData.map((data) {
+                                    final incHeight = maxVal > 0
+                                        ? (data.income / maxVal) * (chartHeight - 14) * progress
+                                        : 0.0;
+                                    final expHeight = maxVal > 0
+                                        ? (data.expense / maxVal) * (chartHeight - 14) * progress
+                                        : 0.0;
 
-                                    // Expense Bar (Bright Cyan)
-                                    _buildBarOrDash(
-                                      height: expHeight,
-                                      hasValue: data.expense > 0,
-                                      color: const Color(0xFF38BDF8),
-                                      gradient: const LinearGradient(
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                        colors: [
-                                          Color(0xFF38BDF8),
-                                          Color(0xFF0284C7),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
+                                    return Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        // Income Bar (Mint Green)
+                                        _buildBarOrDash(
+                                          height: incHeight,
+                                          hasValue: data.income > 0,
+                                          color: const Color(0xFF34D399),
+                                          gradient: const LinearGradient(
+                                            begin: Alignment.topCenter,
+                                            end: Alignment.bottomCenter,
+                                            colors: [
+                                              Color(0xFF34D399),
+                                              Color(0xFF059669),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(width: 4),
+
+                                        // Expense Bar (Bright Cyan)
+                                        _buildBarOrDash(
+                                          height: expHeight,
+                                          hasValue: data.expense > 0,
+                                          color: const Color(0xFF38BDF8),
+                                          gradient: const LinearGradient(
+                                            begin: Alignment.topCenter,
+                                            end: Alignment.bottomCenter,
+                                            colors: [
+                                              Color(0xFF38BDF8),
+                                              Color(0xFF0284C7),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  }).toList(),
                                 );
-                              }).toList(),
+                              },
                             ),
                           ),
                           const SizedBox(height: 10),

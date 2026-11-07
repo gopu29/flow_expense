@@ -10,6 +10,7 @@ import '../widgets/income_vs_expense_chart.dart';
 import '../widgets/income_left_card.dart';
 import '../widgets/calendar_heatmap.dart';
 import '../widgets/insights_teaser_card.dart';
+import '../../../core/widgets/staggered_entrance.dart';
 
 /// Flagship Analytics Screen matching Quanto's exact layout from IMG_6029.PNG, IMG_6030.PNG, IMG_6031.PNG:
 /// - Atmospheric transparent background seamlessly revealing the midnight gradient
@@ -298,47 +299,62 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                       padding: const EdgeInsets.only(bottom: 110),
                       children: [
                         // Card 1: Income vs Expenses Dual-Bar Chart matching IMG_6029.PNG
-                        IncomeVsExpenseChart(
-                          transactions: filteredTxs,
-                          selectedMonth: selectedDate,
+                        StaggeredEntrance(
+                          index: 0,
+                          child: IncomeVsExpenseChart(
+                            transactions: filteredTxs,
+                            selectedMonth: selectedDate,
+                          ),
                         ),
 
                         const SizedBox(height: 16),
 
                         // Card 2: Income Left Card matching IMG_6029.PNG & IMG_6030.PNG
-                        IncomeLeftCard(
-                          transactions: filteredTxs,
-                          selectedMonth: selectedDate,
+                        StaggeredEntrance(
+                          index: 1,
+                          child: IncomeLeftCard(
+                            transactions: filteredTxs,
+                            selectedMonth: selectedDate,
+                          ),
                         ),
 
                         const SizedBox(height: 16),
 
                         // Card 3: Calendar Heatmap Matrix matching IMG_6030.PNG
-                        CalendarHeatmap(
-                          selectedMonth: selectedDate,
-                          transactions: filteredTxs,
+                        StaggeredEntrance(
+                          index: 2,
+                          child: CalendarHeatmap(
+                            selectedMonth: selectedDate,
+                            transactions: filteredTxs,
+                          ),
                         ),
 
                         const SizedBox(height: 16),
 
                         // Card 4: Unlock Recurring Insights matching IMG_6030.PNG & IMG_6031.PNG
-                        const InsightsTeaserCard(
-                          buttonText: 'Unlock recurring insights',
-                          title: 'Recurring Subscriptions',
-                          description:
-                              'Track and manage recurring subscriptions, automatic utility bills, and fixed charges effortlessly.',
-                          showBarGraphic: false,
+                        const StaggeredEntrance(
+                          index: 3,
+                          child: InsightsTeaserCard(
+                            buttonText: 'Unlock recurring insights',
+                            title: 'Recurring Subscriptions',
+                            description:
+                                'Track and manage recurring subscriptions, automatic utility bills, and fixed charges effortlessly.',
+                            showBarGraphic: false,
+                          ),
                         ),
 
                         const SizedBox(height: 16),
 
                         // Card 5: Unlock Budgeting Insights matching IMG_6031.PNG
-                        const InsightsTeaserCard(
-                          buttonText: 'Unlock budgeting insights',
-                          title: 'Budgeting Intelligence',
-                          description:
-                              'Forecast your end-of-month financial trajectory and optimize your savings rate with smart spending velocity alerts.',
-                          showBarGraphic: true,
+                        const StaggeredEntrance(
+                          index: 4,
+                          child: InsightsTeaserCard(
+                            buttonText: 'Unlock budgeting insights',
+                            title: 'Budgeting Intelligence',
+                            description:
+                                'Forecast your end-of-month financial trajectory and optimize your savings rate with smart spending velocity alerts.',
+                            showBarGraphic: true,
+                          ),
                         ),
                       ],
                     );
