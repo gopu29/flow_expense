@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import '../../../core/widgets/animated_amount_text.dart';
 import '../../../models/account.dart';
 
-/// Account row card matching Quanto IMG_6032.PNG:
-/// - Rounded container (#16202A) with border (#1E2A38)
-/// - Left squircle emoji/icon container (#1E2936)
-/// - Middle column: Account name (#8E9BAE) and Rolling Balance (Bold White)
-/// - Right reorder handle: Two parallel horizontal bars (#6B7E93)
+/// Ultra-premium Account card matching Quanto IMG_6032.PNG:
+/// - Refined obsidian surface gradient (#172433 -> #0F1722)
+/// - Top-lit border highlight (#243649) and soft elevation drop shadow
+/// - Squircle emoji/icon container (#223547 -> #162330) with fine border
+/// - Crisp typography with tabular figures and interactive press scale
 class AccountCard extends StatefulWidget {
   final Account account;
   final VoidCallback? onTap;
@@ -35,12 +35,26 @@ class _AccountCardState extends State<AccountCard> {
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 6),
         decoration: BoxDecoration(
-          color: const Color(0xFF16202A),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF172433),
+              Color(0xFF0F1722),
+            ],
+          ),
           borderRadius: BorderRadius.circular(22),
           border: Border.all(
-            color: const Color(0xFF1E2A38),
+            color: const Color(0xFF243649),
             width: 1,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.35),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
         child: Material(
           color: Colors.transparent,
@@ -56,13 +70,31 @@ class _AccountCardState extends State<AccountCard> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               child: Row(
                 children: [
-                  // Squircle Icon / Emoji Box matching IMG_6032.PNG
+                  // Squircle Icon / Emoji Box with multi-layer depth
                   Container(
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1E2936),
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Color(0xFF223547),
+                          Color(0xFF162330),
+                        ],
+                      ),
                       borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: const Color(0xFF2E4358),
+                        width: 1,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.25),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
                     ),
                     alignment: Alignment.center,
                     child: Text(
@@ -80,9 +112,10 @@ class _AccountCardState extends State<AccountCard> {
                         Text(
                           widget.account.name,
                           style: const TextStyle(
-                            color: Color(0xFF8E9BAE),
-                            fontSize: 13.5,
-                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF9AB0C2),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: -0.1,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -92,9 +125,9 @@ class _AccountCardState extends State<AccountCard> {
                             color: widget.account.balance >= 0
                                 ? Colors.white
                                 : const Color(0xFFF87171),
-                            fontSize: 17,
+                            fontSize: 18,
                             fontWeight: FontWeight.w700,
-                            letterSpacing: -0.2,
+                            letterSpacing: -0.3,
                           ),
                         ),
                       ],
@@ -114,7 +147,7 @@ class _AccountCardState extends State<AccountCard> {
                             width: 18,
                             height: 2.2,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF6B7E93),
+                              color: const Color(0xFF5A7288),
                               borderRadius: BorderRadius.circular(2),
                             ),
                           ),
@@ -123,7 +156,7 @@ class _AccountCardState extends State<AccountCard> {
                             width: 18,
                             height: 2.2,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF6B7E93),
+                              color: const Color(0xFF5A7288),
                               borderRadius: BorderRadius.circular(2),
                             ),
                           ),

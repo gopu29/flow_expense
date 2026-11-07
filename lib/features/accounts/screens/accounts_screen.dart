@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
@@ -6,6 +7,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/providers/expense_providers.dart';
 import '../../../models/account.dart';
+import '../../../models/category.dart';
 import '../../../models/transaction.dart';
 import '../../settings/screens/settings_screen.dart';
 import '../widgets/account_card.dart';
@@ -328,225 +330,394 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: const Color(0xFF101923),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
+      backgroundColor: Colors.transparent,
       builder: (ctx) {
         final transactionsAsync = ref.watch(transactionsProvider);
+        final categoriesAsync = ref.watch(categoriesProvider);
+        final categories = categoriesAsync.value ?? [];
+
         final accountTxs = transactionsAsync.maybeWhen(
           data: (txs) => txs.where((t) => t.accountId == account.id).toList(),
           orElse: () => <Transaction>[],
         );
 
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Grab handle
-                Center(
-                  child: Container(
-                    width: 36,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Colors.white24,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 18),
-
-                // Account Hero Header
-                Row(
-                  children: [
-                    Container(
-                      width: 52,
-                      height: 52,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1E2936),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        account.icon,
-                        style: const TextStyle(fontSize: 26),
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            account.name,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            account.type.name.toUpperCase(),
-                            style: const TextStyle(
-                              color: Color(0xFF8E9BAE),
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Text(
-                      AppFormatters.currency(account.balance),
-                      style: TextStyle(
-                        color: account.balance >= 0
-                            ? Colors.white
-                            : const Color(0xFFF87171),
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 22),
-
-                // Action buttons: Edit Balance, Delete
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () {
-                          Navigator.pop(ctx);
-                          _showEditBalanceDialog(account);
-                        },
-                        icon: const Icon(Icons.edit_outlined, size: 16),
-                        label: const Text('Edit Balance'),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          side: const BorderSide(color: Color(0xFF263747)),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () {
-                          Navigator.pop(ctx);
-                          _confirmDeleteAccount(account);
-                        },
-                        icon: const Icon(
-                          Icons.delete_outline,
-                          size: 16,
-                          color: Color(0xFFF87171),
-                        ),
-                        label: const Text(
-                          'Delete',
-                          style: TextStyle(color: Color(0xFFF87171)),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(
-                            color: const Color(0xFFF87171).withValues(alpha: 0.4),
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                // Transactions under this account
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Account Transactions',
-                      style: TextStyle(
-                        color: Color(0xFF8E9BAE),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Text(
-                      '${accountTxs.length} items',
-                      style: const TextStyle(
-                        color: Color(0xFF6B7E93),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-
-                if (accountTxs.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 20),
-                    child: Center(
-                      child: Text(
-                        'No transactions recorded under this account',
-                        style: TextStyle(color: Color(0xFF6B7E93)),
-                      ),
-                    ),
-                  )
-                else
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxHeight: 260),
-                    child: ListView.separated(
-                      shrinkWrap: true,
-                      itemCount: accountTxs.length,
-                      separatorBuilder: (_, _) => const Divider(
-                        color: Color(0xFF1E2A38),
-                        height: 1,
-                      ),
-                      itemBuilder: (context, index) {
-                        final tx = accountTxs[index];
-                        final isExpense = tx.type == TransactionType.expense;
-
-                        return ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: Text(
-                            tx.note?.isNotEmpty == true
-                                ? tx.note!
-                                : tx.categoryId,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          subtitle: Text(
-                            DateFormat('MMM d, yyyy • hh:mm a').format(tx.date),
-                            style: const TextStyle(
-                              color: Color(0xFF6B7E93),
-                              fontSize: 12,
-                            ),
-                          ),
-                          trailing: Text(
-                            '${isExpense ? '-' : '+'}${AppFormatters.currency(tx.amount)}',
-                            style: TextStyle(
-                              color: isExpense
-                                  ? const Color(0xFF38BDF8)
-                                  : const Color(0xFF34D399),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+        return Container(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF131D28),
+                Color(0xFF0C131A),
               ],
+            ),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+            border: Border(
+              top: BorderSide(color: const Color(0xFF2A3D52), width: 1.2),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.6),
+                blurRadius: 32,
+                offset: const Offset(0, -8),
+              ),
+            ],
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Grab handle
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4.5,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF3F5368),
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Account Hero Header
+                  Row(
+                    children: [
+                      Container(
+                        width: 52,
+                        height: 52,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Color(0xFF223547),
+                              Color(0xFF162330),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: const Color(0xFF30465E),
+                            width: 1,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.3),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          account.icon,
+                          style: const TextStyle(fontSize: 26),
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              account.name,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 19,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: -0.3,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1B2A38),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                  color: const Color(0xFF283B4E),
+                                  width: 0.8,
+                                ),
+                              ),
+                              child: Text(
+                                account.type.name.toUpperCase(),
+                                style: const TextStyle(
+                                  color: Color(0xFF7DD3FC),
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.6,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      AnimatedAmountText(
+                        amount: account.balance,
+                        style: TextStyle(
+                          color: account.balance >= 0
+                              ? Colors.white
+                              : const Color(0xFFF87171),
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.4,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 22),
+
+                  // Action buttons: Edit Balance, Delete
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            Navigator.pop(ctx);
+                            _showEditBalanceDialog(account);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [
+                                  Color(0xFF1E2E3E),
+                                  Color(0xFF162330),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(
+                                color: const Color(0xFF2E4358),
+                                width: 1,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.25),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.edit_outlined, size: 16, color: Colors.white),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Edit Balance',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            Navigator.pop(ctx);
+                            _confirmDeleteAccount(account);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [
+                                  Color(0xFF26141A),
+                                  Color(0xFF1D0E13),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(
+                                color: const Color(0xFF4A1E28),
+                                width: 1,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.25),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.delete_outline_rounded, size: 16, color: Color(0xFFF87171)),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Delete',
+                                  style: TextStyle(
+                                    color: Color(0xFFF87171),
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Transactions Header
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Account Transactions',
+                        style: TextStyle(
+                          color: Color(0xFF94A7B8),
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF172430),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: const Color(0xFF243545), width: 0.8),
+                        ),
+                        child: Text(
+                          '${accountTxs.length} items',
+                          style: const TextStyle(
+                            color: Color(0xFF758C9F),
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+
+                  if (accountTxs.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 24),
+                      child: Center(
+                        child: Text(
+                          'No transactions recorded under this account',
+                          style: TextStyle(color: Color(0xFF6B7E93), fontSize: 13),
+                        ),
+                      ),
+                    )
+                  else
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxHeight: 280),
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        itemCount: accountTxs.length,
+                        separatorBuilder: (_, _) => const Divider(
+                          color: Color(0xFF1B2836),
+                          height: 1,
+                          indent: 52,
+                        ),
+                        itemBuilder: (context, index) {
+                          final tx = accountTxs[index];
+                          final isExpense = tx.type == TransactionType.expense;
+
+                          final cat = categories.firstWhere(
+                            (c) => c.id == tx.categoryId,
+                            orElse: () => const Category(
+                              id: '',
+                              name: 'General',
+                              iconOrEmoji: '🏷️',
+                              color: 0xFF6366F1,
+                            ),
+                          );
+
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: Row(
+                              children: [
+                                // Category Icon Squircle
+                                Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: Color(cat.color).withValues(alpha: 0.16),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: Color(cat.color).withValues(alpha: 0.28),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    cat.iconOrEmoji,
+                                    style: const TextStyle(fontSize: 19),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+
+                                // Merchant / Note + Subtitle
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        tx.note?.isNotEmpty == true
+                                            ? tx.note!
+                                            : cat.name,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 3),
+                                      Text(
+                                        DateFormat('MMM d, yyyy • hh:mm a').format(tx.date),
+                                        style: const TextStyle(
+                                          color: Color(0xFF6B7E93),
+                                          fontSize: 11.5,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                const SizedBox(width: 8),
+
+                                // Transaction Amount
+                                Text(
+                                  '${isExpense ? '-' : '+'}${AppFormatters.currency(tx.amount)}',
+                                  style: TextStyle(
+                                    color: isExpense
+                                        ? Colors.white
+                                        : const Color(0xFF10B981),
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14.5,
+                                    letterSpacing: -0.2,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         );
@@ -702,6 +873,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
                   // Left Hex Nut Settings Button
                   GestureDetector(
                     onTap: () {
+                      HapticFeedback.lightImpact();
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -710,19 +882,33 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
                       );
                     },
                     child: Container(
-                      width: 42,
-                      height: 42,
+                      width: 44,
+                      height: 44,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF162330).withValues(alpha: 0.8),
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFF1D2C3B),
+                            Color(0xFF131D28),
+                          ],
+                        ),
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: const Color(0xFF243545),
+                          color: const Color(0xFF2B3F54),
                           width: 1,
                         ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.3),
+                            blurRadius: 10,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
                       ),
                       child: const Icon(
                         Icons.hexagon_outlined,
-                        color: Color(0xFFB0C2D2),
+                        color: Color(0xFFC0D3E5),
                         size: 20,
                       ),
                     ),
@@ -730,21 +916,38 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
 
                   // Right Plus Button
                   GestureDetector(
-                    onTap: _showAddAccountSheet,
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      _showAddAccountSheet();
+                    },
                     child: Container(
-                      width: 42,
-                      height: 42,
+                      width: 44,
+                      height: 44,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF162330).withValues(alpha: 0.8),
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFF1D2C3B),
+                            Color(0xFF131D28),
+                          ],
+                        ),
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: const Color(0xFF243545),
+                          color: const Color(0xFF2B3F54),
                           width: 1,
                         ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.3),
+                            blurRadius: 10,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
                       ),
                       child: const Icon(
                         Icons.add,
-                        color: Color(0xFFB0C2D2),
+                        color: Color(0xFFC0D3E5),
                         size: 22,
                       ),
                     ),
@@ -754,15 +957,16 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
 
               const SizedBox(height: 24),
 
-              // 2. Centered Hero Header: "Total balance" + Amount matching IMG_6032.PNG
+              // 2. Centered Hero Header: "TOTAL BALANCE" + Bold Amount
               Column(
                 children: [
                   const Text(
-                    'Total balance',
+                    'TOTAL BALANCE',
                     style: TextStyle(
-                      color: Color(0xFF8E9BAE),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF7B91A5),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 1.4,
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -770,9 +974,9 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
                     amount: netWorth,
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 34,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.5,
+                      fontSize: 38,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.8,
                     ),
                   ),
                 ],
