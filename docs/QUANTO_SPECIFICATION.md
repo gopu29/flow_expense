@@ -286,3 +286,7 @@ lib/
   - Extended bottom scroll padding across all 5 main screen `ListView`s to `120 + MediaQuery.of(context).padding.bottom`, ensuring bottom items are fully reachable and not hidden behind the floating dock.
   - Enforced `useSafeArea: true` and capped `maxChildSize: 0.88` on all modal bottom sheets (including the Allocate Budget range bar sheet, Month Selector, Quick Input modal, Account Details, Receipt Scanner, and Voice AI Logger) preventing status bar, punch hole, and system header clipping.
   - Resolved Flutter Web font loading 404s by adding explicit `assets/` bundle configuration and native Inter font headers.
+- [x] **Phase 13: Bottom Sheet Navigation Bar Clearance**
+  - Added `MediaQuery.padding.bottom` to the footer spacing of the Allocate Budget `Confirm` button and the New Account `Create Account` button so they no longer sit behind the Android 3-button navigation bar (Phase 12 `useSafeArea: true` only protects the top of a sheet).
+  - Extended bottom list padding on the Budgets and category transactions `DraggableScrollableSheet` lists by the same inset so the last rows stay reachable.
+  - Enforced `useSafeArea: true` on the scroll-controlled Category Budget numpad sheet.
