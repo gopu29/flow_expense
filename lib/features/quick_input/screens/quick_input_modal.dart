@@ -6,19 +6,27 @@ import 'package:intl/intl.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/constants/app_constants.dart';
+import '../../../core/providers/entry_field_providers.dart';
 import '../../../core/providers/expense_providers.dart';
 import '../../../models/category.dart';
 import '../../../models/account.dart';
 import '../../../models/transaction.dart';
+import '../../../core/utils/amount_expression.dart';
+import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/animated_typing_amount_text.dart';
 import '../widgets/category_picker_sheet.dart';
 import '../widgets/category_rail.dart';
+import '../widgets/currency_converter_sheet.dart';
+import '../widgets/entry_fields_sheet.dart';
 import '../widgets/note_entry_sheet.dart';
 import '../widgets/numpad.dart';
 
 const double _kSheetHeightFactor = 0.985;
 const double _kChipHeight = 44;
 const double _kRoundButtonSize = 46;
+const double _kChipLabelMaxWidth = 130;
+
+enum _TopMenuChoice { expense, income, transfer, entryFields }
 
 /// Modal bottom sheet allowing zero-friction instant logging of transactions.
 class QuickInputModal extends ConsumerStatefulWidget {
@@ -55,24 +63,21 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
 
   void _onKeyPress(String key) {
     setState(() {
+      final segment = lastAmountSegment(_amountString);
       if (key == '.') {
-        if (!_amountString.contains('.')) {
-          _amountString += '.';
+        if (!segment.contains('.')) {
+          _amountString += segment.isEmpty ? '0.' : '.';
         }
-      } else {
-        if (_amountString == '0') {
-          _amountString = key;
-        } else {
-          // Limit to 2 decimals
-          if (_amountString.contains('.')) {
-            final parts = _amountString.split('.');
-            if (parts.length > 1 && parts[1].length >= 2) return;
-          }
-          if (_amountString.length < 9) {
-            _amountString += key;
-          }
-        }
+        return;
       }
+      if (segment == '0') {
+        _amountString =
+            _amountString.substring(0, _amountString.length - 1) + key;
+        return;
+      }
+      final hasFullDecimals =
+          segment.contains('.') && segment.split('.')[1].length >= 2;
+      if (!hasFullDecimals && segment.length < 9) _amountString += key;
     });
   }
 
@@ -88,7 +93,11 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
   }
 
   Future<void> _submitTransaction() async {
-    final amount = double.tryParse(_amountString) ?? 0.0;
+    final fields = await ref.read(visibleEntryFieldsProvider.future);
+    if (!mounted) return;
+    final note =
+        fields.contains(EntryField.name) ? _noteController.text.trim() : '';
+    final amount = evaluateAmountExpression(_amountString) ?? 0.0;
     if (amount <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -126,8 +135,8 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
       categoryId: _selectedCategory!.id,
       accountId: _selectedAccount!.id,
       toAccountId: _type == TransactionType.transfer ? _selectedToAccount?.id : null,
-      date: _selectedDate,
-      note: _noteController.text.trim().isEmpty ? null : _noteController.text.trim(),
+      date: fields.contains(EntryField.date) ? _selectedDate : DateTime.now(),
+      note: note.isEmpty ? null : note,
       createdAt: DateTime.now(),
     );
 
@@ -145,6 +154,16 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
         ),
       );
     }
+  }
+
+  void _onOperator(String operator) {
+    setState(() {
+      var expression = _amountString;
+      if (expression.endsWith('.') || endsWithAmountOperator(expression)) {
+        expression = expression.substring(0, expression.length - 1);
+      }
+      _amountString = expression + operator;
+    });
   }
 
   void _switchType(TransactionType type) {
@@ -197,6 +216,39 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
     if (picked != null && mounted) {
       setState(() => _selectedDate = picked);
     }
+  }
+
+  Future<void> _openConverter() async {
+    HapticFeedback.selectionClick();
+    final converted = await CurrencyConverterSheet.show(context);
+    if (converted != null && mounted) {
+      setState(() => _amountString = formatAmountInput(converted));
+    }
+  }
+
+  /// Money left in the selected category's limit, or in the whole budget when
+  /// the category has no limit of its own.
+  String get _budgetChipLabel {
+    final budget = ref.watch(budgetProvider).value;
+    if (budget == null) return 'No budget';
+
+    final mainId = _selectedCategory?.parentId ?? _selectedCategory?.id;
+    final categoryLimit = budget.categoryLimits[mainId];
+    final categories = ref.watch(categoriesProvider).value ?? const <Category>[];
+    final parentIds = {for (final c in categories) c.id: c.parentId};
+    final month = ref.watch(selectedDateProvider);
+
+    var spent = 0.0;
+    for (final tx in ref.watch(transactionsProvider).value ?? const <Transaction>[]) {
+      final isThisMonth =
+          tx.date.year == month.year && tx.date.month == month.month;
+      if (tx.type != TransactionType.expense || !isThisMonth) continue;
+      final txMainId = parentIds[tx.categoryId] ?? tx.categoryId;
+      if (categoryLimit == null || txMainId == mainId) spent += tx.amount;
+    }
+
+    final left = (categoryLimit ?? budget.monthlyLimit) - spent;
+    return '${AppFormatters.currency(left)} left';
   }
 
   Future<void> _editNote() async {
@@ -276,10 +328,9 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
                   }
                   return _buildContextChips(accounts);
                 },
-                loading: () => const SizedBox(height: _kChipHeight),
-                error: (_, _) => const SizedBox(height: _kChipHeight),
+                loading: () => const SizedBox.shrink(),
+                error: (_, _) => const SizedBox.shrink(),
               ),
-              const SizedBox(height: 12),
 
               // Main categories: tap to select, hold for sub-categories
               categoriesAsync.when(
@@ -316,7 +367,11 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
               // On-screen keypad; the arrow key saves the transaction
               CustomNumpad(
                 onKeyPress: _onKeyPress,
+                onOperator: _onOperator,
                 onSubmit: _submitTransaction,
+                showOperators: (ref.watch(visibleEntryFieldsProvider).value ??
+                        defaultVisibleEntryFields)
+                    .contains(EntryField.calculator),
               ),
             ],
           ),
@@ -328,25 +383,46 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
   Widget _buildTopBar() {
     return Align(
       alignment: Alignment.centerRight,
-      child: PopupMenuButton<TransactionType>(
-        tooltip: 'Transaction type',
-        onSelected: _switchType,
+      child: PopupMenuButton<_TopMenuChoice>(
+        tooltip: 'Options',
+        onSelected: (choice) {
+          switch (choice) {
+            case _TopMenuChoice.expense:
+              _switchType(TransactionType.expense);
+            case _TopMenuChoice.income:
+              _switchType(TransactionType.income);
+            case _TopMenuChoice.transfer:
+              _switchType(TransactionType.transfer);
+            case _TopMenuChoice.entryFields:
+              EntryFieldsSheet.show(context);
+          }
+        },
         color: const Color(0xFF162330),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: const BorderSide(color: Color(0xFF2B3F54)),
         ),
         itemBuilder: (_) => [
-          for (final type in TransactionType.values)
-            CheckedPopupMenuItem(
-              value: type,
-              checked: type == _type,
-              child: Text(switch (type) {
-                TransactionType.expense => 'Expense',
-                TransactionType.income => 'Income',
-                TransactionType.transfer => 'Transfer',
-              }),
-            ),
+          CheckedPopupMenuItem(
+            value: _TopMenuChoice.expense,
+            checked: _type == TransactionType.expense,
+            child: const Text('Expense'),
+          ),
+          CheckedPopupMenuItem(
+            value: _TopMenuChoice.income,
+            checked: _type == TransactionType.income,
+            child: const Text('Income'),
+          ),
+          CheckedPopupMenuItem(
+            value: _TopMenuChoice.transfer,
+            checked: _type == TransactionType.transfer,
+            child: const Text('Transfer'),
+          ),
+          const PopupMenuDivider(),
+          const PopupMenuItem(
+            value: _TopMenuChoice.entryFields,
+            child: Text('Entry fields'),
+          ),
         ],
         child: Container(
           width: _kRoundButtonSize,
@@ -392,6 +468,17 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
             ),
           ),
         ),
+        if (hasAmountOperator(_amountString))
+          Align(
+            alignment: const Alignment(0, 0.7),
+            child: Text(
+              '= ${AppConstants.currencySymbol}'
+              '${formatAmountInput(evaluateAmountExpression(_amountString) ?? 0)}',
+              style: AppTypography.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ),
         Align(
           alignment: Alignment.centerRight,
           child: Tooltip(
@@ -420,9 +507,11 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
 
   Widget _buildContextChips(List<Account> accounts) {
     final note = _noteController.text.trim();
+    final fields =
+        ref.watch(visibleEntryFieldsProvider).value ?? defaultVisibleEntryFields;
 
-    return Row(
-      children: [
+    final chips = <Widget>[
+      if (fields.contains(EntryField.date))
         GestureDetector(
           onTap: _pickDate,
           child: _buildChip(
@@ -430,47 +519,69 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
             label: _dateLabel,
           ),
         ),
-        const SizedBox(width: 8),
-        Flexible(
-          flex: 3,
-          child: PopupMenuButton<Account>(
-            tooltip: 'Account',
-            onSelected: (account) {
-              HapticFeedback.selectionClick();
-              setState(() => _selectedAccount = account);
-            },
-            color: const Color(0xFF162330),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-              side: const BorderSide(color: Color(0xFF2B3F54)),
-            ),
-            itemBuilder: (_) => accounts
-                .map(
-                  (account) => PopupMenuItem(
-                    value: account,
-                    child: Text('${account.icon} ${account.name}'),
-                  ),
-                )
-                .toList(),
-            child: _buildChip(
-              icon: Icons.account_balance_wallet_outlined,
-              label: _selectedAccount?.name ?? 'Account',
-            ),
+      if (fields.contains(EntryField.account))
+        PopupMenuButton<Account>(
+          tooltip: 'Account',
+          onSelected: (account) {
+            HapticFeedback.selectionClick();
+            setState(() => _selectedAccount = account);
+          },
+          color: const Color(0xFF162330),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: const BorderSide(color: Color(0xFF2B3F54)),
+          ),
+          itemBuilder: (_) => accounts
+              .map(
+                (account) => PopupMenuItem(
+                  value: account,
+                  child: Text('${account.icon} ${account.name}'),
+                ),
+              )
+              .toList(),
+          child: _buildChip(
+            icon: Icons.account_balance_wallet_outlined,
+            label: _selectedAccount?.name ?? 'Account',
           ),
         ),
-        const SizedBox(width: 8),
-        Flexible(
-          flex: 2,
-          child: GestureDetector(
-            onTap: _editNote,
-            child: _buildChip(
-              icon: Icons.sticky_note_2_outlined,
-              label: note.isEmpty ? 'Name' : note,
-              isMuted: note.isEmpty,
-            ),
+      if (fields.contains(EntryField.name))
+        GestureDetector(
+          onTap: _editNote,
+          child: _buildChip(
+            icon: Icons.sticky_note_2_outlined,
+            label: note.isEmpty ? 'Name' : note,
+            isMuted: note.isEmpty,
           ),
         ),
-      ],
+      if (fields.contains(EntryField.currencyConverter))
+        GestureDetector(
+          onTap: _openConverter,
+          child: _buildChip(
+            icon: Icons.currency_exchange_rounded,
+            label: 'Convert',
+          ),
+        ),
+      if (fields.contains(EntryField.budget))
+        _buildChip(
+          icon: Icons.donut_large_rounded,
+          label: _budgetChipLabel,
+        ),
+    ];
+    if (chips.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            for (var index = 0; index < chips.length; index++) ...[
+              if (index > 0) const SizedBox(width: 8),
+              chips[index],
+            ],
+          ],
+        ),
+      ),
     );
   }
 
@@ -494,7 +605,8 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
         children: [
           Icon(icon, size: 17, color: color),
           const SizedBox(width: 7),
-          Flexible(
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: _kChipLabelMaxWidth),
             child: Text(
               label,
               maxLines: 1,
