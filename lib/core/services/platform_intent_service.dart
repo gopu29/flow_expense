@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart' hide Category;
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import '../../models/transaction.dart';
@@ -16,6 +17,8 @@ class PlatformIntentService {
 
   PlatformIntentService(this._ref);
 
+  bool _isSyncing = false;
+
   /// Checks for any pending transactions queued by iOS AppIntents / Back Tap.
   Future<void> syncPendingAppIntents() async {
     // Only query method channel on physical iOS / mobile
@@ -23,11 +26,15 @@ class PlatformIntentService {
       return;
     }
 
+    // Launch and resume can fire together; never import the same queue twice.
+    if (_isSyncing) return;
+    _isSyncing = true;
     try {
       final dynamic raw = await _channel.invokeMethod('getPendingIntents');
       if (raw is List && raw.isNotEmpty) {
-        final categories = _ref.read(categoriesProvider).value ?? [];
-        final accounts = _ref.read(accountsProvider).value ?? [];
+        // Wait for the lists; reading `.value` at launch can still be empty.
+        final categories = await _ref.read(categoriesProvider.future);
+        final accounts = await _ref.read(accountsProvider.future);
 
         final defaultAccount = accounts.isNotEmpty
             ? accounts.firstWhere((a) => a.isDefault, orElse: () => accounts.first)
@@ -54,7 +61,9 @@ class PlatformIntentService {
               type: TransactionType.expense,
               categoryId: category.id,
               accountId: defaultAccount.id,
-              date: DateTime.now(),
+              date: DateTime.tryParse(item['timestamp'] as String? ?? '')
+                      ?.toLocal() ??
+                  DateTime.now(),
               note: note,
               createdAt: DateTime.now(),
             );
@@ -68,13 +77,20 @@ class PlatformIntentService {
       }
     } catch (e) {
       debugPrint('PlatformIntentService sync error: $e');
+    } finally {
+      _isSyncing = false;
     }
   }
 }
 
 final platformIntentServiceProvider = Provider<PlatformIntentService>((ref) {
   final service = PlatformIntentService(ref);
-  // Initial sync on startup
+  // Sync on startup, and again whenever the app returns to the foreground,
+  // since Back Tap usually logs expenses while the app is in the background.
   service.syncPendingAppIntents();
+  final listener = AppLifecycleListener(
+    onResume: service.syncPendingAppIntents,
+  );
+  ref.onDispose(listener.dispose);
   return service;
 });
