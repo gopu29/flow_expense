@@ -5,6 +5,7 @@ import '../core/theme/app_colors.dart';
 import '../core/widgets/bottom_nav_dock.dart';
 import '../core/widgets/add_transaction_fab.dart';
 import '../core/providers/expense_providers.dart';
+import '../core/providers/app_settings_provider.dart';
 import '../core/services/platform_intent_service.dart';
 import '../features/activity/screens/activity_screen.dart';
 import '../features/summary/screens/summary_screen.dart';
@@ -54,13 +55,16 @@ class _MainShellState extends ConsumerState<MainShell> {
       }
     });
 
-    final screens = const [
+    // Amounts are formatted by static helpers, so rebuild every tab when a
+    // display setting changes.
+    final settings = ref.watch(appSettingsProvider);
+    final screens = const <Widget>[
       ActivityScreen(),
       SummaryScreen(),
       BudgetScreen(),
       AnalyticsScreen(),
       AccountsScreen(),
-    ];
+    ].map((screen) => KeyedSubtree(key: ValueKey(settings), child: screen)).toList();
 
     final bottomInset = MediaQuery.of(context).padding.bottom;
     final dockBottom = bottomInset > 0 ? bottomInset + 8 : 16.0;
