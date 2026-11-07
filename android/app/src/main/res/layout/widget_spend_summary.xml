@@ -1,0 +1,36 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@drawable/widget_background"
+    android:gravity="center_vertical" android:orientation="horizontal" android:padding="16dp">
+    <LinearLayout
+        android:layout_width="0dp" android:layout_height="wrap_content"
+        android:layout_weight="1" android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="@string/widget_month_label"
+            android:textColor="#FF8EA0AE" android:textSize="12sp"/>
+        <TextView
+            android:id="@+id/widget_month_amount"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:maxLines="1" android:ellipsize="end"
+            android:text="—"
+            android:textColor="#FFFFFFFF" android:textSize="22sp" android:textStyle="bold"/>
+        <TextView
+            android:id="@+id/widget_today_amount"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:maxLines="1"
+            android:text="—"
+            android:textColor="#FFD9B77E" android:textSize="12sp"/>
+    </LinearLayout>
+    <ImageView
+        android:id="@+id/widget_add_button"
+        android:layout_width="48dp" android:layout_height="48dp"
+        android:layout_marginStart="12dp"
+        android:background="@drawable/widget_add_button"
+        android:padding="12dp"
+        android:src="@drawable/ic_quick_add_gold"
+        android:contentDescription="@string/quick_add_label"/>
+</LinearLayout>

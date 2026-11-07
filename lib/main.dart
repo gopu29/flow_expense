@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
 import 'core/constants/app_constants.dart';
 import 'core/providers/app_settings_provider.dart';
+import 'features/quick_input/screens/quick_add_app.dart';
 import 'routes/main_shell.dart';
 
 Future<void> main() async {
@@ -12,6 +13,20 @@ Future<void> main() async {
   runApp(
     const ProviderScope(
       child: FlowExpenseApp(),
+    ),
+  );
+}
+
+/// Entry point for Android's see-through quick-add screen
+/// (`QuickAddActivity`), opened by the app shortcuts, tile, notification,
+/// widgets and accessibility button.
+@pragma('vm:entry-point')
+Future<void> quickAddMain() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await AppSettings.loadAndApply();
+  runApp(
+    const ProviderScope(
+      child: QuickAddApp(),
     ),
   );
 }

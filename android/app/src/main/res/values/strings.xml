@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="quick_add_label">Add expense</string>
+    <string name="shortcut_quick_add_short">Add expense</string>
+    <string name="shortcut_quick_add_long">Add an expense</string>
+    <string name="widget_month_label">Spent this month</string>
+    <string name="widget_spend_summary_label">Monthly spend</string>
+    <string name="widget_quick_add_description">One-tap button to add an expense</string>
+    <string name="widget_spend_summary_description">This month\'s spend with an add button</string>
+    <string name="accessibility_summary">Opens Flow Expense quick add from the accessibility button</string>
+    <string name="accessibility_description">Lets the accessibility button or gesture open the Flow Expense add-expense sheet. It does not read your screen or perform actions for you.</string>
+</resources>
