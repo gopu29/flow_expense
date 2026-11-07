@@ -30,6 +30,7 @@ adb shell uiautomator dump /sdcard/ui.xml && adb shell cat /sdcard/ui.xml
 
 ## App facts
 - Sub-category transactions store the sub-category id in `categoryId`. Summary and Budget roll them up to the parent.
-- User preferences live in `shared_preferences`, for example `visibleEntryFieldsProvider`.
+- User preferences live in `shared_preferences`: `visibleEntryFieldsProvider` and `appSettingsProvider` (currency, format, cents, haptics, hide balances, first day of week).
+- Use `AppHaptics` instead of `HapticFeedback`, and `AppFormatters.symbol` instead of a hard-coded ₹.
 - Voice Logger and Receipt Scanner are simulated with sample data and have no entry point. They are skipped until real speech and OCR exist.
 - Test data still on the phone: sub-categories Sub1–Sub7 under Food, and a ₹50 "Lunch" transaction. The user chose to keep these for now.

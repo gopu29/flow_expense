@@ -314,3 +314,12 @@ lib/
   - Rebuilt the Categories screen as one list per type (Expense / Income / Transfer). Drag the handle to reorder; tap a category to show its sub-categories plus `+ Sub-category` and `Edit`. A floating `New category` button adds one.
   - `CategoryFormSheet` replaces the old dialog: a small sheet with a name field, emoji button and color button. Edit uses the same sheet, with Delete.
   - Schema: database version 2 adds `categories.sortOrder`. Categories are listed by `sortOrder`, then name, everywhere, including the add-modal rail and grid.
+- [x] **Phase 19: Quanto-Style Settings Screen**
+  - Rebuilt Settings in Quanto's grouped layout: General (Categories, Currency), Automations (Back tap), Preferences (First day of week, Currency format, Display cents, Haptic feedback), Privacy & security (Hide balances), and Data (Export data, Erase data).
+  - `appSettingsProvider` (`lib/core/providers/app_settings_provider.dart`) stores every choice in `shared_preferences`. `main()` loads it before `runApp`.
+  - `AppFormatters` now uses the chosen currency symbol, number style (1,234.56 / 12,34,567.89 / 1.234,56 / 1 234,56) and cents setting. `AppFormatters.symbol` replaces `AppConstants.currencySymbol` in input prefixes. Changing a display setting rebuilds the main tabs.
+  - Hide balances masks account balances and the total balance (`AnimatedAmountText(isBalance: true)`, `AppFormatters.balance`). Other amounts stay visible.
+  - Haptic feedback: every haptic call goes through `AppHaptics`, which does nothing when the toggle is off.
+  - First day of week changes the Analytics calendar columns (Monday or Sunday).
+  - Export data builds a CSV with category and account names and copies it to the clipboard. Erase data deletes all transactions and budgets and sets account balances to zero, after a confirm dialog. Accounts and categories are kept.
+  - Skipped: AI and voice settings, Apple Pay, widgets, control center, subscription, language, reminders, month start day, backup and import.
