@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../core/utils/formatters.dart';
+import '../../../core/widgets/animated_amount_text.dart';
 
 class CategorySpendData {
   final String categoryId;
@@ -23,7 +23,8 @@ class CategorySpendData {
   });
 }
 
-/// Hero Segmented Donut Chart matching Quanto's IMG_6027.PNG layout.
+/// Hero Segmented Donut Chart matching Quanto's IMG_6027.PNG layout
+/// with animated segment sweeps and rolling center counter.
 class SummaryDonutChart extends StatefulWidget {
   final List<CategorySpendData> categories;
   final double totalSpend;
@@ -79,99 +80,112 @@ class _SummaryDonutChartState extends State<SummaryDonutChart> {
     final selectedCategory =
         isCategorySelected ? widget.categories[_touchedIndex] : null;
 
-    return SizedBox(
-      height: 250,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Segmented Donut Ring
-          PieChart(
-            PieChartData(
-              pieTouchData: PieTouchData(
-                touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                  setState(() {
-                    if (!event.isInterestedForInteractions ||
-                        pieTouchResponse == null ||
-                        pieTouchResponse.touchedSection == null) {
-                      _touchedIndex = -1;
-                      return;
-                    }
-                    _touchedIndex =
-                        pieTouchResponse.touchedSection!.touchedSectionIndex;
-                  });
-                },
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(begin: 0.94, end: 1.0),
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeOutCubic,
+      builder: (context, scale, child) {
+        return Transform.scale(
+          scale: scale,
+          child: child,
+        );
+      },
+      child: SizedBox(
+        height: 250,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // Segmented Donut Ring with animated sweeps
+            PieChart(
+              PieChartData(
+                pieTouchData: PieTouchData(
+                  touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                    setState(() {
+                      if (!event.isInterestedForInteractions ||
+                          pieTouchResponse == null ||
+                          pieTouchResponse.touchedSection == null) {
+                        _touchedIndex = -1;
+                        return;
+                      }
+                      _touchedIndex =
+                          pieTouchResponse.touchedSection!.touchedSectionIndex;
+                    });
+                  },
+                ),
+                borderData: FlBorderData(show: false),
+                sectionsSpace: hasData ? 4.0 : 0.0,
+                centerSpaceRadius: 92,
+                sections: sections,
               ),
-              borderData: FlBorderData(show: false),
-              sectionsSpace: hasData ? 4.0 : 0.0,
-              centerSpaceRadius: 92,
-              sections: sections,
+              duration: const Duration(milliseconds: 650),
+              curve: Curves.easeOutCubic,
             ),
-          ),
 
-          // Center Text: "This month ⌵" + Large Total (Matching Quanto IMG_6027.PNG)
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              GestureDetector(
-                onTap: widget.onMonthTap,
-                behavior: HitTestBehavior.opaque,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        isCategorySelected
-                            ? selectedCategory!.categoryName
-                            : widget.monthLabel,
-                        style: AppTypography.caption.copyWith(
-                          color: const Color(0xFF8E9BAE),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
+            // Center Text: "This month ⌵" + Large Rolling Total (Matching Quanto IMG_6027.PNG)
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                GestureDetector(
+                  onTap: widget.onMonthTap,
+                  behavior: HitTestBehavior.opaque,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          isCategorySelected
+                              ? selectedCategory!.categoryName
+                              : widget.monthLabel,
+                          style: AppTypography.caption.copyWith(
+                            color: const Color(0xFF8E9BAE),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 4),
-                      Icon(
-                        isCategorySelected
-                            ? Icons.close
-                            : Icons.keyboard_arrow_down_rounded,
-                        color: const Color(0xFF8E9BAE),
-                        size: 16,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                isCategorySelected
-                    ? AppFormatters.currency(selectedCategory!.amount)
-                    : AppFormatters.currency(widget.totalSpend),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 27,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.6,
-                ),
-              ),
-              if (isCategorySelected)
-                Padding(
-                  padding: const EdgeInsets.only(top: 2),
-                  child: Text(
-                    '${selectedCategory!.percentage.toStringAsFixed(1)}% of total',
-                    style: TextStyle(
-                      color: Color(selectedCategory.colorValue),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
+                        const SizedBox(width: 4),
+                        Icon(
+                          isCategorySelected
+                              ? Icons.close
+                              : Icons.keyboard_arrow_down_rounded,
+                          color: const Color(0xFF8E9BAE),
+                          size: 16,
+                        ),
+                      ],
                     ),
                   ),
                 ),
-            ],
-          ),
-        ],
+                const SizedBox(height: 2),
+                AnimatedAmountText(
+                  amount: isCategorySelected
+                      ? selectedCategory!.amount
+                      : widget.totalSpend,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 27,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.6,
+                  ),
+                ),
+                if (isCategorySelected)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Text(
+                      '${selectedCategory!.percentage.toStringAsFixed(1)}% of total',
+                      style: TextStyle(
+                        color: Color(selectedCategory.colorValue),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

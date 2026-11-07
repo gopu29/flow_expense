@@ -10,6 +10,8 @@ import '../../../models/account.dart';
 import '../../settings/screens/settings_screen.dart';
 import '../../activity/widgets/transaction_tile.dart';
 import '../widgets/summary_donut_chart.dart';
+import '../../../core/widgets/animated_amount_text.dart';
+import '../../../core/widgets/staggered_entrance.dart';
 
 /// Subcategory spend breakdown info
 class SubcategoryBreakdownItem {
@@ -878,7 +880,10 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
                                   : Column(
                                       children: [
                                         for (int i = 0; i < breakdownItems.length; i++) ...[
-                                          _buildMainCategoryTile(breakdownItems[i]),
+                                          StaggeredEntrance(
+                                            index: i,
+                                            child: _buildMainCategoryTile(breakdownItems[i]),
+                                          ),
                                           if (i < breakdownItems.length - 1)
                                             const Divider(
                                               height: 1,
@@ -1039,9 +1044,9 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen>
 
                 const SizedBox(width: 8),
 
-                // Total Amount
-                Text(
-                  AppFormatters.currency(item.totalAmount),
+                // Total Amount with rolling counter
+                AnimatedAmountText(
+                  amount: item.totalAmount,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 15,
