@@ -270,3 +270,9 @@ lib/
   - Reusable `AnimatedAmountText` counting ticker for financial figures across all screens.
   - Staggered entrance animations (`StaggeredEntrance`) for transactions, category bars, and account cards.
   - Tactile micro-interactions: press-down scale feedback (`0.98x`) on account cards, numpad key feedback, and category selection bounce.
+- [x] **Phase 10: Visual Polish & Obsidian Fintech Design System**
+  - Layered obsidian dual-tone gradients (`#172433 -> #0F1722`, `#16212D -> #0F1722`) replacing flat surfaces across all screen cards and modal sheets.
+  - Top-lit hairline border highlights (`#243649`, `#2B3F54`) simulating physical chamfers and ambient edge lighting.
+  - High-end Account Details modal sheet with top-shine accent line, squircle category badges per transaction, and semantic currency coloration.
+  - Glassmorphic modal sheets across Month Selector, Quick Input, and Voice AI Logger with tactile controls and haptic micro-feedback.
+  - Tactile numpad buttons with stateful gradient transitions and cyan accent glows.
