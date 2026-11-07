@@ -12,6 +12,7 @@ import '../../../models/category.dart';
 import '../../../models/account.dart';
 import '../../../models/transaction.dart';
 import '../../categories/widgets/category_form_dialog.dart';
+import '../../../core/widgets/animated_typing_amount_text.dart';
 import '../widgets/numpad.dart';
 
 /// Modal bottom sheet allowing zero-friction instant logging of transactions.
@@ -210,44 +211,24 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
               ),
               const SizedBox(height: 18),
 
-              // Huge Amount Display
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  Text(
-                    AppConstants.currencySymbol,
-                    style: AppTypography.amountDisplay.copyWith(
-                      color: AppColors.textSecondary,
-                      fontSize: 32,
-                    ),
+              // Huge Amount Display with typing/erasing animation
+              Center(
+                child: AnimatedTypingAmountText(
+                  text: _amountString,
+                  prefix: AppConstants.currencySymbol,
+                  prefixStyle: AppTypography.amountDisplay.copyWith(
+                    color: AppColors.textSecondary,
+                    fontSize: 32,
                   ),
-                  const SizedBox(width: 6),
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 140),
-                    transitionBuilder: (child, animation) {
-                      return ScaleTransition(
-                        scale: Tween<double>(begin: 0.94, end: 1.0).animate(
-                          CurvedAnimation(parent: animation, curve: Curves.easeOutBack),
-                        ),
-                        child: child,
-                      );
-                    },
-                    child: Text(
-                      _amountString,
-                      key: ValueKey<String>(_amountString),
-                      style: AppTypography.amountDisplay.copyWith(
-                        fontSize: 44,
-                        color: _type == TransactionType.expense
-                            ? AppColors.textPrimary
-                            : _type == TransactionType.income
-                                ? AppColors.income
-                                : AppColors.transfer,
-                      ),
-                    ),
+                  style: AppTypography.amountDisplay.copyWith(
+                    fontSize: 44,
+                    color: _type == TransactionType.expense
+                        ? AppColors.textPrimary
+                        : _type == TransactionType.income
+                            ? AppColors.income
+                            : AppColors.transfer,
                   ),
-                ],
+                ),
               ),
               const SizedBox(height: 16),
 

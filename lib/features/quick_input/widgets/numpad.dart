@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_typography.dart';
+import '../../../core/widgets/numpad_3d_key.dart';
 
-/// Custom numpad matching Quanto's sleek on-screen keypad with tactile press micro-animations.
+/// Custom 3D tactile numpad matching Quanto's sleek on-screen keypad with realistic depth.
 class CustomNumpad extends StatelessWidget {
   final ValueChanged<String> onKeyPress;
   final VoidCallback onDelete;
@@ -21,11 +19,11 @@ class CustomNumpad extends StatelessWidget {
     return Column(
       children: [
         _buildRow(['1', '2', '3']),
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
         _buildRow(['4', '5', '6']),
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
         _buildRow(['7', '8', '9']),
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
         _buildBottomRow(),
       ],
     );
@@ -35,8 +33,9 @@ class CustomNumpad extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: keys
-          .map((key) => _NumpadButton(
-                value: key,
+          .map((key) => Numpad3DKey(
+                label: key,
+                height: 52,
                 onTap: () => onKeyPress(key),
               ))
           .toList(),
@@ -47,104 +46,22 @@ class CustomNumpad extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        _NumpadButton(
-          value: '.',
+        Numpad3DKey(
+          label: '.',
+          height: 52,
           onTap: () => onKeyPress('.'),
         ),
-        _NumpadButton(
-          value: '0',
+        Numpad3DKey(
+          label: '0',
+          height: 52,
           onTap: () => onKeyPress('0'),
         ),
-        _NumpadButton(
+        Numpad3DKey(
           icon: Icons.backspace_outlined,
+          height: 52,
           onTap: onDelete,
         ),
       ],
-    );
-  }
-}
-
-class _NumpadButton extends StatefulWidget {
-  final String? value;
-  final IconData? icon;
-  final VoidCallback onTap;
-
-  const _NumpadButton({
-    this.value,
-    this.icon,
-    required this.onTap,
-  });
-
-  @override
-  State<_NumpadButton> createState() => _NumpadButtonState();
-}
-
-class _NumpadButtonState extends State<_NumpadButton> {
-  bool _isPressed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 5),
-        child: GestureDetector(
-          onTapDown: (_) {
-            HapticFeedback.selectionClick();
-            setState(() => _isPressed = true);
-          },
-          onTapUp: (_) {
-            setState(() => _isPressed = false);
-            widget.onTap();
-          },
-          onTapCancel: () => setState(() => _isPressed = false),
-          child: AnimatedScale(
-            scale: _isPressed ? 0.94 : 1.0,
-            duration: const Duration(milliseconds: 100),
-            curve: Curves.easeInOut,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 120),
-              height: 54,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: _isPressed
-                      ? const [Color(0xFF26374A), Color(0xFF1E2B3A)]
-                      : const [Color(0xFF1B2836), Color(0xFF131D28)],
-                ),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: _isPressed
-                      ? const Color(0xFF38BDF8).withValues(alpha: 0.5)
-                      : const Color(0xFF263749),
-                  width: 1,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.25),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              alignment: Alignment.center,
-              child: widget.icon != null
-                  ? Icon(
-                      widget.icon,
-                      color: AppColors.textSecondary,
-                      size: 22,
-                    )
-                  : Text(
-                      widget.value!,
-                      style: AppTypography.titleLarge.copyWith(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 }
