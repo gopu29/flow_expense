@@ -166,15 +166,6 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
     });
   }
 
-  void _resetEntry() {
-    HapticFeedback.selectionClick();
-    setState(() {
-      _amountString = '0';
-      _selectedDate = DateTime.now();
-      _noteController.clear();
-    });
-  }
-
   void _clearAmount() {
     HapticFeedback.mediumImpact();
     setState(() => _amountString = '0');
@@ -335,59 +326,43 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
   }
 
   Widget _buildTopBar() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        _buildRoundButton(
-          tooltip: 'Reset entry',
-          icon: Icons.refresh_rounded,
-          onTap: _resetEntry,
+    return Align(
+      alignment: Alignment.centerRight,
+      child: PopupMenuButton<TransactionType>(
+        tooltip: 'Transaction type',
+        onSelected: _switchType,
+        color: const Color(0xFF162330),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: Color(0xFF2B3F54)),
         ),
-        PopupMenuButton<TransactionType>(
-          tooltip: 'Transaction type',
-          onSelected: _switchType,
-          color: const Color(0xFF162330),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: const BorderSide(color: Color(0xFF2B3F54)),
+        itemBuilder: (_) => [
+          for (final type in TransactionType.values)
+            CheckedPopupMenuItem(
+              value: type,
+              checked: type == _type,
+              child: Text(switch (type) {
+                TransactionType.expense => 'Expense',
+                TransactionType.income => 'Income',
+                TransactionType.transfer => 'Transfer',
+              }),
+            ),
+        ],
+        child: Container(
+          width: _kRoundButtonSize,
+          height: _kRoundButtonSize,
+          decoration: BoxDecoration(
+            color: const Color(0xFF1C2B3A),
+            shape: BoxShape.circle,
+            border: Border.all(color: const Color(0xFF273A4D)),
           ),
-          itemBuilder: (_) => [
-            for (final type in TransactionType.values)
-              CheckedPopupMenuItem(
-                value: type,
-                checked: type == _type,
-                child: Text(switch (type) {
-                  TransactionType.expense => 'Expense',
-                  TransactionType.income => 'Income',
-                  TransactionType.transfer => 'Transfer',
-                }),
-              ),
-          ],
-          child: _buildRoundButton(icon: Icons.more_vert_rounded),
+          child: const Icon(
+            Icons.more_vert_rounded,
+            size: 22,
+            color: AppColors.textSecondary,
+          ),
         ),
-      ],
-    );
-  }
-
-  Widget _buildRoundButton({
-    required IconData icon,
-    String? tooltip,
-    VoidCallback? onTap,
-  }) {
-    final button = Container(
-      width: _kRoundButtonSize,
-      height: _kRoundButtonSize,
-      decoration: BoxDecoration(
-        color: const Color(0xFF1C2B3A),
-        shape: BoxShape.circle,
-        border: Border.all(color: const Color(0xFF273A4D)),
       ),
-      child: Icon(icon, size: 22, color: AppColors.textSecondary),
-    );
-    if (onTap == null) return button;
-    return Tooltip(
-      message: tooltip ?? '',
-      child: GestureDetector(onTap: onTap, child: button),
     );
   }
 
