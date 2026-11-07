@@ -297,3 +297,5 @@ lib/
   - `CategoryPickerSheet`: four-dot button opens a 4-column category grid with an Expense/Income switch, a pencil shortcut to the Category Manager, and the same hold menu on tiles.
   - `NoteEntrySheet`: the Name chip edits the transaction note in a small keyboard sheet and shows the note on the chip.
   - Budget category spend now rolls sub-category transactions up to their main category. No schema change: sub-category transactions keep storing the sub-category id in `categoryId`.
+- [x] **Phase 15: Keyboard-Aware Main Shell**
+  - `MainShell` hides the floating navigation dock and Speed Dial FAB while the keyboard is open, so they no longer cover the Activity search field.
