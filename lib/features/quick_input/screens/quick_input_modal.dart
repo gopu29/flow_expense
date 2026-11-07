@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
+
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/constants/app_constants.dart';
@@ -25,8 +26,6 @@ const double _kSheetHeightFactor = 0.985;
 const double _kChipHeight = 44;
 const double _kRoundButtonSize = 46;
 const double _kChipLabelMaxWidth = 130;
-
-enum _TopMenuChoice { expense, income, transfer, entryFields }
 
 /// Modal bottom sheet allowing zero-friction instant logging of transactions.
 class QuickInputModal extends ConsumerStatefulWidget {
@@ -95,8 +94,9 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
   Future<void> _submitTransaction() async {
     final fields = await ref.read(visibleEntryFieldsProvider.future);
     if (!mounted) return;
-    final note =
-        fields.contains(EntryField.name) ? _noteController.text.trim() : '';
+    final note = fields.contains(EntryField.name)
+        ? _noteController.text.trim()
+        : '';
     final amount = evaluateAmountExpression(_amountString) ?? 0.0;
     if (amount <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -134,7 +134,9 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
       type: _type,
       categoryId: _selectedCategory!.id,
       accountId: _selectedAccount!.id,
-      toAccountId: _type == TransactionType.transfer ? _selectedToAccount?.id : null,
+      toAccountId: _type == TransactionType.transfer
+          ? _selectedToAccount?.id
+          : null,
       date: fields.contains(EntryField.date) ? _selectedDate : DateTime.now(),
       note: note.isEmpty ? null : note,
       createdAt: DateTime.now(),
@@ -147,7 +149,11 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            '${_type == TransactionType.expense ? 'Expense' : _type == TransactionType.income ? 'Income' : 'Transfer'} of ${AppConstants.currencySymbol} $amount logged!',
+            '${_type == TransactionType.expense
+                ? 'Expense'
+                : _type == TransactionType.income
+                ? 'Income'
+                : 'Transfer'} of ${AppConstants.currencySymbol} $amount logged!',
           ),
           backgroundColor: AppColors.surface,
           behavior: SnackBarBehavior.floating,
@@ -191,10 +197,10 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
   }
 
   CategoryType get _categoryType => switch (_type) {
-        TransactionType.expense => CategoryType.expense,
-        TransactionType.income => CategoryType.income,
-        TransactionType.transfer => CategoryType.transfer,
-      };
+    TransactionType.expense => CategoryType.expense,
+    TransactionType.income => CategoryType.income,
+    TransactionType.transfer => CategoryType.transfer,
+  };
 
   Future<void> _openCategoryPicker() async {
     final picked = await CategoryPickerSheet.show(
@@ -234,12 +240,14 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
 
     final mainId = _selectedCategory?.parentId ?? _selectedCategory?.id;
     final categoryLimit = budget.categoryLimits[mainId];
-    final categories = ref.watch(categoriesProvider).value ?? const <Category>[];
+    final categories =
+        ref.watch(categoriesProvider).value ?? const <Category>[];
     final parentIds = {for (final c in categories) c.id: c.parentId};
     final month = ref.watch(selectedDateProvider);
 
     var spent = 0.0;
-    for (final tx in ref.watch(transactionsProvider).value ?? const <Transaction>[]) {
+    for (final tx
+        in ref.watch(transactionsProvider).value ?? const <Transaction>[]) {
       final isThisMonth =
           tx.date.year == month.year && tx.date.month == month.month;
       if (tx.type != TransactionType.expense || !isThisMonth) continue;
@@ -283,20 +291,17 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF162330),
-              Color(0xFF0F1722),
-            ],
+            colors: [Color(0xFF162330), Color(0xFF0F1722)],
           ),
           borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-          border: Border(
-            top: BorderSide(
-              color: Color(0xFF2B3F54),
-              width: 1.5,
-            ),
-          ),
+          border: Border(top: BorderSide(color: Color(0xFF2B3F54), width: 1.5)),
         ),
-        padding: const EdgeInsets.only(top: 12, left: 16, right: 16, bottom: 12),
+        padding: const EdgeInsets.only(
+          top: 12,
+          left: 16,
+          right: 16,
+          bottom: 12,
+        ),
         child: SafeArea(
           top: false,
           child: Column(
@@ -335,12 +340,14 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
               // Main categories: tap to select, hold for sub-categories
               categoriesAsync.when(
                 data: (categories) {
-                  final ofType =
-                      categories.where((c) => c.type == _categoryType).toList();
+                  final ofType = categories
+                      .where((c) => c.type == _categoryType)
+                      .toList();
 
                   // Auto select the first main category if none is selected
-                  final firstMain =
-                      ofType.where((c) => !c.isSubCategory).firstOrNull;
+                  final firstMain = ofType
+                      .where((c) => !c.isSubCategory)
+                      .firstOrNull;
                   if (_selectedCategory == null && firstMain != null) {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       if (mounted) {
@@ -358,7 +365,9 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
                 },
                 loading: () => const SizedBox(
                   height: 56,
-                  child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                  child: Center(
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
                 ),
                 error: (_, _) => const SizedBox(height: 56),
               ),
@@ -369,9 +378,10 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
                 onKeyPress: _onKeyPress,
                 onOperator: _onOperator,
                 onSubmit: _submitTransaction,
-                showOperators: (ref.watch(visibleEntryFieldsProvider).value ??
-                        defaultVisibleEntryFields)
-                    .contains(EntryField.calculator),
+                showOperators:
+                    (ref.watch(visibleEntryFieldsProvider).value ??
+                            defaultVisibleEntryFields)
+                        .contains(EntryField.calculator),
               ),
             ],
           ),
@@ -383,59 +393,27 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
   Widget _buildTopBar() {
     return Align(
       alignment: Alignment.centerRight,
-      child: PopupMenuButton<_TopMenuChoice>(
-        tooltip: 'Options',
-        onSelected: (choice) {
-          switch (choice) {
-            case _TopMenuChoice.expense:
-              _switchType(TransactionType.expense);
-            case _TopMenuChoice.income:
-              _switchType(TransactionType.income);
-            case _TopMenuChoice.transfer:
-              _switchType(TransactionType.transfer);
-            case _TopMenuChoice.entryFields:
-              EntryFieldsSheet.show(context);
-          }
-        },
-        color: const Color(0xFF162330),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: Color(0xFF2B3F54)),
-        ),
-        itemBuilder: (_) => [
-          CheckedPopupMenuItem(
-            value: _TopMenuChoice.expense,
-            checked: _type == TransactionType.expense,
-            child: const Text('Expense'),
+      child: Tooltip(
+        message: 'Options',
+        child: GestureDetector(
+          onTap: () => EntryFieldsSheet.show(
+            context,
+            selectedType: _type,
+            onTypeSelected: _switchType,
           ),
-          CheckedPopupMenuItem(
-            value: _TopMenuChoice.income,
-            checked: _type == TransactionType.income,
-            child: const Text('Income'),
-          ),
-          CheckedPopupMenuItem(
-            value: _TopMenuChoice.transfer,
-            checked: _type == TransactionType.transfer,
-            child: const Text('Transfer'),
-          ),
-          const PopupMenuDivider(),
-          const PopupMenuItem(
-            value: _TopMenuChoice.entryFields,
-            child: Text('Entry fields'),
-          ),
-        ],
-        child: Container(
-          width: _kRoundButtonSize,
-          height: _kRoundButtonSize,
-          decoration: BoxDecoration(
-            color: const Color(0xFF1C2B3A),
-            shape: BoxShape.circle,
-            border: Border.all(color: const Color(0xFF273A4D)),
-          ),
-          child: const Icon(
-            Icons.more_vert_rounded,
-            size: 22,
-            color: AppColors.textSecondary,
+          child: Container(
+            width: _kRoundButtonSize,
+            height: _kRoundButtonSize,
+            decoration: BoxDecoration(
+              color: const Color(0xFF1C2B3A),
+              shape: BoxShape.circle,
+              border: Border.all(color: const Color(0xFF273A4D)),
+            ),
+            child: const Icon(
+              Icons.more_vert_rounded,
+              size: 22,
+              color: AppColors.textSecondary,
+            ),
           ),
         ),
       ),
@@ -462,8 +440,8 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
                 color: _type == TransactionType.expense
                     ? AppColors.textPrimary
                     : _type == TransactionType.income
-                        ? AppColors.income
-                        : AppColors.transfer,
+                    ? AppColors.income
+                    : AppColors.transfer,
               ),
             ),
           ),
@@ -508,7 +486,8 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
   Widget _buildContextChips(List<Account> accounts) {
     final note = _noteController.text.trim();
     final fields =
-        ref.watch(visibleEntryFieldsProvider).value ?? defaultVisibleEntryFields;
+        ref.watch(visibleEntryFieldsProvider).value ??
+        defaultVisibleEntryFields;
 
     final chips = <Widget>[
       if (fields.contains(EntryField.date))
@@ -562,10 +541,7 @@ class _QuickInputModalState extends ConsumerState<QuickInputModal> {
           ),
         ),
       if (fields.contains(EntryField.budget))
-        _buildChip(
-          icon: Icons.donut_large_rounded,
-          label: _budgetChipLabel,
-        ),
+        _buildChip(icon: Icons.donut_large_rounded, label: _budgetChipLabel),
     ];
     if (chips.isEmpty) return const SizedBox.shrink();
 

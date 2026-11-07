@@ -4,23 +4,46 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/entry_field_providers.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../models/transaction.dart';
 
-/// Lets the user choose which optional tools appear on the add screen.
-class EntryFieldsSheet extends ConsumerWidget {
-  const EntryFieldsSheet({super.key});
+/// Options for the add screen: the transaction type, and which optional
+/// tools appear.
+class EntryFieldsSheet extends ConsumerStatefulWidget {
+  final TransactionType selectedType;
+  final ValueChanged<TransactionType> onTypeSelected;
 
-  static Future<void> show(BuildContext context) {
+  const EntryFieldsSheet({
+    super.key,
+    required this.selectedType,
+    required this.onTypeSelected,
+  });
+
+  static Future<void> show(
+    BuildContext context, {
+    required TransactionType selectedType,
+    required ValueChanged<TransactionType> onTypeSelected,
+  }) {
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => const EntryFieldsSheet(),
+      builder: (_) => EntryFieldsSheet(
+        selectedType: selectedType,
+        onTypeSelected: onTypeSelected,
+      ),
     );
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<EntryFieldsSheet> createState() => _EntryFieldsSheetState();
+}
+
+class _EntryFieldsSheetState extends ConsumerState<EntryFieldsSheet> {
+  late TransactionType _type = widget.selectedType;
+
+  @override
+  Widget build(BuildContext context) {
     final visible =
         ref.watch(visibleEntryFieldsProvider).value ?? defaultVisibleEntryFields;
 
@@ -43,6 +66,29 @@ class EntryFieldsSheet extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            SegmentedButton<TransactionType>(
+              showSelectedIcon: false,
+              segments: const [
+                ButtonSegment(
+                  value: TransactionType.expense,
+                  label: Text('Expense'),
+                ),
+                ButtonSegment(
+                  value: TransactionType.income,
+                  label: Text('Income'),
+                ),
+                ButtonSegment(
+                  value: TransactionType.transfer,
+                  label: Text('Transfer'),
+                ),
+              ],
+              selected: {_type},
+              onSelectionChanged: (selection) {
+                setState(() => _type = selection.first);
+                widget.onTypeSelected(selection.first);
+              },
+            ),
+            const SizedBox(height: 20),
             Text(
               'Entry fields',
               style: AppTypography.titleMedium.copyWith(
