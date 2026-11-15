@@ -345,3 +345,8 @@ lib/
   - Created `GoogleSheetsSyncScreen` (`lib/features/settings/screens/google_sheets_sync_screen.dart`) linked from Settings › Data, featuring URL configuration, clipboard paste, one-tap export, deduplicated import, and full setup guide.
   - Added `addTransactions` batch method to `ExpenseRepository` and `TransactionsNotifier` to execute multiple transactions in a single SQLite transaction.
   - Documented in [`docs/MAC_BUILD_AND_GOOGLE_SHEETS_GUIDE.md`](MAC_BUILD_AND_GOOGLE_SHEETS_GUIDE.md).
+- [x] **Phase 25: 1-Tap Google Sign-In & Automated Drive Sheets Sync**
+  - Integrated `google_sign_in` and created `GoogleDriveSheetsService` (`lib/core/services/google_drive_sheets_service.dart`) using OAuth 2.0 and direct Google Sheets & Drive REST APIs.
+  - Automatically queries Google Drive for "Flow Expense Tracker" and creates it with styled headers on first sync, eliminating manual Apps Script macro setup for standard users.
+  - Added dual-mode segmented switcher to `GoogleSheetsSyncScreen` allowing users to choose between 1-Tap Google Account sync and custom anonymous Apps Script macro URLs.
+  - Configured OAuth scopes: `email`, `https://www.googleapis.com/auth/drive.file`, and `https://www.googleapis.com/auth/spreadsheets`.
