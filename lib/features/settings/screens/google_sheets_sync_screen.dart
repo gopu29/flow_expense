@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_constants.dart';
+import '../../../core/providers/app_settings_provider.dart';
 import '../../../core/providers/expense_providers.dart';
 import '../../../core/providers/google_sheets_provider.dart';
 import '../../../core/services/google_sheets_service.dart';
@@ -285,6 +286,7 @@ class _GoogleSheetsSyncScreenState extends ConsumerState<GoogleSheetsSyncScreen>
 
   @override
   Widget build(BuildContext context) {
+    final settings = ref.watch(appSettingsProvider);
     final googleUser = ref.watch(googleAuthStateProvider).value;
     final urlAsync = ref.watch(googleSheetsWebhookUrlProvider);
     final savedUrl = urlAsync.value ?? '';
@@ -498,6 +500,19 @@ class _GoogleSheetsSyncScreenState extends ConsumerState<GoogleSheetsSyncScreen>
               ]),
 
               if (googleUser != null) ...[
+                const SettingsSectionLabel('Automation'),
+                SettingsGroup(children: [
+                  SettingsSwitchTile(
+                    icon: Icons.autorenew_rounded,
+                    title: 'Auto-sync new transactions',
+                    value: settings.autoSyncGoogleSheets,
+                    onChanged: (val) {
+                      ref.read(appSettingsProvider.notifier).update(
+                            (s) => s.copyWith(autoSyncGoogleSheets: val),
+                          );
+                    },
+                  ),
+                ]),
                 const SettingsSectionLabel('Drive Actions'),
                 SettingsGroup(children: [
                   SettingsNavTile(
@@ -514,6 +529,24 @@ class _GoogleSheetsSyncScreenState extends ConsumerState<GoogleSheetsSyncScreen>
                     icon: Icons.download_rounded,
                     title: 'Import from My Google Sheet',
                     onTap: _isLoading ? () {} : _importGoogleAccount,
+                  ),
+                  SettingsNavTile(
+                    icon: Icons.link_rounded,
+                    title: 'Copy Google Sheet link',
+                    onTap: () async {
+                      final service = ref.read(googleDriveSheetsServiceProvider);
+                      final url = await service.getSpreadsheetUrl();
+                      if (url != null) {
+                        await Clipboard.setData(ClipboardData(text: url));
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Sheet link copied to clipboard!')),
+                          );
+                        }
+                      } else {
+                        _setMessage('Export once first to generate the Google Sheet in Drive.', isSuccess: false);
+                      }
+                    },
                   ),
                 ]),
               ],

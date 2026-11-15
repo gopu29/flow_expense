@@ -4,6 +4,8 @@ import '../../models/category.dart';
 import '../../models/transaction.dart';
 import '../../models/budget.dart';
 import '../database/expense_repository.dart';
+import 'app_settings_provider.dart';
+import 'google_sheets_provider.dart';
 
 /// Singleton Repository Provider
 final repositoryProvider = Provider<ExpenseRepository>((ref) {
@@ -137,6 +139,46 @@ class TransactionsNotifier extends AsyncNotifier<List<Transaction>> {
     // Invalidate transactions and accounts so balances update reactively
     ref.invalidateSelf();
     ref.invalidate(accountsProvider);
+
+    // If auto-sync to Google Sheets is enabled, trigger asynchronous cloud sync
+    final settings = ref.read(appSettingsProvider);
+    if (settings.autoSyncGoogleSheets) {
+      _syncToCloudInBackground(tx);
+    }
+  }
+
+  void _syncToCloudInBackground(Transaction tx) {
+    Future.microtask(() async {
+      try {
+        final googleUser = ref.read(googleAuthStateProvider).value;
+        final categories = await ref.read(categoriesProvider.future);
+        final accounts = await ref.read(accountsProvider.future);
+
+        if (googleUser != null) {
+          final driveService = ref.read(googleDriveSheetsServiceProvider);
+          await driveService.exportTransactions(
+            transactions: [tx],
+            categories: categories,
+            accounts: accounts,
+            mode: 'append',
+          );
+        } else {
+          final webhookUrl = ref.read(googleSheetsWebhookUrlProvider).value;
+          if (webhookUrl != null && webhookUrl.isNotEmpty) {
+            final sheetsService = ref.read(googleSheetsServiceProvider);
+            await sheetsService.exportTransactions(
+              webhookUrl: webhookUrl,
+              transactions: [tx],
+              categories: categories,
+              accounts: accounts,
+              mode: 'append',
+            );
+          }
+        }
+      } catch (_) {
+        // Silent failure so offline logging stays smooth and frictionless
+      }
+    });
   }
 
   Future<void> addTransactions(List<Transaction> txs) async {
