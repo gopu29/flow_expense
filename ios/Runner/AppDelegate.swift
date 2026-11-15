@@ -39,9 +39,14 @@ import UIKit
   }
 
   private func pendingIntentsURL() -> URL? {
-    FileManager.default
-      .containerURL(forSecurityApplicationGroupIdentifier: appGroupID)?
-      .appendingPathComponent("pending_intents.json")
+    if let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID) {
+      return containerURL.appendingPathComponent("pending_intents.json")
+    }
+    // Fallback for Free Apple Developer Accounts / Personal Teams (no App Groups capability)
+    guard let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+      return nil
+    }
+    return docs.appendingPathComponent("pending_intents.json")
   }
 
   private func readPendingIntents() -> [[String: Any]] {

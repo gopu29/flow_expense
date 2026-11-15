@@ -25,6 +25,19 @@ struct AddExpenseIntent: AppIntent {
         }
     }
 
+    /// Resolves file URL for pending intents, supporting both App Groups (paid teams)
+    /// and Documents directory fallback (standard for Free Apple Developer accounts).
+    private static func pendingIntentsURL() -> URL? {
+        let appGroupID = "group.com.quanto.flowexpense"
+        if let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID) {
+            return containerURL.appendingPathComponent("pending_intents.json")
+        }
+        guard let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            return nil
+        }
+        return docs.appendingPathComponent("pending_intents.json")
+    }
+
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
         guard let enteredAmount = amount, enteredAmount > 0 else {
@@ -34,11 +47,8 @@ struct AddExpenseIntent: AppIntent {
         let categoryName = category ?? "Food"
         let transactionNote = note ?? "Back Tap Shortcut"
 
-        // Shared App Group SQLite write or local intent persistence
-        let appGroupID = "group.com.quanto.flowexpense"
-        if let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID) {
-            let pendingIntentURL = containerURL.appendingPathComponent("pending_intents.json")
-            
+        // Write to local persistence (App Group or Documents directory for free Apple ID)
+        if let pendingIntentURL = Self.pendingIntentsURL() {
             var existing: [[String: Any]] = []
             if let data = try? Data(contentsOf: pendingIntentURL),
                let json = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] {
