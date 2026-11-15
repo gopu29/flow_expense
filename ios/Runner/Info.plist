@@ -24,6 +24,8 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>GIDClientID</key>
+	<string>970847640730-v8jdeo8d2ivl86q7vtgbq51jhm5vq6um.apps.googleusercontent.com</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -34,6 +36,14 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>flowexpense</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.970847640730-v8jdeo8d2ivl86q7vtgbq51jhm5vq6um</string>
 			</array>
 		</dict>
 	</array>

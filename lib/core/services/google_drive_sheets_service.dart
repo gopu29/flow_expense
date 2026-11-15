@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart' hide Category;
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
@@ -17,7 +18,13 @@ class GoogleDriveSheetsService {
   static const String _spreadsheetTitle = 'Flow Expense Tracker';
   static const _uuid = Uuid();
 
+  static const String _iosClientId =
+      '970847640730-v8jdeo8d2ivl86q7vtgbq51jhm5vq6um.apps.googleusercontent.com';
+
   final GoogleSignIn _googleSignIn = GoogleSignIn(
+    clientId: !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS
+        ? _iosClientId
+        : null,
     scopes: [
       'email',
       'https://www.googleapis.com/auth/drive.file',
@@ -405,3 +412,4 @@ class GoogleDriveSheetsService {
     }
   }
 }
+
