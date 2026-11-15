@@ -13,6 +13,7 @@ import '../../categories/screens/category_management_screen.dart';
 import '../widgets/settings_option_sheet.dart';
 import '../widgets/settings_tiles.dart';
 import '../../../core/services/android_shortcuts_service.dart';
+import '../../../core/services/notification_service.dart';
 import 'android_shortcuts_guide_screen.dart';
 import 'back_tap_guide_screen.dart';
 import 'google_sheets_sync_screen.dart';
@@ -129,6 +130,40 @@ class SettingsScreen extends ConsumerWidget {
                 },
               ),
             ]),
+            const SettingsSectionLabel('Reminders'),
+            SettingsGroup(children: [
+              SettingsSwitchTile(
+                icon: Icons.alarm_rounded,
+                title: 'Daily expense reminder',
+                value: settings.dailyReminderEnabled,
+                onChanged: (v) => _setDailyReminder(context, notifier, settings, v),
+              ),
+              if (settings.dailyReminderEnabled)
+                SettingsNavTile(
+                  icon: Icons.access_time_rounded,
+                  title: 'Reminder time',
+                  value: _formatTime(settings.dailyReminderHour, settings.dailyReminderMinute),
+                  onTap: () => _pickDailyReminderTime(context, notifier, settings),
+                ),
+              SettingsSwitchTile(
+                icon: Icons.cloud_done_outlined,
+                title: 'Weekly backup reminder',
+                value: settings.backupReminderEnabled,
+                onChanged: (v) => _setBackupReminder(context, notifier, v),
+              ),
+              SettingsNavTile(
+                icon: Icons.notifications_active_outlined,
+                title: 'Send test reminder',
+                onTap: () async {
+                  await NotificationService().showTestNotification();
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Test reminder sent! Check your notification shade.')),
+                    );
+                  }
+                },
+              ),
+            ]),
             const SettingsSectionLabel('Privacy & security'),
             SettingsGroup(children: [
               SettingsSwitchTile(
@@ -191,6 +226,70 @@ class SettingsScreen extends ConsumerWidget {
         ),
       );
     }
+  }
+
+  Future<void> _setDailyReminder(
+    BuildContext context,
+    AppSettingsNotifier notifier,
+    AppSettings settings,
+    bool enabled,
+  ) async {
+    if (enabled) {
+      final granted = await NotificationService().requestPermissions();
+      if (!granted && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Allow notifications to receive daily reminders')),
+        );
+      }
+    }
+    await notifier.update((s) => s.copyWith(dailyReminderEnabled: enabled));
+  }
+
+  Future<void> _pickDailyReminderTime(
+    BuildContext context,
+    AppSettingsNotifier notifier,
+    AppSettings settings,
+  ) async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(
+        hour: settings.dailyReminderHour,
+        minute: settings.dailyReminderMinute,
+      ),
+    );
+    if (picked != null) {
+      await notifier.update(
+        (s) => s.copyWith(
+          dailyReminderHour: picked.hour,
+          dailyReminderMinute: picked.minute,
+          dailyReminderEnabled: true,
+        ),
+      );
+    }
+  }
+
+  Future<void> _setBackupReminder(
+    BuildContext context,
+    AppSettingsNotifier notifier,
+    bool enabled,
+  ) async {
+    if (enabled) {
+      final granted = await NotificationService().requestPermissions();
+      if (!granted && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Allow notifications to receive backup reminders')),
+        );
+      }
+    }
+    await notifier.update((s) => s.copyWith(backupReminderEnabled: enabled));
+  }
+
+  static String _formatTime(int hour, int minute) {
+    final tod = TimeOfDay(hour: hour, minute: minute);
+    final h = tod.hourOfPeriod == 0 ? 12 : tod.hourOfPeriod;
+    final m = tod.minute.toString().padLeft(2, '0');
+    final period = tod.period == DayPeriod.am ? 'AM' : 'PM';
+    return '$h:$m $period';
   }
 
   static String _formatSample(AppSettings settings, NumberStyle style) {

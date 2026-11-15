@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/notification_service.dart';
 import '../utils/app_haptics.dart';
 import '../utils/formatters.dart';
 
@@ -66,6 +68,14 @@ class AppSettings {
   /// Automatically append newly added transactions to connected Google Sheet.
   final bool autoSyncGoogleSheets;
 
+  /// Daily reminder to log transactions.
+  final bool dailyReminderEnabled;
+  final int dailyReminderHour;
+  final int dailyReminderMinute;
+
+  /// Weekly backup / sync reminder (Sunday evening).
+  final bool backupReminderEnabled;
+
   /// `DateTime.monday` or `DateTime.sunday`.
   final int firstDayOfWeek;
 
@@ -77,6 +87,10 @@ class AppSettings {
     this.hideBalances = false,
     this.quickAddNotification = false,
     this.autoSyncGoogleSheets = false,
+    this.dailyReminderEnabled = false,
+    this.dailyReminderHour = 20,
+    this.dailyReminderMinute = 0,
+    this.backupReminderEnabled = false,
     this.firstDayOfWeek = DateTime.monday,
   });
 
@@ -90,6 +104,10 @@ class AppSettings {
     bool? hideBalances,
     bool? quickAddNotification,
     bool? autoSyncGoogleSheets,
+    bool? dailyReminderEnabled,
+    int? dailyReminderHour,
+    int? dailyReminderMinute,
+    bool? backupReminderEnabled,
     int? firstDayOfWeek,
   }) {
     return AppSettings(
@@ -100,6 +118,10 @@ class AppSettings {
       hideBalances: hideBalances ?? this.hideBalances,
       quickAddNotification: quickAddNotification ?? this.quickAddNotification,
       autoSyncGoogleSheets: autoSyncGoogleSheets ?? this.autoSyncGoogleSheets,
+      dailyReminderEnabled: dailyReminderEnabled ?? this.dailyReminderEnabled,
+      dailyReminderHour: dailyReminderHour ?? this.dailyReminderHour,
+      dailyReminderMinute: dailyReminderMinute ?? this.dailyReminderMinute,
+      backupReminderEnabled: backupReminderEnabled ?? this.backupReminderEnabled,
       firstDayOfWeek: firstDayOfWeek ?? this.firstDayOfWeek,
     );
   }
@@ -114,6 +136,10 @@ class AppSettings {
       other.hideBalances == hideBalances &&
       other.quickAddNotification == quickAddNotification &&
       other.autoSyncGoogleSheets == autoSyncGoogleSheets &&
+      other.dailyReminderEnabled == dailyReminderEnabled &&
+      other.dailyReminderHour == dailyReminderHour &&
+      other.dailyReminderMinute == dailyReminderMinute &&
+      other.backupReminderEnabled == backupReminderEnabled &&
       other.firstDayOfWeek == firstDayOfWeek;
 
   @override
@@ -125,6 +151,10 @@ class AppSettings {
         hideBalances,
         quickAddNotification,
         autoSyncGoogleSheets,
+        dailyReminderEnabled,
+        dailyReminderHour,
+        dailyReminderMinute,
+        backupReminderEnabled,
         firstDayOfWeek,
       );
 
@@ -136,6 +166,10 @@ class AppSettings {
   static const _kFirstDay = 'settings_first_day_of_week';
   static const _kQuickAddNotification = 'settings_quick_add_notification';
   static const _kAutoSyncGoogleSheets = 'settings_auto_sync_google_sheets';
+  static const _kDailyReminder = 'settings_daily_reminder_enabled';
+  static const _kDailyReminderHour = 'settings_daily_reminder_hour';
+  static const _kDailyReminderMinute = 'settings_daily_reminder_minute';
+  static const _kBackupReminder = 'settings_backup_reminder_enabled';
 
   static AppSettings fromPrefs(SharedPreferences prefs) {
     final styleName = prefs.getString(_kNumberStyle);
@@ -150,6 +184,10 @@ class AppSettings {
       hideBalances: prefs.getBool(_kHideBalances) ?? false,
       quickAddNotification: prefs.getBool(_kQuickAddNotification) ?? false,
       autoSyncGoogleSheets: prefs.getBool(_kAutoSyncGoogleSheets) ?? false,
+      dailyReminderEnabled: prefs.getBool(_kDailyReminder) ?? false,
+      dailyReminderHour: prefs.getInt(_kDailyReminderHour) ?? 20,
+      dailyReminderMinute: prefs.getInt(_kDailyReminderMinute) ?? 0,
+      backupReminderEnabled: prefs.getBool(_kBackupReminder) ?? false,
       firstDayOfWeek: prefs.getInt(_kFirstDay) ?? DateTime.monday,
     );
   }
@@ -162,6 +200,10 @@ class AppSettings {
     await prefs.setBool(_kHideBalances, hideBalances);
     await prefs.setBool(_kQuickAddNotification, quickAddNotification);
     await prefs.setBool(_kAutoSyncGoogleSheets, autoSyncGoogleSheets);
+    await prefs.setBool(_kDailyReminder, dailyReminderEnabled);
+    await prefs.setInt(_kDailyReminderHour, dailyReminderHour);
+    await prefs.setInt(_kDailyReminderMinute, dailyReminderMinute);
+    await prefs.setBool(_kBackupReminder, backupReminderEnabled);
     await prefs.setInt(_kFirstDay, firstDayOfWeek);
   }
 
@@ -175,6 +217,21 @@ class AppSettings {
       hideBalances: hideBalances,
     );
     AppHaptics.enabled = hapticsEnabled;
+
+    if (!kIsWeb) {
+      final notif = NotificationService();
+      if (dailyReminderEnabled) {
+        notif.scheduleDailyReminder(hour: dailyReminderHour, minute: dailyReminderMinute);
+      } else {
+        notif.cancelDailyReminder();
+      }
+
+      if (backupReminderEnabled) {
+        notif.scheduleWeeklyBackupReminder();
+      } else {
+        notif.cancelWeeklyBackupReminder();
+      }
+    }
   }
 
   /// Loads saved settings and applies them. Call once before `runApp`.
