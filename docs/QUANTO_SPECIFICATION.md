@@ -352,3 +352,10 @@ lib/
   - Added `autoSyncGoogleSheets` preference to `AppSettings` (`app_settings_provider.dart`), enabling non-blocking background auto-sync to Google Sheets whenever transactions are added.
   - Added "Copy Google Sheet link" action to `GoogleSheetsSyncScreen` to quickly open or share the spreadsheet.
   - Configured OAuth scopes: `email`, `https://www.googleapis.com/auth/drive.file`, and `https://www.googleapis.com/auth/spreadsheets`.
+- [x] **Phase 26: On-Device Local Scheduled Reminders (Daily Expense & Weekly Backup)**
+  - Added `NotificationService` (`lib/core/services/notification_service.dart`) utilizing `flutter_local_notifications` and `timezone` for purely offline, local scheduled notifications without any external push server dependencies.
+  - **Daily Expense Reminder**: Customizable time picker in Settings (defaults to 8:00 PM), reminding users to log their day's expenses (`Flow Expense: Don't forget to record your spending for today! 💸`).
+  - **Weekly Backup Reminder**: Automated recurring reminder scheduled every Sunday at 8:00 PM (`Flow Expense • Weekly Backup: Time for your weekly check-in! Sync to Google Sheets or backup your data 📊`).
+  - Added interactive "Send test notification" button in Settings to verify notification sound, lock screen banner, and system permissions immediately.
+  - Stored reminder preferences (`dailyReminderEnabled`, `dailyReminderHour`, `dailyReminderMinute`, `backupReminderEnabled`) in `AppSettings` via `shared_preferences`, automatically re-registering or canceling schedules upon settings changes and application startup.
+  - Configured Android `POST_NOTIFICATIONS` permission and inexact idle-aware scheduling mode (`AndroidScheduleMode.inexactAllowWhileIdle`) for battery-friendly operation without requiring restricted exact-alarm permissions.
