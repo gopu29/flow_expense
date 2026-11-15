@@ -15,6 +15,7 @@ import '../widgets/settings_tiles.dart';
 import '../../../core/services/android_shortcuts_service.dart';
 import 'android_shortcuts_guide_screen.dart';
 import 'back_tap_guide_screen.dart';
+import 'google_sheets_sync_screen.dart';
 
 /// Settings screen grouped like Quanto: General, Automations, Preferences,
 /// Privacy & security, and Data.
@@ -140,8 +141,17 @@ class SettingsScreen extends ConsumerWidget {
             const SettingsSectionLabel('Data'),
             SettingsGroup(children: [
               SettingsNavTile(
+                icon: Icons.table_chart_outlined,
+                title: 'Google Sheets sync',
+                value: 'Macro',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const GoogleSheetsSyncScreen()),
+                ),
+              ),
+              SettingsNavTile(
                 icon: Icons.description_outlined,
-                title: 'Export data',
+                title: 'Export data (CSV)',
                 onTap: () => _exportCsv(context, ref),
               ),
               SettingsNavTile(

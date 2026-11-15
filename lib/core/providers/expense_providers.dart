@@ -139,6 +139,13 @@ class TransactionsNotifier extends AsyncNotifier<List<Transaction>> {
     ref.invalidate(accountsProvider);
   }
 
+  Future<void> addTransactions(List<Transaction> txs) async {
+    final repo = ref.read(repositoryProvider);
+    await repo.addTransactions(txs);
+    ref.invalidateSelf();
+    ref.invalidate(accountsProvider);
+  }
+
   Future<void> deleteTransaction(Transaction tx) async {
     final repo = ref.read(repositoryProvider);
     await repo.deleteTransaction(tx);

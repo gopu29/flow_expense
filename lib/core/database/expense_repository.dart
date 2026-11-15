@@ -210,6 +210,45 @@ class ExpenseRepository {
     });
   }
 
+  /// Adds a list of transactions in a single batch and updates account balances.
+  Future<void> addTransactions(List<Transaction> txs) async {
+    if (txs.isEmpty) return;
+    if (kIsWeb) {
+      for (final tx in txs) {
+        _webStore.addTransaction(tx);
+      }
+      return;
+    }
+
+    final db = await _dbHelper.database;
+    await db.transaction((txn) async {
+      for (final tx in txs) {
+        await txn.insert('transactions', tx.toMap());
+
+        if (tx.type == TransactionType.expense) {
+          await txn.rawUpdate(
+            'UPDATE accounts SET balance = balance - ? WHERE id = ?',
+            [tx.amount, tx.accountId],
+          );
+        } else if (tx.type == TransactionType.income) {
+          await txn.rawUpdate(
+            'UPDATE accounts SET balance = balance + ? WHERE id = ?',
+            [tx.amount, tx.accountId],
+          );
+        } else if (tx.type == TransactionType.transfer && tx.toAccountId != null) {
+          await txn.rawUpdate(
+            'UPDATE accounts SET balance = balance - ? WHERE id = ?',
+            [tx.amount, tx.accountId],
+          );
+          await txn.rawUpdate(
+            'UPDATE accounts SET balance = balance + ? WHERE id = ?',
+            [tx.amount, tx.toAccountId],
+          );
+        }
+      }
+    });
+  }
+
   /// Deletes a transaction and restores account balances.
   Future<void> deleteTransaction(Transaction tx) async {
     if (kIsWeb) {
