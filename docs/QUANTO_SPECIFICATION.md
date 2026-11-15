@@ -349,4 +349,6 @@ lib/
   - Integrated `google_sign_in` and created `GoogleDriveSheetsService` (`lib/core/services/google_drive_sheets_service.dart`) using OAuth 2.0 and direct Google Sheets & Drive REST APIs.
   - Automatically queries Google Drive for "Flow Expense Tracker" and creates it with styled headers on first sync, eliminating manual Apps Script macro setup for standard users.
   - Added dual-mode segmented switcher to `GoogleSheetsSyncScreen` allowing users to choose between 1-Tap Google Account sync and custom anonymous Apps Script macro URLs.
+  - Added `autoSyncGoogleSheets` preference to `AppSettings` (`app_settings_provider.dart`), enabling non-blocking background auto-sync to Google Sheets whenever transactions are added.
+  - Added "Copy Google Sheet link" action to `GoogleSheetsSyncScreen` to quickly open or share the spreadsheet.
   - Configured OAuth scopes: `email`, `https://www.googleapis.com/auth/drive.file`, and `https://www.googleapis.com/auth/spreadsheets`.
