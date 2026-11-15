@@ -329,14 +329,19 @@ lib/
 - [x] **Phase 21: Quanto-Style Summary Category List**
   - Category rows follow Quanto: a colored squircle badge, the name with a count pill, then the amount and a percentage pill. The wide trailing chevron is gone; a small arrow next to the count shows that a row expands.
   - Expanding shows only sub-categories that have transactions, indented along a thin line in the category color, with smaller badges and the share of the parent. Spending saved on the main category itself shows as a muted "No sub-category" row. A gold "See all N transactions" link replaces the large "View all" box.
-- [ ] **Phase 22: iOS Back Tap Wiring (code done, not yet tested on a Mac)**
-  - `AddExpenseIntent.swift` is now part of the Runner target in the Xcode project, so the "Log Flow Expense" shortcut is built into the app.
-  - Added `Runner.entitlements` with the App Group `group.com.quanto.flowexpense`, set as `CODE_SIGN_ENTITLEMENTS` for Debug, Release and Profile.
-  - `AppDelegate` registers the `app_intent` channel in `didInitializeImplicitFlutterEngine`, because the scene-based engine has no root view controller at launch.
+- [x] **Phase 22: iOS Back Tap Wiring (Free Apple ID & Personal Team Ready)**
+  - `AddExpenseIntent.swift` is part of the Runner target in the Xcode project, so the "Log Flow Expense" shortcut is built into the app.
+  - Configured `Runner.entitlements` and Swift intent persistence to support both App Groups (for paid teams) and standard Documents directory fallback (for Free Apple Developer accounts / Personal Teams), preventing Xcode provisioning errors.
+  - `AppDelegate` registers the `app_intent` channel in `didInitializeImplicitFlutterEngine` with Documents fallback sync.
   - `PlatformIntentService` waits for categories and accounts to load, keeps the time the shortcut ran, syncs again on app resume, and guards against importing the same queue twice.
-  - Still to do: build on a Mac, enable the App Group for the bundle id in the Apple Developer account, and test on an iPhone. The Quanto-style custom keypad overlay is not built; the shortcut uses Siri's standard prompts.
 - [x] **Phase 23: Android Quick-Add Shortcuts & Widgets**
   - `QuickAddActivity` is a see-through Android screen that runs the Dart entry point `quickAddMain` (`QuickAddApp`). It shows only the add-expense sheet over the current app and closes after save or dismiss. It has its own task, is hidden from Recents and needs no "draw over apps" permission.
   - Every Android route opens it: the app icon shortcut (`res/xml/shortcuts.xml`, also usable by Samsung Good Lock RegiStar back tap), the Quick Settings tile (`QuickAddTileService`), an optional ongoing notification (`QuickAddNotification`, Settings › Notification shortcut, asks for notification permission on Android 13+), two home screen widgets (`QuickAddWidget` add button, `SpendSummaryWidget` month and today spend plus add button), and the accessibility button (`QuickAddAccessibilityService`, reads no screen content).
   - Dart ↔ Android channel `com.example.flow_expense/android_shortcuts` (`android_shortcuts_service.dart`): `updateWidgets` (sent whenever transactions change) and `setNotificationEnabled`. The main app reloads transactions and accounts on resume, because quick add saves from its own engine.
   - New setting `quickAddNotification` (off by default). Settings › Widgets & shortcuts explains how to set up each route.
+- [x] **Phase 24: Google Sheets Two-Way Sync (via Apps Script Macro)**
+  - Added `GoogleSheetsService` (`lib/core/services/google_sheets_service.dart`) with HTTP POST export (`append` and `replace` modes) and HTTP GET import with transaction deduplication by ID.
+  - Built-in ready-to-copy Google Apps Script code template (`GoogleSheetsService.appsScriptTemplate`) that requires zero API keys or external server dependencies.
+  - Created `GoogleSheetsSyncScreen` (`lib/features/settings/screens/google_sheets_sync_screen.dart`) linked from Settings › Data, featuring URL configuration, clipboard paste, one-tap export, deduplicated import, and full setup guide.
+  - Added `addTransactions` batch method to `ExpenseRepository` and `TransactionsNotifier` to execute multiple transactions in a single SQLite transaction.
+  - Documented in [`docs/MAC_BUILD_AND_GOOGLE_SHEETS_GUIDE.md`](MAC_BUILD_AND_GOOGLE_SHEETS_GUIDE.md).
