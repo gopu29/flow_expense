@@ -60,13 +60,17 @@ class _MainShellState extends ConsumerState<MainShell> {
     // Amounts are formatted by static helpers, so rebuild every tab when a
     // display setting changes.
     final settings = ref.watch(appSettingsProvider);
-    final screens = const <Widget>[
-      ActivityScreen(),
-      SummaryScreen(),
-      BudgetScreen(),
-      AnalyticsScreen(),
-      AccountsScreen(),
-    ].map((screen) => KeyedSubtree(key: ValueKey(settings), child: screen)).toList();
+    final screens = <Widget>[
+      const ActivityScreen(),
+      const SummaryScreen(),
+      const BudgetScreen(),
+      const AnalyticsScreen(),
+      const AccountsScreen(),
+    ]
+        .map((screen) => KeyedSubtree(
+            key: ValueKey('${screen.runtimeType}_${settings.hashCode}'),
+            child: screen))
+        .toList();
 
     final bottomInset = MediaQuery.of(context).padding.bottom;
     final dockBottom = bottomInset > 0 ? bottomInset + 8 : 16.0;

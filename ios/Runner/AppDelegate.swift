@@ -22,7 +22,12 @@ import UIKit
     guard let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "FlowExpenseAppIntent") else {
       return
     }
-    let channel = FlutterMethodChannel(name: channelName, binaryMessenger: registrar.messenger())
+    setupMethodChannel(messenger: registrar.messenger())
+  }
+
+  private func setupMethodChannel(messenger: FlutterBinaryMessenger) {
+    guard intentChannel == nil else { return }
+    let channel = FlutterMethodChannel(name: channelName, binaryMessenger: messenger)
     channel.setMethodCallHandler { [weak self] call, result in
       guard let self = self else { return }
       switch call.method {
@@ -31,6 +36,20 @@ import UIKit
       case "clearPendingIntents":
         self.clearPendingIntents()
         result(true)
+      case "openURL":
+        if let urlString = call.arguments as? String, let url = URL(string: urlString) {
+          UIApplication.shared.open(url, options: [:], completionHandler: nil)
+          result(true)
+        } else {
+          result(false)
+        }
+      case "openSettings":
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+          UIApplication.shared.open(url, options: [:], completionHandler: nil)
+          result(true)
+        } else {
+          result(false)
+        }
       default:
         result(FlutterMethodNotImplemented)
       }

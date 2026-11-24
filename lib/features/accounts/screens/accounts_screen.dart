@@ -58,8 +58,9 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (ctx) => StatefulBuilder(
-        builder: (context, setSheetState) => Padding(
+      builder: (ctx) => Consumer(
+        builder: (context, ref, _) => StatefulBuilder(
+          builder: (context, setSheetState) => Padding(
           padding: EdgeInsets.only(
             left: 20,
             right: 20,
@@ -348,7 +349,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
                                   .read(accountsProvider.notifier)
                                   .addAccount(newAccount);
                               AppHaptics.mediumImpact();
-                              if (context.mounted) Navigator.pop(ctx);
+                              if (ctx.mounted) Navigator.pop(ctx);
                             } catch (e) {
                               setSheetState(() {
                                 isSubmitting = false;
@@ -388,8 +389,9 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   // Show Account Details and Options Sheet
   void _showAccountDetailsSheet(Account account) {
@@ -398,17 +400,18 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
       isScrollControlled: true,
       useSafeArea: true,
       backgroundColor: Colors.transparent,
-      builder: (ctx) {
-        final transactionsAsync = ref.watch(transactionsProvider);
-        final categoriesAsync = ref.watch(categoriesProvider);
-        final categories = categoriesAsync.value ?? [];
+      builder: (ctx) => Consumer(
+        builder: (context, ref, _) {
+          final transactionsAsync = ref.watch(transactionsProvider);
+          final categoriesAsync = ref.watch(categoriesProvider);
+          final categories = categoriesAsync.value ?? [];
 
-        final accountTxs = transactionsAsync.maybeWhen(
-          data: (txs) => txs.where((t) => t.accountId == account.id).toList(),
-          orElse: () => <Transaction>[],
-        );
+          final accountTxs = transactionsAsync.maybeWhen(
+            data: (txs) => txs.where((t) => t.accountId == account.id).toList(),
+            orElse: () => <Transaction>[],
+          );
 
-        return Container(
+          return Container(
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               begin: Alignment.topCenter,
@@ -790,8 +793,9 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
           ),
         );
       },
-    );
-  }
+    ),
+  );
+}
 
   // Edit Balance Dialog
   void _showEditBalanceDialog(Account account) {
@@ -897,7 +901,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
           ElevatedButton(
             onPressed: () async {
               await ref.read(accountsProvider.notifier).deleteAccount(account.id);
-              if (context.mounted) Navigator.pop(ctx);
+              if (ctx.mounted) Navigator.pop(ctx);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFF87171),

@@ -4,8 +4,8 @@ import Foundation
 /// Modern iOS AppIntent enabling zero-friction expense addition via Back Tap,
 /// Siri Shortcuts, Action Button, and Control Center widgets (iOS 16+).
 @available(iOS 16.0, *)
-struct AddExpenseIntent: AppIntent {
-    static var title: LocalizedStringResource = "Log Flow Expense"
+struct LogExpenseIntent: AppIntent {
+    static var title: LocalizedStringResource = "Flow Expense Log"
     static var description = IntentDescription("Instantly logs an expense to Flow Expense without opening the full dashboard.")
 
     static var openAppWhenRun: Bool = false
@@ -73,18 +73,21 @@ struct AddExpenseIntent: AppIntent {
     }
 }
 
+@available(iOS 16.0, *)
+typealias AddExpenseIntent = LogExpenseIntent
+
 /// AppShortcutsProvider to register Flow Expense in the iOS Shortcuts & Back Tap menus.
 @available(iOS 16.0, *)
 struct FlowExpenseShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(
-            intent: AddExpenseIntent(),
+            intent: LogExpenseIntent(),
             phrases: [
                 "Log expense in \(.applicationName)",
                 "Add expense to \(.applicationName)",
-                "Quick spend in \(.applicationName)"
+                "Flow Expense Log in \(.applicationName)"
             ],
-            shortTitle: "Quick Log Expense",
+            shortTitle: "Flow Expense Log",
             systemImageName: "plus.circle.fill"
         )
     }
