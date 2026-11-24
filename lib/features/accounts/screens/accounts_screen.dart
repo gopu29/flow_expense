@@ -37,6 +37,8 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
     final balanceController = TextEditingController(text: '0');
     AccountType selectedType = AccountType.bank;
     String selectedIcon = '🏦';
+    String? nameError;
+    bool isSubmitting = false;
 
     final availableIcons = ['🏦', '💵', '💳', '🪙', '📈', '💎', '💼', '🏠', '🚗', '🛍️'];
 
@@ -108,10 +110,21 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
                 TextField(
                   controller: nameController,
                   autofocus: true,
+                  textCapitalization: TextCapitalization.words,
                   style: const TextStyle(color: Colors.white, fontSize: 16),
+                  onChanged: (_) {
+                    if (nameError != null) {
+                      setSheetState(() => nameError = null);
+                    }
+                  },
                   decoration: InputDecoration(
                     hintText: 'e.g. Main Bank, Cash, Credit Card',
                     hintStyle: const TextStyle(color: Color(0xFF4B5E73)),
+                    errorText: nameError,
+                    errorStyle: const TextStyle(
+                      color: Color(0xFFF87171),
+                      fontSize: 12,
+                    ),
                     filled: true,
                     fillColor: const Color(0xFF162330),
                     contentPadding: const EdgeInsets.symmetric(
@@ -125,6 +138,14 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                       borderSide: const BorderSide(color: Color(0xFFD9B77E)),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(color: Color(0xFFF87171)),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(color: Color(0xFFF87171), width: 1.5),
                     ),
                   ),
                 ),
@@ -283,41 +304,83 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
                   width: double.infinity,
                   height: 50,
                   child: ElevatedButton(
-                    onPressed: () async {
-                      final name = nameController.text.trim();
-                      if (name.isEmpty) return;
-                      final balance =
-                          double.tryParse(balanceController.text) ?? 0.0;
+                    onPressed: isSubmitting
+                        ? null
+                        : () async {
+                            final name = nameController.text.trim();
+                            if (name.isEmpty) {
+                              AppHaptics.lightImpact();
+                              setSheetState(() {
+                                nameError = 'Please enter an account name';
+                              });
+                              return;
+                            }
 
-                      final newAccount = Account(
-                        id: const Uuid().v4(),
-                        name: name,
-                        type: selectedType,
-                        balance: balance,
-                        icon: selectedIcon,
-                        currency: 'INR',
-                      );
+                            setSheetState(() => isSubmitting = true);
 
-                      await ref
-                          .read(accountsProvider.notifier)
-                          .addAccount(newAccount);
-                      if (context.mounted) Navigator.pop(ctx);
-                    },
+                            try {
+                              final cleanBalance = balanceController.text
+                                  .replaceAll(',', '')
+                                  .replaceAll(' ', '')
+                                  .trim();
+                              final balance = double.tryParse(cleanBalance) ?? 0.0;
+
+                              final accounts =
+                                  ref.read(accountsProvider).value ?? [];
+                              final nextOrderIndex = accounts.isEmpty
+                                  ? 0
+                                  : (accounts
+                                          .map((a) => a.orderIndex)
+                                          .reduce((a, b) => a > b ? a : b) +
+                                      1);
+
+                              final newAccount = Account(
+                                id: const Uuid().v4(),
+                                name: name,
+                                type: selectedType,
+                                balance: balance,
+                                icon: selectedIcon,
+                                currency: 'INR',
+                                orderIndex: nextOrderIndex,
+                              );
+
+                              await ref
+                                  .read(accountsProvider.notifier)
+                                  .addAccount(newAccount);
+                              AppHaptics.mediumImpact();
+                              if (context.mounted) Navigator.pop(ctx);
+                            } catch (e) {
+                              setSheetState(() {
+                                isSubmitting = false;
+                                nameError = 'Error saving account: $e';
+                              });
+                            }
+                          },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFD9B77E),
                       foregroundColor: const Color(0xFF0F172A),
+                      disabledBackgroundColor: const Color(0xFFD9B77E).withValues(alpha: 0.5),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25),
                       ),
                       elevation: 0,
                     ),
-                    child: const Text(
-                      'Create Account',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: isSubmitting
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Color(0xFF0F172A),
+                            ),
+                          )
+                        : const Text(
+                            'Create Account',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ),
                 ),
               ],
