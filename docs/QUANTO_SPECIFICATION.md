@@ -359,3 +359,9 @@ lib/
   - Added interactive "Send test notification" button in Settings to verify notification sound, lock screen banner, and system permissions immediately.
   - Stored reminder preferences (`dailyReminderEnabled`, `dailyReminderHour`, `dailyReminderMinute`, `backupReminderEnabled`) in `AppSettings` via `shared_preferences`, automatically re-registering or canceling schedules upon settings changes and application startup.
   - Configured Android `POST_NOTIFICATIONS` permission and inexact idle-aware scheduling mode (`AndroidScheduleMode.inexactAllowWhileIdle`) for battery-friendly operation without requiring restricted exact-alarm permissions.
+- [x] **Phase 27: Account Creation Validation & Feedback**
+  - Added inline validation and error messaging to the "New Account" bottom sheet in `AccountsScreen`.
+  - Replaced silent `if (name.isEmpty) return;` with an error state, showing a red border and helper message (`Please enter an account name`) if the user taps "Create Account" with an empty field.
+  - Sanitized starting balance parsing to handle formatted input containing commas or spaces.
+  - Automatically calculates `orderIndex` so newly created accounts appear cleanly at the end of the reorderable list.
+  - Added a loading indicator to the "Create Account" button and haptic feedback on success.
